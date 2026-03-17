@@ -1,0 +1,81 @@
+/* Variables de marca */
+:root {
+    --color-primario: #FDB7D7; /* reemplaza */
+    --color-secundario: #F674AE;
+    --color-fondo: #f8f7f3;
+    --color-texto: #575756;
+}
+
+/* Fuente general */
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background: #f4f6f9; 
+}
+
+/* Contenedor centrado */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* altura completa */
+}
+
+/* Caja de login */
+.login-box {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    width: 350px;
+    box-shadow: 0 0 15px rgba(253, 183, 215);
+}
+
+/* Título */
+.login-box h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Inputs */
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.input-group input {
+    width: 98%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--color-primario);
+}
+
+/* Botón */
+button {
+    width: 105%;
+    padding: 10px;
+    background: var(--color-primario); 
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Hover botón */
+button:hover {
+    background: var(--color-secundario);
+}
+
+/* Error */
+.error {
+    color: #FFB390;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.colorgris {
+    color: var(--color-texto);
+}
