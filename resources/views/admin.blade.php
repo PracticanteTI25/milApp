@@ -6,7 +6,7 @@
 @section('title', 'Panel')
 
 @section('content_header')
-<h1 class="colorgris">Panel Administrativo</h1>
+<h1 class="colorgris body">Panel Administrativo</h1>
 @stop
 
 @section('content')
@@ -14,7 +14,7 @@
 <div class="row">
 
     {{-- Tarjeta ejemplo --}}
-    <div class="col-md-3">
+    <div class="col-md-3 body">
         <div class="small-box bg-mi-color">
             <div class="inner">
                 <h3>Usuarios</h3>

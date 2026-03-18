@@ -6,6 +6,14 @@
 @section('title', 'Usuarios')
 
 @section('content_header')
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+         {{ session('success') }}
+        <button type="button" class="close" data-dismiss="alert">
+            <span>&times;</span>
+        </button>
+    </div>
+@endif
 <h1 class="colorgris">Gestión de Usuarios</h1>
 @stop
 
@@ -37,7 +45,8 @@
                     <form action="/usuarios/{{ $u['id'] }}" method="POST" style="display:inline;">
                         @csrf
                         @method('DELETE')
-                        <button class="btn btn-naranja">Eliminar</button>
+                        <button onclick="return confirm('¿Seguro que deseas eliminar este usuario?')"
+                            class="btn btn-naranja">Eliminar</button>
                     </form>
                 </td>
             </tr>

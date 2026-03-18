@@ -9,7 +9,7 @@
 /* Fuente general */
 body {
     margin: 0;
-    font-family: 'Roboto', sans-serif;
+    font-family: "Source Sans Pro 1";
     background: #f4f6f9; 
 }
 
@@ -23,7 +23,7 @@ body {
 
 /* Caja de login */
 .login-box {
-    background: white;
+    background: #ffffff;
     padding: 40px;
     border-radius: 10px;
     width: 350px;
@@ -58,7 +58,7 @@ button {
     width: 105%;
     padding: 10px;
     background: var(--color-primario); 
-    color: white;
+    color: #ffffff;
     border: none;
     border-radius: 5px;
     cursor: pointer;

@@ -4,6 +4,7 @@
     --color-secundario: #F674AE;
     --color-fondo: #f8f7f3;
     --color-texto: #575756;
+    --fuente-texto: "Source Sans Pro 1";
 }
 
 /* Navbar superior */
@@ -13,7 +14,8 @@
 
 /* Sidebar */
 .main-sidebar {
-    background-color: #F674AE !important; /* puedes cambiar */
+    background-color: #F674AE !important; 
+    font-family: var(--fuente-texto);
 }
 
 /* Links del sidebar */
@@ -130,4 +132,8 @@ select:focus {
 textarea:focus {
     border-color: var(--color-primario);
     box-shadow: 0 0 5px rgba(246, 116, 174);
+}
+
+.body {
+    font-family: var(--fuente-texto);
 }

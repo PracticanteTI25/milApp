@@ -41,7 +41,8 @@ class UsuarioController extends Controller
             'rol' => $request->rol
         ]);
 
-        return redirect('/usuarios')->with('success', 'Usuario creado');
+        return redirect()->route('usuarios.index')
+            ->with('success', 'Usuario creado correctamente');
     }
 
     // Editar
@@ -78,7 +79,7 @@ class UsuarioController extends Controller
 
         $usuario->update($datos);
 
-        return redirect('/usuarios')->with('success', 'Usuario actualizado');
+        return redirect('/usuarios')->with('success', 'Usuario actualizado correctamente');
     }
 
     // Eliminar
@@ -86,6 +87,6 @@ class UsuarioController extends Controller
     {
         Usuario::destroy($id);
 
-        return redirect('/usuarios')->with('success', 'Usuario eliminado');
+        return redirect('/usuarios')->with('success', 'Usuario eliminado correctamente');
     }
 }
