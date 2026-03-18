@@ -13,6 +13,7 @@ class AuthController extends Controller
     {
         // Si ya hay sesión activa, no permitir volver al login
         if (session()->has('user')) {
+
             return redirect('/admin');
         }
 
@@ -24,20 +25,20 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        // Validamos datos
+        // Validamos datos del formulario
         $request->validate([
             'user' => 'required',
             'password' => 'required'
         ]);
 
-        // SIMULACIÓN (luego LDAP)
+        // SIMULACIÓN (luego LDAP o base de datos)
         if ($request->user == 'admin' && $request->password == '123') {
 
             // Guardamos sesión
             session([
                 'user' => [
                     'nombre' => $request->user,
-                    'rol' => 'Admin' // temporal por ahora
+                    'rol' => 'Admin'
                 ]
             ]);
 
@@ -55,7 +56,11 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        session()->flush();  //elimina toda la sesion
+        // Obtener usuario antes de destruir sesión
+        $usuario = session('user.nombre');
+
+        // Eliminar toda la sesión
+        session()->flush();
 
         return redirect('/login');
     }

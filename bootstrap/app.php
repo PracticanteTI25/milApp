@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth.custom' => \App\Http\Middleware\AuthCustom::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'recaptcha' => \App\Http\Middleware\VerifyRecaptcha::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

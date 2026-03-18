@@ -19,7 +19,7 @@ Route::get('/', function () {
 Route::get('/login', [AuthController::class, 'showLogin']);
 
 // Procesar login
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('recaptcha');
 
 // Cerrar sesión
 Route::get('/logout', [AuthController::class, 'logout']);
@@ -67,4 +67,8 @@ Route::middleware(['auth.custom', 'role:Admin'])->group(function () {
 
     Route::delete('/usuarios/{id}', [UsuarioController::class, 'destroy'])
         ->name('usuarios.destroy');
+});
+
+Route::get('/reportes', function () {
+    return view('reportes.index');
 });

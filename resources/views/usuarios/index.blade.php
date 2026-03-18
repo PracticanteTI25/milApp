@@ -14,7 +14,7 @@
         </button>
     </div>
 @endif
-<h1 class="colorgris">Gestión de Usuarios</h1>
+<h1 class="colorgris body">Gestión de Usuarios</h1>
 @stop
 
 @section('content')

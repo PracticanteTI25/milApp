@@ -320,6 +320,12 @@ return [
         ],
 
         [
+            'text' => 'Reportes',
+            'url' => 'reportes',
+            'icon' => 'fas fa-chart-bar',
+        ],
+
+        [
             'text' => 'Cerrar sesión',
             'url' => 'logout',
             'icon' => 'fas fa-sign-out-alt',

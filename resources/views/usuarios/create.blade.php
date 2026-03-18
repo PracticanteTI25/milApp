@@ -15,7 +15,7 @@
 @section('title', 'Crear Usuario')
 
 @section('content_header')
-<h1 class="colorgris">Crear Usuario</h1>
+<h1 class="colorgris body">Crear Usuario</h1>
 @stop
 
 @section('content')

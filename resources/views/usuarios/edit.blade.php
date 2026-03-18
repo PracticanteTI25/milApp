@@ -6,7 +6,7 @@
 @section('title', 'Editar Usuario')
 
 @section('content_header')
-<h1>Editar Usuario</h1>
+<h1 class="body colorgris">Editar Usuario</h1>
 @stop
 
 @section('content')
