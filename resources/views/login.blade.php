@@ -25,7 +25,7 @@
         <!-- Caja de login -->
         <div class="login-box">
 
-            <h2>Iniciar sesión</h2>
+            <h2>Iniciar sesiónnnnn</h2>
 
             <!-- Formulario -->
             <form action="/login" method="POST">
