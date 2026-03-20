@@ -72,3 +72,8 @@ Route::middleware(['auth.custom', 'role:Admin'])->group(function () {
 Route::get('/reportes', function () {
     return view('reportes.index');
 });
+
+
+Route::get('/db-test', function () {
+    return DB::connection()->getDatabaseName();
+});
