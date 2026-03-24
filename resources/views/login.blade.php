@@ -24,7 +24,7 @@
         <!-- Caja de login -->
         <div class="login-box">
 
-            <h2>Iniciar sesión milApp</h2>
+            <h2>Iniciar sesión pruebita</h2>
 
             <!-- Formulario -->
             <form action="/login" method="POST">
