@@ -1,41 +1,70 @@
+@extends('adminlte::page')
+
+@section('title', 'Crear Usuario')
+
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 @stop
+
+@section('content_header')
+<h1 class="colorgris body text-center text-md-left">Crear Usuario</h1>
+@stop
+
+@section('content')
+
 @if ($errors->any())
     <div class="alert alert-danger">
-        <ul>
+        <ul class="mb-0">
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
     </div>
 @endif
-@extends('adminlte::page')
 
-@section('title', 'Crear Usuario')
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
 
-@section('content_header')
-<h1 class="colorgris body">Crear Usuario</h1>
-@stop
+        <div class="card shadow-sm">
+            <div class="card-body">
 
-@section('content')
+                <form action="{{ route('usuarios.store') }}" method="POST">
+                    @csrf
 
-<form action="{{ route('usuarios.store') }}" method="POST" class="login-box">
-    @csrf
+                    <div class="form-group">
+                        <input type="text" name="nombre" placeholder="Nombre" class="form-control" required>
+                    </div>
 
-    <input type="text" name="nombre" placeholder="Nombre" class="form-control mb-2 input-group" required>
-    <input type="text" name="apellido" placeholder="Apellido" class="form-control mb-2 input-group" required>
-    <input type="email" name="correo" placeholder="Correo" class="form-control mb-2 input-group" required>
-    <select name="rol" class="form-control mb-2 input-group" required>
-        <option value="">Seleccione rol</option>
-        <option value="Admin">Admin</option>
-        <option value="Directivo">Directivo</option>
-        <option value="Marketing">Marketing</option>
-        <option value="Comercial">Comercial</option>
-    </select>
-    <input type="password" name="password" placeholder="Contraseña" class="form-control mb-2 input-group" required>
+                    <div class="form-group">
+                        <input type="text" name="apellido" placeholder="Apellido" class="form-control" required>
+                    </div>
 
-    <button class="btn btn-primary">Guardar</button>
-</form>
+                    <div class="form-group">
+                        <input type="email" name="correo" placeholder="Correo" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <select name="rol" class="form-control" required>
+                            <option value="">Seleccione rol</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Directivo">Directivo</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Comercial">Comercial</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="password" name="password" placeholder="Contraseña" class="form-control" required>
+                    </div>
+
+                    <button class="btn btn-primary btn-block">Guardar</button>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
 
 @stop

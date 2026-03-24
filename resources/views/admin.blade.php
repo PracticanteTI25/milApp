@@ -1,9 +1,10 @@
-@section('css')
-<link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-@stop
 @extends('adminlte::page')
 
 @section('title', 'Panel')
+
+@section('css')
+<link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+@stop
 
 @section('content_header')
 <h1 class="colorgris body">Panel Administrativo</h1>
@@ -11,21 +12,32 @@
 
 @section('content')
 
-<div class="row">
+<div class="container-fluid">
 
-    {{-- Tarjeta ejemplo --}}
-    <div class="col-md-3 body">
-        <div class="small-box bg-mi-color">
-            <div class="inner">
-                <h3>Usuarios</h3>
-                <a href="{{ route('usuarios.index') }}" class="btn btn-light btn-sm mt-2 btn-rosaClaro">
-                    Gestionar
-                </a>
+    <div class="row">
+
+        <div class="col-12 col-sm-6 col-md-6 col-lg-3 mb-4">
+
+            <div class="small-box bg-mi-color">
+
+                <div class="inner">
+                    <h3 class="mb-2">Usuarios</h3>
+                </div>
+
+                <div class="px-3 pb-3">
+                    <a href="{{ route('usuarios.index') }}" class="btn btn-light btn-sm btn-rosaClaro">
+                        Gestionar
+                    </a>
+                </div>
+
+                <div class="icon">
+                    <i class="fas fa-users"></i>
+                </div>
+
             </div>
-            <div class="icon">
-                <i class="fas fa-users"></i>
-            </div>
+
         </div>
+
     </div>
 
 </div>

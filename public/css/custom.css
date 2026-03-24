@@ -137,3 +137,88 @@ textarea:focus {
 .body {
     font-family: var(--fuente-texto);
 }
+
+.small-box .inner {
+    padding-right: 90px;
+}
+
+.small-box .icon {
+    font-size: 50px;
+    top: 10px;
+    right: 10px;
+    opacity: 0.2;
+}
+
+@media (max-width: 1024px) {
+    .small-box .icon {
+        font-size: 40px;
+    }
+
+    .small-box .inner {
+        padding-right: 60px;
+    }
+}
+
+.small-box .btn {
+    white-space: nowrap;
+}
+
+/* FIX RESPONSIVE GLOBAL */
+.login-box {
+    width: 100% !important;
+    max-width: 500px;
+    margin: auto;
+}
+
+/* Inputs bien */
+.input-group input {
+    width: 100% !important;
+}
+
+/* Botones no se rompan */
+.btn {
+    white-space: nowrap;
+}
+
+/* Tablas */
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* CONTENEDOR DE GRÁFICAS */
+.grafica-box {
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f4f6f9;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+}
+
+/* RESPONSIVE PARA TABLETS */
+@media (max-width: 1024px) {
+
+    .grafica-box {
+        height: 250px;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+}
+
+/* RESPONSIVE PARA CELULAR */
+@media (max-width: 576px) {
+
+    .grafica-box {
+        height: 200px;
+    }
+
+    .small-box h3 {
+        font-size: 20px;
+    }
+
+}
