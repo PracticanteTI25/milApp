@@ -10,7 +10,6 @@
     <!-- Viewport para responsive -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Fuente (puedes cambiarla por la de tu manual de marca) -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 
     <!-- Archivo CSS propio -->
@@ -25,7 +24,7 @@
         <!-- Caja de login -->
         <div class="login-box">
 
-            <h2>Iniciar sesión</h2>
+            <h2>Iniciar sesión milApp</h2>
 
             <!-- Formulario -->
             <form action="/login" method="POST">
