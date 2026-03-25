@@ -2,9 +2,11 @@
 
 @section('title', 'Editar Usuario')
 
-@section('css')
+@section('adminlte_css')
 <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+<link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
 @stop
+
 
 @section('content_header')
 <h1 class="body colorgris text-center text-md-left">Editar Usuario</h1>
