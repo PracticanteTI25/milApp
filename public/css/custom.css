@@ -1,7 +1,7 @@
 /* Variables de marca */
 :root {
-    --color-primario: #FDB7D7; /* reemplaza */
-    --color-secundario: #F674AE;
+    --color-primario: #fdb7d7; /* reemplaza */
+    --color-secundario: #f674ae;
     --color-fondo: #f8f7f3;
     --color-texto: #575756;
     --fuente-texto: "Source Sans Pro 1";
@@ -14,7 +14,7 @@
 
 /* Sidebar */
 .main-sidebar {
-    background-color: #F674AE !important; 
+    background-color: #f674ae !important;
     font-family: var(--fuente-texto);
 }
 
@@ -53,7 +53,7 @@
 }
 
 a:hover {
-  color: var(--color-secundario); 
+    color: var(--color-secundario);
 }
 
 /* Item activo del menú (cuando estás en esa página) */
@@ -70,17 +70,17 @@ a:hover {
 
 /* Card personalizada */
 .bg-mi-color {
-    background-color: white  !important;
+    background-color: white !important;
     color: var(--color-texto) !important;
 }
 
 .btn-amarillo {
-    background-color: #FAE585;
+    background-color: #fae585;
     color: var(--color-texto);
 }
 
 .btn-naranja {
-    background-color: #FFB390;
+    background-color: #ffb390;
     color: var(--color-texto);
 }
 
@@ -114,7 +114,6 @@ a:hover {
     box-shadow: 0 0 15px rgba(253, 183, 215);
 }
 
-
 .form-control:focus {
     border-color: var(--color-primario); /* tu color rosado */
     box-shadow: 0 0 5px rgba(246, 116, 174);
@@ -140,13 +139,6 @@ textarea:focus {
 
 .small-box .inner {
     padding-right: 90px;
-}
-
-.small-box .icon {
-    font-size: 50px;
-    top: 10px;
-    right: 10px;
-    opacity: 0.2;
 }
 
 @media (max-width: 1024px) {
@@ -200,7 +192,6 @@ textarea:focus {
 
 /* RESPONSIVE PARA TABLETS */
 @media (max-width: 1024px) {
-
     .grafica-box {
         height: 250px;
     }
@@ -212,7 +203,6 @@ textarea:focus {
 
 /* RESPONSIVE PARA CELULAR */
 @media (max-width: 576px) {
-
     .grafica-box {
         height: 200px;
     }
@@ -220,5 +210,145 @@ textarea:focus {
     .small-box h3 {
         font-size: 20px;
     }
+}
 
+/* ===============================
+   CONTENEDOR ESTÁNDAR POWER BI
+   =============================== */
+
+.powerbi-wrapper {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 160px); /* Altura dinámica */
+    min-height: 600px;
+    overflow: hidden;
+}
+
+/* Ajuste para pantallas pequeñas */
+@media (max-width: 768px) {
+    .powerbi-wrapper {
+        height: calc(100vh - 120px);
+        min-height: 500px;
+    }
+}
+
+/* Iframe Power BI */
+.powerbi-wrapper iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* ===============================
+   PORTAL DE DASHBOARDS
+   =============================== */
+
+.dashboard-card {
+    transition: all 0.2s ease-in-out;
+    border-radius: 8px;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-card i {
+    color: #e83e8c; /* tu tono corporativo */
+}
+
+/* =========================================
+   Ajuste de iconos en módulos del panel
+   ========================================= */
+
+/* Iconos más visibles en módulos habilitados */
+.small-box.bg-mi-color .icon {
+    opacity: 0.8; /* más visible */
+}
+
+/* Iconos visibles pero suaves en módulos bloqueados */
+.small-box.bg-light .icon {
+    opacity: 0.25; /* menos fantasma */
+}
+
+/* =====================================================
+   Ajuste definitivo de iconos en módulos del panel
+   ===================================================== */
+
+/*
+ * AdminLTE posiciona los iconos de small-box como absolute.
+ * Aquí los controlamos para que:
+ * - No se salgan del recuadro
+ * - No tapen el texto
+ * - Mantengan estilo decorativo
+ */
+
+.small-box {
+    position: relative;
+    overflow: hidden; /* CLAVE: evita que el icono se salga */
+}
+
+/* =====================================================
+   Ajuste final de iconos en módulos del panel
+   ===================================================== */
+
+.small-box {
+    position: relative;
+    overflow: hidden;
+}
+
+.small-box .icon {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    font-size: 4rem; /* MÁS visible */
+    opacity: 0.45; /* visible pero decorativo */
+    pointer-events: none;
+}
+
+/* En pantallas pequeñas */
+@media (max-width: 768px) {
+    .small-box .icon {
+        font-size: 3rem;
+        right: 15px;
+    }
+}
+
+/* Responsive: icono un poco más pequeño en móviles */
+@media (max-width: 768px) {
+    .small-box .icon {
+        font-size: 2.2rem;
+        right: 10px;
+    }
+}
+
+/* =========================================
+OS DEL PANEL (CARDS)
+   ========================================= */
+
+.module-card {
+    border-left: 5px solid var(--color-primario);
+    transition: all 0.2s ease-in-out;
+}
+
+.module-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.12);
+}
+
+.module-card-disabled {
+    background-color: #f8f9fa;
+    border-left: 5px solid #ccc;
+}
+
+.module-icon {
+    font-size: 2.2rem;
+    color: var(--color-secundario);
+}
+
+.module-card-disabled .module-icon {
+    opacity: 0.5;
 }

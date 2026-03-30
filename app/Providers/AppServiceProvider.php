@@ -18,8 +18,10 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
+
     public function boot(): void
-    { 
+    {
         // URL::forceRootUrl('https://milapp.grupomilagros.co/milApp_nuevo/public');
+        // URL::forceScheme('https');
     }
 }

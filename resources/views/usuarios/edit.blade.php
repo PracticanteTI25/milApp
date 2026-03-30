@@ -1,65 +1,44 @@
-@extends('adminlte::page')
+@extends('layouts.admin')
 
-@section('title', 'Editar Usuario')
-
-@section('adminlte_css')
-<link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-<link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-@stop
-
-
-@section('content_header')
-<h1 class="body colorgris text-center text-md-left">Editar Usuario</h1>
-@stop
+@section('title', 'Editar usuario')
 
 @section('content')
+<h1>Editar usuario</h1>
 
-<div class="row justify-content-center">
-    <div class="col-12 col-md-8 col-lg-6">
+<form method="POST" action="{{ route('usuarios.update', $usuario->id) }}">
+    @csrf
+    @method('PUT')
 
-        <div class="card shadow-sm">
-            <div class="card-body">
-
-                <form action="/usuarios/{{ $usuario['id'] }}" method="POST">
-                    @csrf
-                    @method('PUT')
-
-                    <div class="form-group">
-                        <input type="text" name="nombre" value="{{ $usuario['nombre'] }}" class="form-control" required>
-                    </div>
-
-                    <div class="form-group">
-                        <input type="text" name="apellido" value="{{ $usuario['apellido'] }}" class="form-control"
-                            required>
-                    </div>
-
-                    <div class="form-group">
-                        <input type="email" name="correo" value="{{ $usuario['correo'] }}" class="form-control"
-                            required>
-                    </div>
-
-                    <div class="form-group">
-                        <select name="rol" class="form-control" required>
-                            <option {{ $usuario->rol == 'Admin' ? 'selected' : '' }}>Admin</option>
-                            <option {{ $usuario->rol == 'Directivo' ? 'selected' : '' }}>Directivo</option>
-                            <option {{ $usuario->rol == 'Marketing' ? 'selected' : '' }}>Marketing</option>
-                            <option {{ $usuario->rol == 'Comercial' ? 'selected' : '' }}>Comercial</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <input type="password" name="password" placeholder="Nueva contraseña (opcional)"
-                            class="form-control">
-                    </div>
-
-                    <button class="btn btn-primary btn-block">Actualizar</button>
-
-                </form>
-
-            </div>
-        </div>
-
+    <div class="form-group">
+        <label>Nombre</label>
+        <input name="name" class="form-control"
+               value="{{ $usuario->name }}" required>
     </div>
-</div>
 
-@stop
+    <div class="form-group">
+        <label>Rol</label>
+        <select name="role_id" class="form-control">
+            @foreach($roles as $r)
+                <option value="{{ $r->id }}"
+                    @if($usuario->role_id == $r->id) selected @endif>
+                    {{ $r->name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Área</label>
+        <select name="area_id" class="form-control">
+            @foreach($areas as $a)
+                <option value="{{ $a->id }}"
+                    @if($usuario->area_id == $a->id) selected @endif>
+                    {{ $a->name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+
+    <button class="btn btn-success">Actualizar</button>
+</form>
+@endsection

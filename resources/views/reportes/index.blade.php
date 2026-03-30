@@ -1,105 +1,52 @@
-@extends('adminlte::page')
+@extends('layouts.admin')
 
 @section('title', 'Reportes')
 
-@section('adminlte_css')
-<link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-<link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-@stop
-
 @section('content_header')
-<h1 class="body text-center text-md-left">Dashboard de Reportes</h1>
+<h1 class="colorgris body">Portal de Reportes</h1>
 @stop
 
 @section('content')
 
-<div class="container-fluid">
+<div class="row">
 
-    <div class="row">
+    @foreach ($dashboards as $id => $dashboard)
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
 
-        <div class="col-12 col-sm-6 col-md-3 mb-3">
-            <div class="small-box bg-mi-color">
-                <div class="inner">
-                    <h3>150</h3>
-                    <p>Usuarios</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-users"></i>
-                </div>
-            </div>
-        </div>
+            <a href="{{ route('reportes.show', $id) }}" class="text-decoration-none text-dark">
 
-        <div class="col-12 col-sm-6 col-md-3 mb-3">
-            <div class="small-box bg-mi-color">
-                <div class="inner">
-                    <h3>320</h3>
-                    <p>Citas</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-calendar"></i>
-                </div>
-            </div>
-        </div>
+                <div class="card h-100 shadow-sm dashboard-card">
 
-        <div class="col-12 col-sm-6 col-md-3 mb-3">
-            <div class="small-box bg-mi-color">
-                <div class="inner">
-                    <h3>$12K</h3>
-                    <p>Ingresos</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-dollar-sign"></i>
-                </div>
-            </div>
-        </div>
+                    <div class="card-body d-flex flex-column justify-content-between">
 
-        <div class="col-12 col-sm-6 col-md-3 mb-3">
-            <div class="small-box bg-mi-color">
-                <div class="inner">
-                    <h3>85%</h3>
-                    <p>Satisfacción</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-smile"></i>
-                </div>
-            </div>
-        </div>
+                        <div class="text-center mb-3">
+                            <i class="{{ $dashboard['icon'] }} fa-3x text-primary"></i>
+                        </div>
 
-    </div>
+                        <div class="text-center">
+                            <h5 class="card-title mb-1">
+                                {{ $dashboard['title'] }}
+                            </h5>
 
-    <div class="row">
+                            <p class="card-text text-muted small">
+                                {{ $dashboard['description'] }}
+                            </p>
+                        </div>
 
-        <div class="col-12 col-lg-8 mb-3">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h3 class="card-title">Rendimiento General</h3>
-                </div>
-                <div class="card-body">
+                        <div class="text-center mt-3">
+                            <span class="badge badge-light">
+                                Ver tablero
+                            </span>
+                        </div>
 
-                    <div class="grafica-box">
-                        <p>Gráfica de líneas (Power BI)</p>
                     </div>
 
                 </div>
-            </div>
+
+            </a>
+
         </div>
-
-        <div class="col-12 col-lg-4 mb-3">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h3 class="card-title">Distribución</h3>
-                </div>
-                <div class="card-body">
-
-                    <div class="grafica-box">
-                        <p>Gráfica de pastel</p>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-    </div>
+    @endforeach
 
 </div>
 

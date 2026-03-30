@@ -4,27 +4,42 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, ...$roles)
+    /**
+     * Middleware de autorización por rol.
+     *
+     * Uso en rutas:
+     *   ->middleware(['auth.custom', 'role:Admin'])
+     *   ->middleware(['auth.custom', 'role:Admin,Directivo'])
+     */
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        // Obtener usuario de sesión
         $user = session('user');
 
-        // Validar que exista y sea array
-        if (!$user || !is_array($user)) {
-            return redirect('/login');
+        // Usuario no autenticado o sesión corrupta
+        if (!$user || !is_array($user) || empty($user['rol'])) {
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'No autenticado.',
+                ], 401);
+            }
+
+            return redirect()->route('login');
         }
 
-        // Validar que tenga rol
-        if (!isset($user['rol'])) {
-            abort(403, 'Rol no definido');
-        }
+        // Usuario autenticado pero sin rol permitido
+        if (!in_array($user['rol'], $roles, true)) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'No autorizado.',
+                ], 403);
+            }
 
-        // Validar permisos
-        if (!in_array($user['rol'], $roles)) {
-            abort(403, 'No autorizado');
+            abort(403, 'No autorizado.');
         }
 
         return $next($request);

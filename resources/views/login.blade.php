@@ -24,16 +24,17 @@
         <!-- Caja de login -->
         <div class="login-box">
 
-            <h2>Iniciar sesión pruebita</h2>
+            <h2>Iniciar sesión</h2>
 
             <!-- Formulario -->
-            <form action="/login" method="POST">
+
+            <form action="{{ route('login.process') }}" method="POST">
                 @csrf <!-- Protección CSRF -->
 
-                <!-- Usuario -->
+                <!-- Correo electrónico -->
                 <div class="input-group">
-                    <label>Usuario</label>
-                    <input type="text" name="user" required>
+                    <label>Correo electrónico</label>
+                    <input type="email" name="email" value="{{ old('email') }}" required>
                 </div>
 
                 <!-- Contraseña -->
@@ -42,20 +43,26 @@
                     <input type="password" name="password" required>
                 </div>
 
-                <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+                <!-- reCAPTCHA -->
+                <div class="input-group">
+                    <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}">
+                    </div>
+                </div>
 
-                <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
-
-                <br>
                 <!-- Botón -->
                 <button type="submit">Ingresar</button>
 
                 <!-- Mensaje de error -->
                 @if ($errors->any())
-                    <p class="error">{{ $errors->first() }}</p>
+                    <p class="error">
+                        {{ $errors->first() }}
+                    </p>
                 @endif
-
             </form>
+
+            <!-- Script reCAPTCHA (UNA sola vez) -->
+            <script src="https://www.google.com/recaptcha/api.js" async defer>
+            </script>
 
         </div>
     </div>

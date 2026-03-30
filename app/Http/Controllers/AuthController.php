@@ -3,65 +3,68 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
+/**
+ * Controlador de Autenticación
+ *
+ * Maneja el login real de usuarios del sistema.
+ * NO maneja permisos (eso lo hace el middleware).
+ */
 class AuthController extends Controller
 {
     /**
-     * Mostrar formulario login
+     * Muestra el formulario de login.
      */
     public function showLogin()
     {
-        // Si ya hay sesión activa, no permitir volver al login
-        if (session()->has('user')) {
-
-            return redirect('/admin');
-        }
-
         return view('login');
     }
 
     /**
-     * Procesar login
+     * Procesa el login del usuario.
+     *
+     * Seguridad:
+     * - Valida credenciales
+     * - Usa Auth::attempt (hash seguro)
+     * - Regenera sesión (previene session fixation)
      */
     public function login(Request $request)
     {
-        // Validamos datos del formulario
-        $request->validate([
-            'user' => 'required',
-            'password' => 'required'
+        // Validación básica (OWASP: evita inputs inválidos)
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
         ]);
 
-        // SIMULACIÓN (luego LDAP o base de datos)
-        if ($request->user == 'admin' && $request->password == '123') {
+        // Intentar autenticación real
+        if (Auth::attempt($credentials)) {
 
-            // Guardamos sesión
-            session([
-                'user' => [
-                    'nombre' => $request->user,
-                    'rol' => 'Admin'
-                ]
-            ]);
+            // Regenerar sesión por seguridad
+            $request->session()->regenerate();
 
-            return redirect('/admin');
+            return redirect()->route('admin.dashboard');
         }
 
         // Credenciales incorrectas
         return back()->withErrors([
-            'error' => 'Credenciales incorrectas'
+            'email' => 'Correo o contraseña incorrectos',
         ]);
     }
 
     /**
-     * Cerrar sesión
+     * Cierra sesión del usuario.
      */
-    public function logout()
+    public function logout(Request $request)
     {
-        // Obtener usuario antes de destruir sesión
-        $usuario = session('user.nombre');
+        Auth::logout();
 
-        // Eliminar toda la sesión
-        session()->flush();
+        // Invalidar sesión
+        $request->session()->invalidate();
 
-        return redirect('/login');
+        // Regenerar token CSRF
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
     }
 }

@@ -63,7 +63,8 @@ return [
     |
     */
 
-    'logo' => '<img src="/img/logo blanco.png" style="height:40px; margin-left:50px;">',
+    // 'logo' => '<img src="' . asset('img/logo_blanco.png') . '" style="height:40px; margin-left:50px;">',
+    'logo' => '<img src="/img/logo_blanco.png" style="height:40px; margin-left:50px;">',
     'logo_img' => null,
     'logo_img_class' => '',
     'logo_img_xl' => null,

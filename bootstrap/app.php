@@ -10,15 +10,17 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function ($middleware) {
+    ->withMiddleware(function (Middleware $middleware): void {
 
         // Aquí registramos alias de middlewares
         $middleware->alias([
             'auth.custom' => \App\Http\Middleware\AuthCustom::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'recaptcha' => \App\Http\Middleware\VerifyRecaptcha::class,
+            'permission' => \App\Http\Middleware\CheckPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+    ->create();

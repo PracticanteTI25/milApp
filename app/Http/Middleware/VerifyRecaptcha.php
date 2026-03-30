@@ -5,34 +5,83 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Symfony\Component\HttpFoundation\Response;
 
 class VerifyRecaptcha
 {
-    public function handle(Request $request, Closure $next)
+    /**
+     * Middleware para validar Google reCAPTCHA en el login.
+     *
+     * En entorno local (APP_ENV=local) se omite la validación
+     * para no bloquear el desarrollo.
+     */
+    public function handle(Request $request, Closure $next): Response
     {
-        // Verifica que la petición sea POST (login)
-        // y que exista el campo del captcha enviado desde el formulario
-        if ($request->isMethod('post') && $request->has('g-recaptcha-response')) {
+        // En entorno local NO forzamos el uso de reCAPTCHA
+        // Esto permite desarrollar sin bloquear el login.
+        if (app()->environment('local')) {
+            return $next($request);
+        }
 
-            // Se envía la validación a Google
-            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-                'secret' => env('RECAPTCHA_SECRET_KEY'), // clave secreta
-                'response' => $request->input('g-recaptcha-response'), // respuesta del captcha
-            ]);
+        // Solo aplicamos el middleware en peticiones POST
+        if ($request->isMethod('post')) {
+            $captchaToken = $request->input('g-recaptcha-response');
 
-            // Se convierte la respuesta en array
-            $result = $response->json();
+            if (empty($captchaToken)) {
+                return back()
+                    ->withErrors([
+                        'captcha' => 'Confirma que no eres un robot.',
+                    ])
+                    ->withInput();
+            }
 
-            // Si Google dice que no es válido
-            if (!$result['success']) {
-                // Se devuelve al login con error
-                return back()->withErrors([
-                    'captcha' => 'Confirma que no eres un robot'
-                ])->withInput();
+            $secretKey = env('RECAPTCHA_SECRET_KEY');
+
+            if (empty($secretKey)) {
+                return back()
+                    ->withErrors([
+                        'captcha' => 'Error de configuración del sistema. Contacta al administrador.',
+                    ])
+                    ->withInput();
+            }
+
+            try {
+                $response = Http::asForm()->post(
+                    'https://www.google.com/recaptcha/api/siteverify',
+                    [
+                        'secret' => $secretKey,
+                        'response' => $captchaToken,
+                        'remoteip' => $request->ip(),
+                    ]
+                );
+
+                if (!$response->successful()) {
+                    return back()
+                        ->withErrors([
+                            'captcha' => 'No se pudo verificar el captcha. Intenta nuevamente.',
+                        ])
+                        ->withInput();
+                }
+
+                $result = $response->json();
+                $success = $result['success'] ?? false;
+
+                if (!$success) {
+                    return back()
+                        ->withErrors([
+                            'captcha' => 'Confirma que no eres un robot.',
+                        ])
+                        ->withInput();
+                }
+            } catch (\Throwable $e) {
+                return back()
+                    ->withErrors([
+                        'captcha' => 'Ocurrió un error al verificar el captcha. Intenta nuevamente.',
+                    ])
+                    ->withInput();
             }
         }
 
-        // Si todo está bien, continúa con el login normal
         return $next($request);
     }
 }

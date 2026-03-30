@@ -2,91 +2,104 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Role;
+use App\Models\Area;
 use Illuminate\Http\Request;
-use App\Models\Usuario;
 use Illuminate\Support\Facades\Hash;
 
 class UsuarioController extends Controller
 {
-    // Listar
+    /**
+     * Listado de usuarios
+     */
     public function index()
     {
-        $usuarios = Usuario::all();
+        $usuarios = User::with(['role', 'area'])->get();
 
         return view('usuarios.index', compact('usuarios'));
     }
 
-    // Crear vista
+    /**
+     * Formulario de creación
+     */
     public function create()
     {
-        return view('usuarios.create');
+        $roles = Role::where('active', true)->get();
+        $areas = Area::where('active', true)->get();
+
+        return view('usuarios.create', compact('roles', 'areas'));
     }
 
-    // Guardar
+    /**
+     * Guardar usuario nuevo
+     */
     public function store(Request $request)
     {
-        $request->validate([
-            'nombre' => 'required',
-            'apellido' => 'required',
-            'correo' => 'required|email|unique:usuarios,correo',
-            'password' => 'required|min:6',
-            'rol' => 'required'
+        // ✅ Validación (OWASP: input validation)
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8',
+            'role_id' => 'required|exists:roles,id',
+            'area_id' => 'required|exists:areas,id',
         ]);
 
-        Usuario::create([
-            'nombre' => $request->nombre,
-            'apellido' => $request->apellido,
-            'correo' => $request->correo,
-            'password' => Hash::make($request->password), // encriptación
-            'rol' => $request->rol
+        // ✅ Crear usuario real
+        User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'role_id' => $data['role_id'],
+            'area_id' => $data['area_id'],
         ]);
 
-        return redirect()->route('usuarios.index')
+        return redirect()
+            ->route('usuarios.index')
             ->with('success', 'Usuario creado correctamente');
     }
 
-    // Editar
+    /**
+     * Formulario de edición
+     */
     public function edit($id)
     {
-        $usuario = Usuario::findOrFail($id);
+        $usuario = User::findOrFail($id);
+        $roles = Role::where('active', true)->get();
+        $areas = Area::where('active', true)->get();
 
-        return view('usuarios.edit', compact('usuario'));
+        return view('usuarios.edit', compact('usuario', 'roles', 'areas'));
     }
 
-    // Actualizar
+    /**
+     * Actualizar usuario
+     */
     public function update(Request $request, $id)
     {
-        $usuario = Usuario::findOrFail($id);
+        $usuario = User::findOrFail($id);
 
-        $request->validate([
-            'nombre' => 'required',
-            'apellido' => 'required',
-            'correo' => 'required|email|unique:usuarios,correo,' . $id,
-            'rol' => 'required'
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'role_id' => 'required|exists:roles,id',
+            'area_id' => 'required|exists:areas,id',
         ]);
 
-        $datos = [
-            'nombre' => $request->nombre,
-            'apellido' => $request->apellido,
-            'correo' => $request->correo,
-            'rol' => $request->rol
-        ];
+        $usuario->update($data);
 
-        // SOLO si se escribe contraseña
-        if ($request->filled('password')) {
-            $datos['password'] = Hash::make($request->password);
-        }
-
-        $usuario->update($datos);
-
-        return redirect('/usuarios')->with('success', 'Usuario actualizado correctamente');
+        return redirect()
+            ->route('usuarios.index')
+            ->with('success', 'Usuario actualizado');
     }
 
-    // Eliminar
+    /**
+     * Eliminar usuario
+     */
     public function destroy($id)
     {
-        Usuario::destroy($id);
+        User::findOrFail($id)->delete();
 
-        return redirect('/usuarios')->with('success', 'Usuario eliminado correctamente');
+        return redirect()
+            ->route('usuarios.index')
+            ->with('success', 'Usuario eliminado');
     }
 }
