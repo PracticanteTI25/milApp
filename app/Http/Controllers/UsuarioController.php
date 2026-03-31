@@ -23,13 +23,15 @@ class UsuarioController extends Controller
     /**
      * Formulario de creación
      */
+
     public function create()
     {
         $roles = Role::where('active', true)->get();
-        $areas = Area::where('active', true)->get();
+        $areas = Area::where('active', true)->orderBy('name')->get();
 
         return view('usuarios.create', compact('roles', 'areas'));
     }
+
 
     /**
      * Guardar usuario nuevo

@@ -6,14 +6,15 @@
 
 {{-- ✅ CSS GLOBAL --}}
 @section('adminlte_css')
-
-<!-- Favicons personalizados -->
-    <link rel="icon" type="image/png" href="{{ asset('favicons/favicon-32.png') }}">
-    <link rel="icon" type="image/png" href="{{ asset('favicons/favicon-16.png') }}">
+    {{-- Favicons personalizados --}}
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicons/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicons/favicon-16x16.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('favicons/apple-touch-icon.png') }}">
 
-<link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-@stack('css')
+    {{-- CSS propio --}}
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+
+    @stack('css')
 @stop
 
 {{-- ✅ CONTENIDO PRINCIPAL (AdminLTE ya maneja el header) --}}

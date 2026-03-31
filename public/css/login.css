@@ -1,34 +1,22 @@
 /* Variables de marca */
 :root {
-    --color-primario: #FDB7D7; /* reemplaza */
-    --color-secundario: #F674AE;
-    --color-fondo: #f8f7f3;
+    --color-primario: #84b6f3; /* Azul principal */
+    --color-secundario: #edf4fd; /* Azul claro */
+    --color-fondo: #edf4fd; /* Fondo general */
     --color-texto: #575756;
+    --fuente-texto: "Source Sans Pro 1";
+}
+
+/* Forzar altura completa para fondo */
+html, body {
+    height: 100%;
+    margin: 0;
 }
 
 /* Fuente general */
 body {
-    margin: 0;
     font-family: "Source Sans Pro 1";
-    background: #f4f6f9; 
-}
-
-/* Contenedor centrado */
-.login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh; /* altura completa */
-}
-
-/* Caja de login */
-.login-box {
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 10px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 0 15px rgba(253, 183, 215);
+    background: none; /* no pisar el fondo */
 }
 
 /* Título */
@@ -58,7 +46,7 @@ body {
 button {
     width: 105%;
     padding: 10px;
-    background: var(--color-primario); 
+    background: var(--color-primario);
     color: #ffffff;
     border: none;
     border-radius: 5px;
@@ -72,7 +60,7 @@ button:hover {
 
 /* Error */
 .error {
-    color: #FFB390;
+    color: #ffb390;
     margin-top: 10px;
     text-align: center;
 }
@@ -80,3 +68,52 @@ button:hover {
 .colorgris {
     color: var(--color-texto);
 }
+
+/* =====================================================
+   LOGIN - FONDO CORPORATIVO
+   ===================================================== */
+
+.login-page {
+    min-height: 100vh;
+    background: url("/img/login/fondo-V2.png") no-repeat center center fixed !important;
+    background-size: cover !important;
+}
+
+/* Capa suave para legibilidad (opcional pero recomendado) */
+.login-page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+}
+
+/* Contenedor centrado */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+}
+
+/* Caja de login */
+
+.login-box {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 0 15px rgba(132, 182, 243, 0.6);
+}
+
+/* Logo */
+.login-logo {
+    display: block;
+    margin: 0 auto 20px auto;
+    max-width: 220px;
+    height: auto;
+}
+
+

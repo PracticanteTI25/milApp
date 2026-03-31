@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 </head>
 
-<body>
+<body class="login-page">
 
     <!-- Contenedor principal -->
     <div class="login-container colorgris">
@@ -24,7 +24,10 @@
         <!-- Caja de login -->
         <div class="login-box">
 
-            <h2>Iniciar sesión</h2>
+            <div class="text-center mb-4">
+                <img src="{{ asset('img/login/Logo-V2.png') }}" alt="Logo" class="login-logo">
+            </div>
+
 
             <!-- Formulario -->
 

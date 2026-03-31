@@ -11,19 +11,13 @@
 @php
     /*
     |--------------------------------------------------------------------------
-    | Definición de módulos del sistema (UI)
+    | Definición de módulos del panel administrativo
     |--------------------------------------------------------------------------
     | IMPORTANTE:
-    | - Estos son TODOS los módulos visibles del sistema.
-    | - El acceso REAL se controla por permisos en backend.
-    | - $enabledModules viene desde routes/web.php y representa
-    |   los módulos que el rol del usuario puede VER.
-    |
-    | Cada módulo tiene:
-    | - name  : texto visible
-    | - slug  : identificador técnico (coincide con BD)
-    | - icon  : icono FontAwesome (AdminLTE)
-    | - route : ruta del módulo (solo se usa si está habilitado)
+    | - El panel solo muestra módulos TÉCNICOS / TRANSVERSALES.
+    | - Las ÁREAS organizacionales viven exclusivamente en el SIDEBAR.
+    | - El acceso real se controla por permisos en backend.
+    | - $enabledModules viene desde routes/web.php.
     */
     $modules = [
         [
@@ -38,27 +32,9 @@
             'icon' => 'fas fa-users',
             'route' => route('usuarios.index'),
         ],
-        [
-            'name' => 'Marketing',
-            'slug' => 'marketing',
-            'icon' => 'fas fa-bullhorn',
-            'route' => '#', // aún no implementado
-        ],
-        [
-            'name' => 'Comercial',
-            'slug' => 'comercial',
-            'icon' => 'fas fa-chart-line',
-            'route' => '#',
-        ],
-        [
-            'name' => 'Talento Humano',
-            'slug' => 'talento',
-            'icon' => 'fas fa-user-tie',
-            'route' => '#',
-        ],
-        // Aquí se agrega los demás módulos por área
     ];
 @endphp
+
 
 <div class="row">
 

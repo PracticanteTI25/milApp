@@ -17,3 +17,6 @@ return [
     ],
 
 ];
+
+
+// Este archivo es la traduccion de idioma exclusivamente para mensajes de validacion, errores de formulario y reglas como required, email, min, etc

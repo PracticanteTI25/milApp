@@ -5,18 +5,43 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Seeder de permisos del sistema.
+ *
+ * IMPORTANTE:
+ * - Crea permisos CRUD para TODOS los módulos existentes.
+ * - Permisos generados:
+ *   - ver
+ *   - crear
+ *   - editar
+ *   - eliminar
+ * - Es IDEMPOTENTE (no duplica).
+ * - Este seeder conecta:
+ *   módulos -> permisos -> roles -> sidebar -> middleware
+ */
 class PermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        $modules = DB::table('modules')->get();
+        // Obtener todos los módulos activos
+        $modules = DB::table('modules')
+            ->where('active', true)
+            ->get();
 
-        $actions = ['ver', 'crear', 'editar', 'eliminar'];
+        // Acciones estándar del sistema
+        $actions = [
+            'ver',
+            'crear',
+            'editar',
+            'eliminar',
+        ];
 
         foreach ($modules as $module) {
             foreach ($actions as $action) {
+
                 DB::table('permissions')->updateOrInsert(
                     [
+                        // Clave única lógica
                         'module_id' => $module->id,
                         'slug' => $action,
                     ],

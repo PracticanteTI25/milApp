@@ -32,14 +32,19 @@
             </select>
         </div>
 
+
         <div class="form-group">
             <label>Área</label>
             <select name="area_id" class="form-control" required>
-                @foreach($areas as $a)
-                    <option value="{{ $a->id }}">{{ $a->name }}</option>
+                <option value="">Seleccione un área</option>
+                @foreach ($areas as $area)
+                    <option value="{{ $area->id }}">
+                        {{ $area->name }}
+                    </option>
                 @endforeach
             </select>
         </div>
+
 
         <button class="btn btn-success">Guardar</button>
     </form>

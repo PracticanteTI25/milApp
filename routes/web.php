@@ -6,6 +6,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ReporteController;
 use App\Services\PermissionService;
+use App\Http\Controllers\AreaController;
+use App\Http\Controllers\CorporativoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +27,7 @@ Route::post('/login', [AuthController::class, 'login'])
     ->middleware('recaptcha')
     ->name('login.process');
 
-// Cerrar sesión
+// Cerrar sesión (POST recomendado para evitar problemas CSRF)
 Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout');
 
@@ -41,7 +43,7 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     | PANEL PRINCIPAL
     |--------------------------------------------------------------------------
-    | - Requiere solo autenticación
+    | - Requiere autenticación
     | - Calcula módulos habilitados según el ROL REAL del usuario
     | - Envía $enabledModules a la vista admin.blade.php
     */
@@ -55,9 +57,7 @@ Route::middleware(['auth'])->group(function () {
         }
 
         // Módulos habilitados para el rol del usuario
-        $enabledModules = $permissionService->getViewableModules(
-            $user->role->slug
-        );
+        $enabledModules = $permissionService->getViewableModules($user->role->slug);
 
         return view('admin', [
             'enabledModules' => $enabledModules,
@@ -69,7 +69,7 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     | REPORTES
     |--------------------------------------------------------------------------
-    | Protegidos por permiso reportes.ver
+    | Solo usuarios con permiso reportes.ver
     */
     Route::get('/reportes', [ReporteController::class, 'index'])
         ->middleware('permission:reportes.ver')
@@ -83,7 +83,7 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     | CRUD DE USUARIOS (ADMINISTRACIÓN)
     |--------------------------------------------------------------------------
-    | Protegido completamente por permisos
+    | Protegido por permisos (no por rol hardcodeado)
     */
     Route::get('/usuarios', [UsuarioController::class, 'index'])
         ->middleware('permission:usuarios.ver')
@@ -108,6 +108,23 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/usuarios/{id}', [UsuarioController::class, 'destroy'])
         ->middleware('permission:usuarios.eliminar')
         ->name('usuarios.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | ÁREAS (NAVEGACIÓN DESDE SIDEBAR)
+    |--------------------------------------------------------------------------
+    | IMPORTANTE:
+    | - NO usamos permission:{slug}.ver en middleware porque Laravel no reemplaza {slug}.
+    | - La validación de permiso dinámico se hace dentro de AreaController@show.
+    | - Esto evita redirecciones incorrectas al login y permite 403 correcto.
+    */
+    Route::get('/areas/{slug}', [AreaController::class, 'show'])
+        ->name('areas.show');
+
+
+    Route::get('/corporativo', [CorporativoController::class, 'index'])
+        ->name('corporativo.index');
+
 });
 
 /*
