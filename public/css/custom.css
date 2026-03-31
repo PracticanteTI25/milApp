@@ -499,3 +499,101 @@ OS DEL PANEL (CARDS)
     font-weight: 600;
     line-height: 1.4;
 }
+
+/* ===============================
+   ACCESOS CORPORATIVOS (TILES)
+   =============================== */
+
+.corp-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.corp-tile {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+    min-height: 72px;
+}
+
+.corp-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+}
+
+.corp-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: rgba(132, 182, 243, 0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.corp-icon i {
+    color: var(--color-primario);
+    font-size: 20px;
+}
+
+.corp-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-texto);
+    line-height: 1.2;
+}
+
+/* ===============================
+   CORPORATIVO – TRANSFORMACIÓN DIGITAL (SAP)
+   =============================== */
+
+.corp-big-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.corp-big-card {
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    height: 100%;
+}
+
+.corp-big-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
+}
+
+.corp-big-logo {
+    padding: 28px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.corp-big-logo img {
+    max-width: 420px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.corp-big-label {
+    background: rgba(132, 182, 243, 0.18);
+    color: var(--color-primario);
+    font-weight: 800;
+    text-align: center;
+    letter-spacing: 1px;
+    padding: 16px 10px;
+    font-size: 1.25rem;
+}
