@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
+ * ACCESO A ÁREAS SEGÚN PERMISOS
  * Controlador genérico para áreas.
- * Hoy solo sirve para que "funcione real" la navegación.
  * Luego cada área tendrá su módulo completo.
  */
 class AreaController extends Controller

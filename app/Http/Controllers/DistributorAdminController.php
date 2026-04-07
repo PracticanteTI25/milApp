@@ -7,6 +7,8 @@ use App\Models\DistributorAddress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
+// CRUD DE DISTRIBUIDORAS
+
 /**
  * CRUD Distribuidoras (Área Comercial)
  *

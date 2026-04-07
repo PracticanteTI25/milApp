@@ -6,6 +6,8 @@ use App\Models\Distributor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+// LOGIN DISTRIBUIDORAS
+
 class DistributorAuthController extends Controller
 {
     public function showLogin()

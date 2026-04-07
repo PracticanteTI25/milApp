@@ -17,7 +17,9 @@ use App\Http\Controllers\DistributorAuthController;
 |--------------------------------------------------------------------------
 */
 
-Route::redirect('/', '/login');
+Route::get('/', function () {
+    return view('access.portal');
+})->name('access.portal');
 
 Route::get('/login', [AuthController::class, 'showLogin'])
     ->name('login');

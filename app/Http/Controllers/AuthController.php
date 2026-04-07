@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 /**
+ * LOGIN CORPORATIVO
  * Controlador de Autenticación
  *
  * Maneja el login real de usuarios del sistema.
