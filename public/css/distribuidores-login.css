@@ -1,0 +1,175 @@
+/* ===============================
+   LOGIN DISTRIBUIDORES (UI)
+   Estilo corporativo como el login interno
+   =============================== */
+
+:root {
+    --primario: #84b6f3;
+    --secundario: #edf4fd;
+    --texto: #575756;
+    --borde: #e6e6e6;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    font-family: "Roboto", sans-serif;
+    color: var(--texto);
+    background: var(--secundario);
+}
+
+/* Fondo suave (similar a corporativo, sin imagen por ahora) */
+.dist-body {
+    background: var(--secundario);
+}
+
+/* Centrado */
+.dist-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 16px;
+}
+
+/* Card estilo corporativo */
+.dist-card {
+    width: 100%;
+    max-width: 520px;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 42px;
+    box-shadow:
+        0 0 0 1px rgba(132, 182, 243, 0.25),
+        0 18px 40px rgba(132, 182, 243, 0.2);
+}
+
+/* Título azul (como pediste) */
+.dist-title {
+    margin: 0 0 26px;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primario);
+}
+
+/* Form */
+.dist-group {
+    margin-bottom: 18px;
+}
+
+.dist-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #444;
+}
+
+.dist-input {
+    width: 100%;
+    padding: 14px 12px;
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    background: #fff;
+}
+
+.dist-input:focus {
+    border-color: rgba(132, 182, 243, 0.8);
+    box-shadow: 0 0 0 4px rgba(132, 182, 243, 0.18);
+}
+
+/* Botones */
+.dist-actions {
+    display: flex;
+    gap: 14px;
+    margin-top: 24px;
+}
+
+.dist-btn {
+    flex: 1;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+/* Acceder (azul) */
+.dist-btn-primary {
+    background: var(--primario);
+    color: #fff;
+    box-shadow: 0 10px 22px rgba(132, 182, 243, 0.35);
+}
+
+.dist-btn-primary:hover {
+    filter: brightness(0.97);
+}
+
+/* Crear cuenta (gris claro) */
+.dist-btn-secondary {
+    background: #f1f1f1;
+    color: #666;
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.06);
+}
+
+.dist-btn-secondary:hover {
+    background: #eaeaea;
+}
+
+/* Link de olvido */
+.dist-forgot {
+    text-align: center;
+    margin-top: 22px;
+}
+
+.dist-forgot a {
+    color: #7a7a7a;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.dist-forgot a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 520px) {
+    .dist-card {
+        padding: 28px;
+    }
+    .dist-title {
+        font-size: 1.6rem;
+    }
+    .dist-actions {
+        flex-direction: column;
+    }
+}
+
+/* ===============================
+   Mensaje de error / aviso login
+   =============================== */
+
+.dist-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    background: rgba(132, 182, 243, 0.18);
+    border: 1px solid rgba(132, 182, 243, 0.5);
+    color: #2c5fa8;
+
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.dist-alert i {
+    font-size: 1.1rem;
+    color: #2c5fa8;
+}

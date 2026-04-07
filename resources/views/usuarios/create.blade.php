@@ -21,7 +21,14 @@
         <div class="form-group">
             <label>Contraseña</label>
             <input name="password" type="password" class="form-control" required>
+
+            <small class="form-text text-muted">
+                La contraseña debe tener al menos 8 caracteres, una letra mayúscula y un número.
+            </small>
+
         </div>
+
+
 
         <div class="form-group">
             <label>Rol</label>

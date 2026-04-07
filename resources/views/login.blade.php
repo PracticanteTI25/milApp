@@ -79,7 +79,19 @@
             </script>
 
         </div>
+        {{-- Acceso distribuidores --}}
+        <div class="distributor-access">
+            <a href="{{ route('distribuidores.login') }}" class="distributor-link">
+                <span class="text">
+                    <strong>Distribuidores</strong><br>
+                    <small>Acceso para clientas</small>
+                </span>
+            </a>
+        </div>
+
     </div>
+
+
 
 </body>
 

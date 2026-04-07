@@ -2,12 +2,6 @@
 
 @section('title', 'Panel Administrativo')
 
-@section('content_header')
-<h1 class="colorgris body">Panel Administrativo</h1>
-@stop
-
-@section('content')
-
 @php
     /*
     |--------------------------------------------------------------------------
@@ -16,7 +10,6 @@
     | IMPORTANTE:
     | - El panel solo muestra módulos TÉCNICOS / TRANSVERSALES.
     | - Las ÁREAS organizacionales viven exclusivamente en el SIDEBAR.
-    | - El acceso real se controla por permisos en backend.
     | - $enabledModules viene desde routes/web.php.
     */
     $modules = [
@@ -33,60 +26,52 @@
             'route' => route('usuarios.index'),
         ],
     ];
+
+    //Verificar si el usuario tiene AL MENOS un módulo del dashboard
+    $dashboardSlugs = collect($modules)->pluck('slug');
+    $hasDashboardAccess = $dashboardSlugs->intersect($enabledModules)->isNotEmpty();
 @endphp
 
 
-<div class="row">
+@section('content_header')
+@if ($hasDashboardAccess)
+    <h1 class="colorgris body">Panel Administrativo</h1>
+@endif
+@stop
 
-    @foreach ($modules as $module)
 
-        @php
-            $isEnabled = in_array($module['slug'], $enabledModules);
-        @endphp
+@section('content')
 
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+@if ($hasDashboardAccess)
+    <div class="row">
 
-            @if ($isEnabled)
-                {{-- MÓDULO HABILITADO --}}
-                <a href="{{ $module['route'] }}" class="text-decoration-none text-reset">
-                    <div class="card h-100 shadow-sm module-card">
+        @foreach ($modules as $module)
 
-                        <div class="card-body d-flex align-items-center">
-                            <div class="module-icon mr-3">
-                                <i class="{{ $module['icon'] }}"></i>
+            @if (in_array($module['slug'], $enabledModules))
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+
+                    <a href="{{ $module['route'] }}" class="text-decoration-none text-reset">
+                        <div class="card h-100 shadow-sm module-card">
+
+                            <div class="card-body d-flex align-items-center">
+                                <div class="module-icon mr-3">
+                                    <i class="{{ $module['icon'] }}"></i>
+                                </div>
+
+                                <div>
+                                    <h5 class="mb-0">{{ $module['name'] }}</h5>
+                                </div>
                             </div>
 
-                            <div>
-                                <h5 class="mb-0">{{ $module['name'] }}</h5>
-                            </div>
                         </div>
+                    </a>
 
-                    </div>
-                </a>
-            @else
-                {{-- MÓDULO DESHABILITADO --}}
-                <div class="card h-100 shadow-sm module-card-disabled">
-                    <div class="card-body d-flex align-items-center text-muted">
-
-                        <div class="module-icon mr-3">
-                            <i class="{{ $module['icon'] }}"></i>
-                        </div>
-
-                        <div>
-                            <h5 class="mb-1">{{ $module['name'] }}</h5>
-                            <small>
-                                <i class="fas fa-lock"></i> Acceso restringido
-                            </small>
-                        </div>
-
-                    </div>
                 </div>
             @endif
 
-        </div>
+        @endforeach
 
-    @endforeach
-
-</div>
+    </div>
+@endif
 
 @stop

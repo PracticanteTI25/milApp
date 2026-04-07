@@ -159,7 +159,7 @@ TRANSFORMACIÓN DIGITAL (SAP)
 
     {{-- PRUEBAS --}}
     <div class="col-12 col-md-6 mb-4">
-        <a href="https://anpkocryb.accounts.cloud.sap/saml2/idp/sso/anpkocryb.accounts.ondemand.com" target="_blank" rel="noopener noreferrer" class="corp-big-link">
+        <a href="https://my423410.s4hana.cloud.sap" target="_blank" rel="noopener noreferrer" class="corp-big-link">
             <div class="corp-big-card">
                 <div class="corp-big-logo">
                     <img src="{{ asset('img/corporativo/sap/sap.png') }}" alt="SAP - Pruebas">
@@ -174,7 +174,7 @@ TRANSFORMACIÓN DIGITAL (SAP)
 
     {{-- PRODUCCIÓN --}}
     <div class="col-12 col-md-6 mb-4">
-        <a href="https://ailgrwyk4.accounts.cloud.sap/saml2/idp/sso/ailgrwyk4.accounts.ondemand.com" target="_blank" rel="noopener noreferrer" class="corp-big-link">
+        <a href="https://my425704.s4hana.cloud.sap" target="_blank" rel="noopener noreferrer" class="corp-big-link">
             <div class="corp-big-card">
                 <div class="corp-big-logo">
                     <img src="{{ asset('img/corporativo/sap/sap.png') }}" alt="SAP - Producción">

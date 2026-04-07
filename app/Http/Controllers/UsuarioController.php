@@ -38,16 +38,16 @@ class UsuarioController extends Controller
      */
     public function store(Request $request)
     {
-        // ✅ Validación (OWASP: input validation)
+        //  Validación (OWASP: input validation)
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8',
+            'password' => 'required|min:8|regex:/[A-Z]/|regex:/[0-9]/',
             'role_id' => 'required|exists:roles,id',
             'area_id' => 'required|exists:areas,id',
         ]);
 
-        // ✅ Crear usuario real
+        //  Crear usuario real
         User::create([
             'name' => $data['name'],
             'email' => $data['email'],

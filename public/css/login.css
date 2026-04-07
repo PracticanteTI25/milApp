@@ -8,7 +8,8 @@
 }
 
 /* Forzar altura completa para fondo */
-html, body {
+html,
+body {
     height: 100%;
     margin: 0;
 }
@@ -95,6 +96,8 @@ button:hover {
     min-height: 100vh;
     position: relative;
     z-index: 1;
+    flex-direction: column; 
+    gap: 18px;
 }
 
 /* Caja de login */
@@ -116,4 +119,48 @@ button:hover {
     height: auto;
 }
 
+/* ===============================
+   Acceso Distribuidores (Login)
+   =============================== */
 
+.distributor-access {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.distributor-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px 18px;
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(4px);
+
+    color: #575756;
+    text-decoration: none;
+
+    box-shadow: 0 4px 12px rgba(132, 182, 243, 0.25);
+    transition: all 0.25s ease;
+}
+
+.distributor-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(132, 182, 243, 0.4);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.distributor-link .icon {
+    font-size: 1.4rem;
+}
+
+.distributor-link .text {
+    line-height: 1.1;
+}
+
+.distributor-link small {
+    font-size: 0.75rem;
+    color: #84b6f3;
+}
