@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
             AreaSeeder::class,
             ModuleSeeder::class,
             PermissionSeeder::class,
-            AdminPermissionSeeder::class,
+            RolePermissionSeeder::class,
         ]);
     }
 }

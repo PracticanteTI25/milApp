@@ -24,13 +24,22 @@ class UsuarioController extends Controller
      * Formulario de creación
      */
 
+
     public function create()
     {
-        $roles = Role::where('active', true)->get();
-        $areas = Area::where('active', true)->orderBy('name')->get();
+        /**
+         * Traemos TODOS los roles y áreas
+         * para mostrarlos en los selects.
+         *
+         * Esto NO asigna permisos,
+         * solo carga catálogos base.
+         */
+        $roles = Role::orderBy('name')->get();
+        $areas = Area::orderBy('name')->get();
 
         return view('usuarios.create', compact('roles', 'areas'));
     }
+
 
 
     /**

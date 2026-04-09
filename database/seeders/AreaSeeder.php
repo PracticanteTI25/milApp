@@ -14,7 +14,7 @@ class AreaSeeder extends Seeder
             ['name' => 'Administrativo y financiero', 'slug' => 'administrativo_financiero'],
             ['name' => 'Investigación y desarrollo', 'slug' => 'investigacion_desarrollo'],
             ['name' => 'Talento humano', 'slug' => 'talento_humano'],
-            ['name' => 'Nuevos negocios y SAC', 'slug' => 'negocios_sac'],
+            ['name' => 'Nuevos negocios y SAC', 'slug' => 'nuevos_negocios_sac'],
             ['name' => 'Creativo', 'slug' => 'creativo'],
             ['name' => 'Marketing', 'slug' => 'marketing'],
             ['name' => 'Comercial', 'slug' => 'comercial'],

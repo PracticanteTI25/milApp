@@ -59,7 +59,7 @@ class ModuleSeeder extends Seeder
             ],
             [
                 'name' => 'Nuevos negocios y SAC',
-                'slug' => 'negocios_sac',
+                'slug' => 'nuevos_negocios_sac',
                 'icon' => 'fas fa-handshake',
             ],
             [
