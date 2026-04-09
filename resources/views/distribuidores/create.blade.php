@@ -5,7 +5,7 @@ distribuidora')
 @section('content')
     <h1>Crear distribuidora</h1>
 
-    <form action="{{ route('comercial.distribuidores.store') }}" method="POST">
+    <form action="{{ route('distribuidores.store') }}" method="POST">
         @csrf
 
         <h5>Datos de distribuidora</h5>

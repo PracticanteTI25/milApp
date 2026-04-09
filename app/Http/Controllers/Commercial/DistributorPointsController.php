@@ -82,5 +82,4 @@ class DistributorPointsController extends Controller
 
         return view('areas.comercial.puntos.historial', compact('distributor', 'movements'));
     }
-
 }

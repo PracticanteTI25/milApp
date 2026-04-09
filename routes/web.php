@@ -10,6 +10,7 @@ use App\Http\Controllers\AreaController;
 use App\Http\Controllers\CorporativoController;
 use App\Http\Controllers\DistributorAdminController;
 use App\Http\Controllers\DistributorAuthController;
+use App\Http\Controllers\Commercial\DistributorPointsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -143,28 +144,38 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     | ÁREA COMERCIAL – CRUD DISTRIBUIDORAS
     |--------------------------------------------------------------------------
-    | ESTE ES EL CAMBIO CLAVE
     */
+
+
 
     Route::prefix('areas/comercial')->group(function () {
 
+        Route::get('/puntos', [DistributorPointsController::class, 'index'])
+            ->name('comercial.puntos.index');
+
+        Route::post('/puntos/{id}', [DistributorPointsController::class, 'update'])
+            ->name('comercial.puntos.update');
+
+        Route::get('/puntos/{id}/historial', [DistributorPointsController::class, 'history'])
+            ->name('comercial.puntos.historial');
+
         Route::get('/distribuidores', [DistributorAdminController::class, 'index'])
-            ->name('comercial.distribuidores.index');
+            ->name('distribuidores.index');
 
         Route::get('/distribuidores/create', [DistributorAdminController::class, 'create'])
-            ->name('comercial.distribuidores.create');
+            ->name('distribuidores.create');
 
         Route::post('/distribuidores', [DistributorAdminController::class, 'store'])
-            ->name('comercial.distribuidores.store');
+            ->name('distribuidores.store');
 
         Route::get('/distribuidores/{id}/edit', [DistributorAdminController::class, 'edit'])
-            ->name('comercial.distribuidores.edit');
+            ->name('distribuidores.edit');
 
         Route::put('/distribuidores/{id}', [DistributorAdminController::class, 'update'])
-            ->name('comercial.distribuidores.update');
+            ->name('distribuidores.update');
 
         Route::delete('/distribuidores/{id}', [DistributorAdminController::class, 'destroy'])
-            ->name('comercial.distribuidores.destroy');
+            ->name('distribuidores.destroy');
     });
 
 });

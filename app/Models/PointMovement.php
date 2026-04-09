@@ -9,8 +9,8 @@ class PointMovement extends Model
     protected $table = 'point_movements';
 
     protected $fillable = [
-        'distributor_id',  
-        'delta',  
+        'distributor_id',
+        'delta',
         'balance_after',
         'type',
         'comment',

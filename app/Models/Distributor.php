@@ -47,4 +47,10 @@ class Distributor extends Authenticatable
         return $this->hasOne(DistributorAddress::class)
             ->where('is_default', true);
     }
+
+    // Historial completo de movimientos (extracto)
+    public function pointMovements()
+    {
+        return $this->hasMany(PointMovement::class)->orderByDesc('created_at');
+    }
 }

@@ -5,7 +5,7 @@
 @section('content')
     <h1 class="mb-3">Distribuidoras</h1>
 
-    <a href="{{ route('comercial.distribuidores.create') }}" class="btn btn-primary mb-3">
+    <a href="{{ route('distribuidores.create') }}" class="btn btn-primary mb-3">
         + Registrar distribuidora
     </a>
 
@@ -39,11 +39,11 @@
                         <td>{{ optional($d->address)->state ?? '-' }}</td>
                         <td>{{ $d->active ? 'Sí' : 'No' }}</td>
                         <td>
-                            <a href="{{ route('comercial.distribuidores.edit', $d->id) }}" class="btn btn-sm btn-warning">
+                            <a href="{{ route('distribuidores.edit', $d->id) }}" class="btn btn-sm btn-warning">
                                 Editar
                             </a>
 
-                            <form action="{{ route('comercial.distribuidores.destroy', $d->id) }}" method="POST"
+                            <form action="{{ route('distribuidores.destroy', $d->id) }}" method="POST"
                                 style="display:inline-block"
                                 onsubmit="return confirm('¿Seguro que deseas eliminar esta distribuidora?')">
                                 @csrf

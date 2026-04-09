@@ -33,7 +33,7 @@ return new class extends Migration {
              * manual_credit   => comercial suma puntos
              * manual_debit    => comercial resta puntos (si llegara a usarse)
              * redemption      => compra/canje (resta puntos automáticamente)
-             * adjustment      => corrección administrativa (si se necesita en el futuro)
+             * adjustment      => corrección administrativa (si lo necesitas en el futuro)
              */
             $table->string('type', 30);
 

@@ -90,7 +90,7 @@ class DistributorAdminController extends Controller
         ]);
 
         return redirect()
-            ->route('comercial.distribuidores.index')
+            ->route('distribuidores.index')
             ->with('success', 'Distribuidora creada correctamente.');
     }
 
@@ -168,7 +168,7 @@ class DistributorAdminController extends Controller
         $address->save();
 
         return redirect()
-            ->route('comercial.distribuidores.index')
+            ->route('distribuidores.index')
             ->with('success', 'Distribuidora actualizada correctamente.');
     }
 
@@ -181,7 +181,7 @@ class DistributorAdminController extends Controller
         $distributor->delete();
 
         return redirect()
-            ->route('comercial.distribuidores.index')
+            ->route('distribuidores.index')
             ->with('success', 'Distribuidora eliminada correctamente.');
     }
 }

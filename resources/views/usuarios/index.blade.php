@@ -19,36 +19,39 @@
         </div>
     @endif
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Rol</th>
-                <th>Área</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($usuarios as $u)
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
                 <tr>
-                    <td>{{ $u->name }}</td>
-                    <td>{{ $u->email }}</td>
-                    <td>{{ $u->role->name ?? '-' }}</td>
-                    <td>{{ $u->area->name ?? '-' }}</td>
-                    <td>
-                        <a href="{{ route('usuarios.edit', $u->id) }}" class="btn btn-sm btn-warning">Editar</a>
-
-                        <form action="{{ route('usuarios.destroy', $u->id) }}" method="POST" style="display:inline">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar usuario?')">
-                                Eliminar
-                            </button>
-                        </form>
-                    </td>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Área</th>
+                    <th>Acciones</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach($usuarios as $u)
+                    <tr>
+                        <td>{{ $u->name }}</td>
+                        <td>{{ $u->email }}</td>
+                        <td>{{ $u->role->name ?? '-' }}</td>
+                        <td>{{ $u->area->name ?? '-' }}</td>
+                        <td>
+                            <a href="{{ route('usuarios.edit', $u->id) }}" class="btn btn-sm btn-warning">Editar</a>
+
+                            <form action="{{ route('usuarios.destroy', $u->id) }}" method="POST" style="display:inline">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar usuario?')">
+                                    Eliminar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
 @endsection

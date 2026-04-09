@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-de puntos')
+@section('title', 'Historial de puntos')
 
 @section('content_header')
 <h1 class="colorgris body">
@@ -10,12 +10,9 @@ de puntos')
 
 @section('content')
 
-    <a href="{{ route('comercial.puntos.index') }}" class="btn btn-secondary mb-3">
-        ← Volver a asignación de puntos
-    </a>
 
     <div class="card">
-        <div class="card-body">
+        <div class="card-body table-responsive">
 
             <table class="table table-bordered table-sm">
                 <thead>

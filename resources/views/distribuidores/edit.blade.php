@@ -5,7 +5,7 @@
 @section('content')
     <h1 class="mb-3">Editar distribuidora</h1>
 
-    <form action="{{ route('comercial.distribuidores.update', $distributor->id) }}" method="POST">
+    <form action="{{ route('distribuidores.update', $distributor->id) }}" method="POST">
         @csrf
         @method('PUT')
 

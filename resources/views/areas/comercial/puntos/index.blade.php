@@ -11,8 +11,8 @@
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-                <span aria-hidden="true">&times;</span>
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
             </button>
         </div>
     @endif
@@ -20,14 +20,14 @@
     @if($errors->any())
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
             {{ $errors->first() }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-                <span aria-hidden="true">&times;</span>
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
             </button>
         </div>
     @endif
 
     <div class="table-responsive">
-        <table class="table table-bordered">
+        <table class="table table-bordered align-middle">
             <thead>
                 <tr>
                     <th>Distribuidora</th>
@@ -45,47 +45,54 @@
             <tbody>
                 @foreach($distributors as $d)
                     <tr class="{{ $d->active ? '' : 'text-muted' }}">
-                        <td>{{ $d->name }}</td>
-                        <td>{{ $d->email }}</td>
-                        <td><strong>{{ $d->points_balance }}</strong></td>
-                        <td>{{ $d->points_redeemed }}</td>
+                        <form action="{{ route('comercial.puntos.update', $d->id) }}" method="POST">
+                            @csrf
 
-                        {{-- Form por fila, pero cada input en su columna --}}
-                        <td>
-                            <form action="{{ route('comercial.puntos.update', $d->id) }}" method="POST" class="form-inline">
-                                @csrf
+                            <td>{{ $d->name }}</td>
+                            <td>{{ $d->email }}</td>
+                            <td><strong>{{ $d->points_balance }}</strong></td>
+                            <td>{{ $d->points_redeemed }}</td>
 
+                            {{-- Operación --}}
+                            <td>
                                 <select name="operation" class="form-control form-control-sm" required>
                                     <option value="plus">+</option>
                                     <option value="minus">-</option>
                                 </select>
-                        </td>
+                            </td>
 
-                        <td>
-                            <input name="amount" type="number" min="1" class="form-control form-control-sm" placeholder="Ej: 50"
-                                required style="width:90px;">
-                        </td>
+                            {{-- Cantidad --}}
+                            <td>
+                                <input name="amount" type="number" min="1" class="form-control form-control-sm"
+                                    placeholder="Ej: 50" required>
+                            </td>
 
-                        <td>
-                            <input name="comment" type="text" class="form-control form-control-sm"
-                                placeholder="Comentario (opcional)" style="min-width:180px;">
-                        </td>
+                            {{-- Comentario --}}
+                            <td>
+                                <input name="comment" type="text" class="form-control form-control-sm"
+                                    placeholder="Comentario (opcional)">
+                            </td>
 
-                        <td>
-                            <button class="btn btn-primary btn-sm">Actualizar</button>
-                            </form>
-                        </td>
-                        
-                        <td>
-                            <a href="{{ route('comercial.puntos.historial', $d->id) }}"
-                                class="btn btn-outline-secondary btn-sm">
-                                Ver historial
-                            </a>
-                        </td>
+                            {{-- Botón --}}
+                            <td>
+                                <button class="btn btn-primary btn-sm w-100" type="submit">
+                                    Actualizar
+                                </button>
+                            </td>
 
+                            {{-- Historial --}}
+                            <td>
+                                <a href="{{ route('comercial.puntos.historial', $d->id) }}"
+                                    class="btn btn-outline-secondary btn-sm w-100">
+                                    Ver historial
+                                </a>
+                            </td>
+
+                        </form>
                     </tr>
                 @endforeach
             </tbody>
+
         </table>
     </div>
 
