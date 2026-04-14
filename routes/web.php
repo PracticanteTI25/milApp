@@ -11,6 +11,9 @@ use App\Http\Controllers\CorporativoController;
 use App\Http\Controllers\DistributorAdminController;
 use App\Http\Controllers\DistributorAuthController;
 use App\Http\Controllers\Commercial\DistributorPointsController;
+use App\Http\Controllers\Logistica\ProductController;
+use App\Http\Controllers\Distribuidores\CatalogoController;
+use App\Http\Controllers\Distribuidores\CartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,7 +50,7 @@ Route::prefix('distribuidores')->group(function () {
         ->name('distribuidores.login');
 
     Route::post('/login', [DistributorAuthController::class, 'login'])
-        ->middleware('throttle:10,1') // ✅ evita ataques de fuerza bruta
+        ->middleware('throttle:10,1') // evita ataques de fuerza bruta
         ->name('distribuidores.login.process');
 
     Route::post('/logout', [DistributorAuthController::class, 'logout'])
@@ -58,14 +61,25 @@ Route::prefix('distribuidores')->group(function () {
         ->middleware('auth:distributor')
         ->name('distribuidores.panel');
 
-    // (por ahora siguen siendo UI)
-    Route::get('/catalogo', function () {
-        return view('distribuidores.catalogo');
-    })->name('distribuidores.catalogo');
 
-    Route::get('/catalogo/{slug}', function ($slug) {
-        return "Detalle del producto: {$slug} (en construcción)";
-    })->name('distribuidores.catalogo.show');
+    Route::get('/catalogo', [CatalogoController::class, 'index'])
+        ->middleware('auth:distributor')
+        ->name('distribuidores.catalogo');
+
+    Route::get('/catalogo/{slug}', [CatalogoController::class, 'show'])
+        ->middleware('auth:distributor')
+        ->name('distribuidores.catalogo.show');
+
+    Route::post('/carrito/agregar', [CartController::class, 'add'])
+        ->middleware('auth:distributor')
+        ->name('distribuidores.carrito.add');
+
+
+
+    Route::get('/carrito', [CartController::class, 'index'])
+        ->middleware('auth:distributor')
+        ->name('distribuidores.carrito.index');
+
 });
 
 
@@ -176,6 +190,30 @@ Route::middleware(['auth'])->group(function () {
 
         Route::delete('/distribuidores/{id}', [DistributorAdminController::class, 'destroy'])
             ->name('distribuidores.destroy');
+    });
+
+
+
+    Route::prefix('areas/logistica_distribucion')->group(function () {
+
+        // Productos (CRUD interno)
+        Route::get('/productos', [ProductController::class, 'index'])
+            ->name('logistica.productos.index');
+
+        Route::get('/productos/create', [ProductController::class, 'create'])
+            ->name('logistica.productos.create');
+
+        Route::post('/productos', [ProductController::class, 'store'])
+            ->name('logistica.productos.store');
+
+        Route::get('/productos/{product}/edit', [ProductController::class, 'edit'])
+            ->name('logistica.productos.edit');
+
+        Route::put('/productos/{product}', [ProductController::class, 'update'])
+            ->name('logistica.productos.update');
+
+        Route::delete('/productos/{product}', [ProductController::class, 'destroy'])
+            ->name('logistica.productos.destroy');
     });
 
 });

@@ -5,7 +5,7 @@
 @section('content')
     <h1>Crear usuario</h1>
 
-    <form method="POST" action="{{ route('usuarios.store') }}">
+    <form method="POST" action="{{ route('usuarios.store') }}" class="form-inline-responsive">
         @csrf
 
         <div class="form-group">

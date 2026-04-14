@@ -173,3 +173,55 @@ body {
     font-size: 1.1rem;
     color: #2c5fa8;
 }
+
+.dist-section {
+    margin-bottom: 24px;
+}
+
+.dist-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.dist-actions a,
+.dist-action-disabled {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    text-decoration: none;
+    width: 100%;
+}
+
+.dist-actions a {
+    background: #4f8cff;
+    color: #fff;
+}
+
+.dist-actions a:hover {
+    background: #3f78db;
+}
+
+.dist-action-disabled {
+    background: #f1f1f1;
+    color: #999;
+    border: none;
+    cursor: not-allowed;
+}
+
+.dist-action-icon {
+    font-size: 24px;
+}
+
+.dist-action-text strong {
+    display: block;
+    font-size: 15px;
+}
+
+.dist-action-text small {
+    font-size: 13px;
+    opacity: 0.9;
+}
+

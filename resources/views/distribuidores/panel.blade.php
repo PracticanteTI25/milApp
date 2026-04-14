@@ -18,13 +18,52 @@
     <div class="dist-container">
         <div class="dist-card">
 
-            <h1 class="dist-title">Panel de Distribuidores</h1>
+            {{-- CABECERA --}}
+            <div class="mb-4">
+                <h1 class="dist-title">Panel de Distribuidores</h1>
 
-            <p>Login correcto. Aquí irá el catálogo, puntos y canje.</p>
+                <p class="text-muted">
+                    Bienvenido al panel. Desde aquí podrás consultar el catálogo
+                    y próximamente realizar canjes con tus puntos.
+                </p>
+            </div>
 
-            <form method="POST" action="{{ route('distribuidores.logout') }}">
+            {{-- ACCIÓN PRINCIPAL --}}
+            <div class="dist-section mb-4">
+                <h3 class="dist-section-title">
+                    ¿Qué deseas hacer?
+                </h3>
+
+                <div class="dist-actions">
+                    <a href="{{ route('distribuidores.catalogo') }}" class="dist-action">
+                        <span class="dist-action-icon">🛍️</span>
+                        <div class="dist-action-text">
+                            <strong>Ver catálogo de productos</strong>
+                            <small>Explora los productos disponibles para canje</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            {{-- PRÓXIMAMENTE --}}
+            <div class="dist-section mb-4">
+                <h3 class="dist-section-title text-muted">
+                    Próximamente
+                </h3>
+
+                <button class="dist-action-disabled" disabled>
+                    <span class="dist-action-icon">🎁</span>
+                    <div class="dist-action-text">
+                        <strong>Canjear puntos</strong>
+                        <small>Funcionalidad en desarrollo</small>
+                    </div>
+                </button>
+            </div>
+
+            {{-- ACCIÓN SECUNDARIA --}}
+            <form action="{{ route('distribuidores.logout') }}" method="POST">
                 @csrf
-                <button class="dist-btn dist-btn-secondary" type="submit">
+                <button class="dist-btn dist-btn-secondary w-100">
                     Cerrar sesión
                 </button>
             </form>

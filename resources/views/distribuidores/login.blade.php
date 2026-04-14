@@ -28,7 +28,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('distribuidores.login.process') }}" method="POST">
+            <form action="{{ route('distribuidores.login.process') }}" method="POST" class="form-inline-responsive">
                 @csrf
 
                 <div class="dist-group">

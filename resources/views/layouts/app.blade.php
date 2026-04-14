@@ -15,12 +15,21 @@
     <!-- CSS global -->
     <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 
+
+    <link rel="stylesheet" href="{{ asset('css/distribuidores-login.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/distribuidores.css') }}">
+
+
     @yield('css')
 </head>
 
 <body>
 
-    @yield('content')
+
+    <div class="dist-page">
+        @yield('content')
+    </div>
+
 
     @yield('js')
 

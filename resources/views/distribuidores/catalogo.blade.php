@@ -1,57 +1,84 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <title>Catálogo - Distribuidores</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@section('title', 'Catálogo de productos')
 
-    {{ asset('css/distribuidores-catalogo.css') }}?v=1
-</head>
+@section('content')
 
-<body>
+    <a href="{{ route('distribuidores.carrito.index') }}" class="btn btn-primary">
+            Ver carrito
+        </a>
 
-    <div class="cat-wrap">
-        <h1 class="cat-title">Catálogo</h1>
+    <h1 class="catalog-page-title">Catálogo de productos</h1>
 
-        <div class="cat-grid">
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
 
-            {{-- Ejemplo hardcodeado por ahora (luego lo conectamos a BD) --}}
-            @php
-                $productos = [
-                    [
-                        'name' => 'DOYPACK MASCARILLA HERBAL 100 GR',
-                        'slug' => 'doypack-mascarilla-herbal-100-gr',
-                        'points' => 892,
-                        'image' => asset('img/catalogo/demo-producto.png'), // pon una imagen demo
-                    ],
-                ];
-            @endphp
+    @if($errors->has('cart'))
+        <div class="alert alert-danger">
+            {{ $errors->first('cart') }}
+        </div>
+    @endif
 
-            @foreach($productos as $p)
-                {{ route('distribuidores.catalogo.show', $p['slug']) }}
-                <div class="product-card">
+    @if($products->isEmpty())
+        <div class="alert alert-info">
+            No hay productos disponibles para canje en este momento.
+        </div>
+    @else
 
-                    <div class="product-image">
-                        {{ $p['image'] }}
+        <div class="catalog-grid">
+            @foreach($products as $product)
+                <div class="catalog-card">
+
+                    {{-- Imagen --}}
+                    <div class="catalog-image">
+                        @if($product->image_path)
+                            <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}">
+                        @else
+                            <div class="catalog-image-placeholder">
+                                Sin imagen
+                            </div>
+                        @endif
                     </div>
 
-                    <div class="product-body">
-                        <div class="product-name">{{ $p['name'] }}</div>
-                        <div class="product-points">{{ $p['points'] }}</div>
+                    {{-- Información --}}
+                    <div class="catalog-body">
+                        <h3 class="catalog-title">{{ $product->name }}</h3>
 
-                        <div class="product-action">
-                            AÑADIR AL CARRITO →
+                        @if($product->presentation)
+                            <p class="catalog-presentation">
+                                {{ $product->presentation }}
+                            </p>
+                        @endif
+
+                        <div class="catalog-meta">
+                            <div class="catalog-points">
+                                {{ $product->currentPrice->points }} puntos
+                            </div>
+                            <div class="catalog-stock">
+                                Stock: {{ $product->stock }}
+                            </div>
                         </div>
+
+
+                        {{-- Acción --}}
+                        <form method="POST" action="{{ route('distribuidores.carrito.add') }}">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                            <input type="hidden" name="quantity" value="1">
+
+                            <button type="submit" class="catalog-btn">
+                                Agregar al carrito
+                            </button>
+                        </form>
                     </div>
 
                 </div>
-                </a>
             @endforeach
-
         </div>
-    </div>
 
-</body>
+    @endif
 
-</html>
+@endsection

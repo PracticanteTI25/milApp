@@ -42,7 +42,7 @@
 
             <!-- Formulario -->
 
-            <form action="{{ route('login.process') }}" method="POST">
+            <form action="{{ route('login.process') }}" method="POST" class="form-inline-responsive">
                 @csrf <!-- Protección CSRF -->
 
                 <!-- Correo electrónico -->

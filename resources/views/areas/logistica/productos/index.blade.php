@@ -2,12 +2,11 @@
 
 @section('title', 'Productos')
 
-@section('content')
-    <h1>Productos</h1>
+@section('content_header')
+<h1 class="colorgris body">Productos</h1>
+@stop
 
-    {{ route('logistica.productos.create') }}
-    + Nuevo producto
-    </a>
+@section('content')
 
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -16,7 +15,11 @@
         </div>
     @endif
 
-    <div class="table-responsive">
+    <a href="{{ route('logistica.productos.create') }}" class="btn btn-primary">
+        + Nuevo producto
+    </a>
+
+    <div class="table-responsive mt-3">
         <table class="table table-bordered table-sm">
             <thead>
                 <tr>
@@ -24,27 +27,45 @@
                     <th>Puntos</th>
                     <th>Stock</th>
                     <th>Activo</th>
-                    <th>Acciones</th>
+                    <th style="width:170px;">Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($products as $p)
+                @forelse($products as $p)
                     <tr>
-                        <td>{{ $p->name }}</td>
+                        <td>
+                            {{ $p->name }}
+                            @if($p->presentation)
+                                <div class="text-muted small">{{ $p->presentation }}</div>
+                            @endif
+                        </td>
                         <td>{{ optional($p->currentPrice)->points ?? '-' }}</td>
                         <td>{{ $p->stock }}</td>
                         <td>{{ $p->active ? 'Sí' : 'No' }}</td>
                         <td>
-                            {{ route('logistica.productos.edit', $p->id) }}Editar</a>
+                            <!-- BOTÓN EDITAR -->
+                            <a href="{{ route('logistica.productos.edit', $p) }}" class="btn btn-warning btn-sm">
+                                Editar
+                            </a>
 
-                            {{ route('logistica.productos.destroy', $p->id) }}">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn btn-danger btn-sm">Eliminar</button>
+                            <!-- FORM ELIMINAR -->
+                            <form action="{{ route('logistica.productos.destroy', $p) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+
+                                <button class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar producto?')">
+                                    Eliminar
+                                </button>
                             </form>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">
+                            No hay productos registrados.
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

@@ -8,13 +8,17 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('distributors', function (Blueprint $table) {
-            // Puntos actuales disponibles (saldo)
-            $table->unsignedInteger('points_balance')->default(0);
+            // Solo agrega si no existe (evita Duplicate column)
+            if (!Schema::hasColumn('distributors', 'points_balance')) {
+                $table->unsignedInteger('points_balance')->default(0);
+            }
 
-            // Total de puntos redimidos históricamente (para reporting)
-            $table->unsignedInteger('points_redeemed')->default(0);
+            if (!Schema::hasColumn('distributors', 'points_redeemed')) {
+                $table->unsignedInteger('points_redeemed')->default(0);
+            }
         });
     }
+
 
     public function down(): void
     {

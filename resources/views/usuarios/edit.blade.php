@@ -5,7 +5,7 @@
 @section('content')
     <h1>Editar usuario</h1>
 
-    <form method="POST" action="{{ route('usuarios.update', $usuario->id) }}">
+    <form method="POST" action="{{ route('usuarios.update', $usuario->id) }}" class="form-inline-responsive">
         @csrf
         @method('PUT')
 
