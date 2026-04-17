@@ -41,22 +41,55 @@ class CartController extends Controller
 
 
 
-public function index(CartService $cartService)
-{
-    $cartItems = $cartService->get();
-    $totalPoints = $cartService->totalPoints();
+    public function index(CartService $cartService)
+    {
+        $cartItems = $cartService->get();
+        $totalPoints = $cartService->totalPoints();
 
-    // Distribuidora autenticada
-    $distributor = auth('distributor')->user();
+        // Distribuidora autenticada
+        $distributor = auth('distributor')->user();
 
-    // Puntos disponibles (campo que ya manejas)
-    $availablePoints = $distributor->points_balance ?? 0;
+        // Puntos disponibles (campo que ya manejas)
+        $availablePoints = $distributor->points_balance ?? 0;
 
-    return view('distribuidores.carrito', [
-        'cartItems'       => $cartItems,
-        'totalPoints'     => $totalPoints,
-        'availablePoints' => $availablePoints,
-    ]);
-}
+        return view('distribuidores.carrito', [
+            'cartItems' => $cartItems,
+            'totalPoints' => $totalPoints,
+            'availablePoints' => $availablePoints,
+        ]);
+    }
+
+    public function update(Request $request, CartService $cartService)
+    {
+        $data = $request->validate([
+            'product_id' => ['required', 'integer'],
+            'quantity' => ['required', 'integer', 'min:1'],
+        ]);
+
+        try {
+            $cartService->updateQuantity(
+                productId: $data['product_id'],
+                quantity: $data['quantity']
+            );
+
+            return redirect()->route('distribuidores.carrito.index');
+
+        } catch (\Throwable $e) {
+            return redirect()
+                ->back()
+                ->withErrors(['cart' => $e->getMessage()]);
+        }
+    }
+
+    public function remove(Request $request, CartService $cartService)
+    {
+        $data = $request->validate([
+            'product_id' => ['required', 'integer'],
+        ]);
+
+        $cartService->remove($data['product_id']);
+
+        return redirect()->route('distribuidores.carrito.index');
+    }
 
 }

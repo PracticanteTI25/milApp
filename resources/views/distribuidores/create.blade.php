@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-distribuidora')
+@section('title', 'Crear distribuidora')
 
 @section('content')
     <h1>Crear distribuidora</h1>

@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@include('distribuidores.partials.navbar')
+
 @section('title', 'Carrito de canje')
 
 @section('content')
@@ -8,12 +10,8 @@
 
     @if(empty($cartItems))
         <div class="alert alert-info">
-            Tu carrito está vacío.
+            Tu carrito está vacío
         </div>
-
-        <a href="{{ route('distribuidores.catalogo') }}" class="btn btn-primary">
-            Volver al catálogo
-        </a>
 
     @else
 
@@ -24,16 +22,53 @@
 
                 @foreach($cartItems as $item)
                     <div class="cart-item">
-                        <div>
-                            <strong>{{ $item['name'] }}</strong><br>
-                            Cantidad: {{ $item['quantity'] }}
+
+                        {{-- BOTÓN ELIMINAR --}}
+                        <div class="cart-item-remove">
+                            <form method="POST" action="{{ route('distribuidores.carrito.remove') }}">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $item['product_id'] }}">
+
+                                <button type="submit" class="cart-remove-btn"
+                                    onclick="return confirm('¿Eliminar este producto del carrito?')">
+                                    ✕
+                                </button>
+                            </form>
                         </div>
 
-                        <div class="cart-item-points">
-                            {{ $item['points'] * $item['quantity'] }} pts
+                        {{-- Imagen --}}
+                        <div class="cart-item-image">
+                            @if(!empty($item['image']))
+                                <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}">
+                            @else
+                                <img src="{{ asset('images/no-image.png') }}" alt="Sin imagen">
+                            @endif
                         </div>
+
+                        {{-- Info --}}
+                        <div class="cart-item-info">
+                            <strong>{{ $item['name'] }}</strong>
+
+                            {{-- FORM ACTUALIZAR --}}
+                            <form method="POST" action="{{ route('distribuidores.carrito.update') }}">
+                                @csrf
+
+                                <input type="hidden" name="product_id" value="{{ $item['product_id'] }}">
+
+                                <label>Cantidad</label>
+                                <input type="number" name="quantity" min="1" value="{{ $item['quantity'] }}" class="cart-qty"
+                                    onchange="this.form.submit()">
+                            </form>
+                        </div>
+
+                        {{-- Puntos --}}
+                        <div class="cart-item-points">
+                            {{ number_format($item['points'] * $item['quantity']) }} pts
+                        </div>
+
                     </div>
                 @endforeach
+
 
             </div>
 
@@ -43,7 +78,7 @@
 
                 <div class="cart-summary-line">
                     <span>Total puntos</span>
-                    <strong>{{ $totalPoints }}</strong>
+                    <strong>{{ number_format($totalPoints) }}</strong>
                 </div>
 
                 <div class="cart-summary-line">
@@ -53,20 +88,19 @@
 
                 @if($availablePoints < $totalPoints)
                     <div class="alert alert-danger mt-3">
-                        No tienes puntos suficientes para continuar.
+                        No tienes puntos suficientes para continuar
                     </div>
 
                     <button class="btn btn-secondary btn-block" disabled>
                         Continuar canje
                     </button>
                 @else
-                    <button class="btn btn-primary btn-block" disabled>
-                        Continuar canje
-                    </button>
-
-                    <small class="text-muted d-block mt-2 text-center">
-                        El canje se habilitará en el siguiente paso.
-                    </small>
+                    <form method="POST" action="{{ route('distribuidores.canje.store') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-primary btn-block">
+                            Continuar canje
+                        </button>
+                    </form>
                 @endif
 
             </div>

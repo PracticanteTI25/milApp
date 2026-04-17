@@ -75,12 +75,12 @@ class PointsService
 
         DB::transaction(function () use ($distributorId, $amount, $comment, $actorUserId) {
 
-            // 🔒 lockForUpdate evita inconsistencias si dos personas editan a la vez.
+            //  lockForUpdate evita inconsistencias si dos personas editan a la vez.
             $distributor = Distributor::where('id', $distributorId)
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            // ✅ No permitir saldo negativo
+            // No permitir saldo negativo
             if ($distributor->points_balance < $amount) {
                 throw new \RuntimeException('No se puede restar más puntos de los que tiene la distribuidora.');
             }
@@ -112,7 +112,7 @@ class PointsService
     public function debitForRedemption(int $distributorId, int $amount, ?int $orderId = null): void
     {
         if ($amount <= 0) {
-            throw new \InvalidArgumentException('El valor a descontar debe ser mayor que cero.');
+            throw new \InvalidArgumentException('El valor a descontar debe ser mayor que cero');
         }
 
         DB::transaction(function () use ($distributorId, $amount, $orderId) {
@@ -123,7 +123,7 @@ class PointsService
 
             // Bloqueo con mensaje claro: no permitir saldo negativo
             if ($distributor->points_balance < $amount) {
-                throw new \RuntimeException('La distribuidora no tiene puntos suficientes para redimir.');
+                throw new \RuntimeException('La distribuidora no tiene puntos suficientes para redimir');
             }
 
             $newBalance = $distributor->points_balance - $amount;

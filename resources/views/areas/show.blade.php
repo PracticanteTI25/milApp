@@ -34,14 +34,19 @@
     @elseif($slug === 'logistica_distribucion')
         <div class="mt-3">
 
-            {{-- Gestión de productos --}}
             @if (Route::has('logistica.productos.index'))
-                <a href="{{ route('logistica.productos.index') }}" class="btn btn-primary">
+                <a href="{{ route('logistica.productos.index') }}" class="btn btn-primary mr-2">
                     Gestión de productos
                 </a>
             @endif
 
-            @if (!Route::has('logistica.productos.index'))
+            @if (Route::has('logistica.pedidos.index'))
+                <a href="{{ route('logistica.pedidos.index') }}" class="btn btn-secondary">
+                    Pedidos
+                </a>
+            @endif
+
+            @if (!Route::has('logistica.productos.index') && !Route::has('logistica.pedidos.index'))
                 <div class="alert alert-info mt-3">
                     Este módulo está en construcción. Ya tienes acceso al área
                     <b>{{ str_replace('_', ' ', $slug) }}</b>.
@@ -49,6 +54,7 @@
             @endif
 
         </div>
+
 
     @else
         <div class="card mt-3">

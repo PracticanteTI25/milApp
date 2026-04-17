@@ -14,6 +14,8 @@ use App\Http\Controllers\Commercial\DistributorPointsController;
 use App\Http\Controllers\Logistica\ProductController;
 use App\Http\Controllers\Distribuidores\CatalogoController;
 use App\Http\Controllers\Distribuidores\CartController;
+use App\Http\Controllers\Distribuidores\RedemptionController;
+use App\Http\Controllers\Logistica\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,11 +76,27 @@ Route::prefix('distribuidores')->group(function () {
         ->middleware('auth:distributor')
         ->name('distribuidores.carrito.add');
 
-
-
     Route::get('/carrito', [CartController::class, 'index'])
         ->middleware('auth:distributor')
         ->name('distribuidores.carrito.index');
+
+    Route::post('/canje', [RedemptionController::class, 'store'])
+        ->middleware('auth:distributor')
+        ->name('distribuidores.canje.store');
+
+    Route::get('/canje/{order}', function (\App\Models\Order $order) {
+        return view('distribuidores.canje-confirmacion', compact('order'));
+    })
+        ->middleware('auth:distributor')
+        ->name('distribuidores.canje.confirmacion');
+
+    Route::post('/carrito/actualizar', [CartController::class, 'update'])
+        ->middleware('auth:distributor')
+        ->name('distribuidores.carrito.update');
+
+    Route::post('/carrito/eliminar', [CartController::class, 'remove'])
+        ->middleware('auth:distributor')
+        ->name('distribuidores.carrito.remove');
 
 });
 
@@ -214,6 +232,16 @@ Route::middleware(['auth'])->group(function () {
 
         Route::delete('/productos/{product}', [ProductController::class, 'destroy'])
             ->name('logistica.productos.destroy');
+
+        Route::get('/pedidos', [OrderController::class, 'index'])
+            ->name('logistica.pedidos.index');
+
+        Route::get('/pedidos/{order}', [OrderController::class, 'show'])
+            ->name('logistica.pedidos.show');
+
+        Route::get('/pedidos/{order}/pdf', [OrderController::class, 'pdf'])
+            ->name('logistica.pedidos.pdf');
+        
     });
 
 });

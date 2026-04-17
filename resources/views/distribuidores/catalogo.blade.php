@@ -1,12 +1,10 @@
 @extends('layouts.app')
 
+@include('distribuidores.partials.navbar')
+
 @section('title', 'Catálogo de productos')
 
 @section('content')
-
-    <a href="{{ route('distribuidores.carrito.index') }}" class="btn btn-primary">
-            Ver carrito
-        </a>
 
     <h1 class="catalog-page-title">Catálogo de productos</h1>
 
@@ -24,7 +22,7 @@
 
     @if($products->isEmpty())
         <div class="alert alert-info">
-            No hay productos disponibles para canje en este momento.
+            No hay productos disponibles para canje en este momento
         </div>
     @else
 
