@@ -1,20 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <title>Panel de Distribuidores</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@section('title', 'Panel de Distribuidores')
 
-    <!-- Fuente -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet">
-
-    <!-- CSS distribuidores -->
-    <link rel="stylesheet" href="{{ asset('css/distribuidores-login.css') }}?v=3">
-</head>
-
-<body class="dist-body">
-
+@section('content')
     <div class="dist-container">
         <div class="dist-card">
 
@@ -60,8 +48,8 @@
                 </button>
             </div>
 
-            {{-- ACCIÓN SECUNDARIA --}}
-            <form action="{{ route('distribuidores.logout') }}" method="POST">
+            {{-- CERRAR SESIÓN --}}
+            <form method="POST" action="{{ route('distribuidores.logout') }}">
                 @csrf
                 <button class="dist-btn dist-btn-secondary w-100">
                     Cerrar sesión
@@ -70,7 +58,4 @@
 
         </div>
     </div>
-
-</body>
-
-</html>
+@endsection

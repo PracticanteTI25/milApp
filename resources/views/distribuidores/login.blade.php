@@ -1,20 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <title>Distribuidores - Inicio de sesión</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@section('title', 'Distribuidores - Inicio de sesión')
 
-    <!-- Fuente -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet">
-
-    <!-- CSS exclusivo distribuidores -->
-    <link rel="stylesheet" href="{{ asset('css/distribuidores-login.css') }}?v=2">
-</head>
-
-<body class="dist-body">
-
+@section('content')
     <div class="dist-container">
         <div class="dist-card">
 
@@ -23,12 +11,12 @@
             {{-- Mensaje de error general --}}
             @if ($errors->any())
                 <div class="dist-alert">
-                    <i class="fas fa-info-circle"></i>
                     <span>{{ $errors->first() }}</span>
                 </div>
             @endif
 
-            <form action="{{ route('distribuidores.login.process') }}" method="POST" class="form-inline-responsive">
+            {{-- FORM CORREGIDO --}}
+            <form method="POST" action="{{ route('distribuidores.login.process') }}">
                 @csrf
 
                 <div class="dist-group">
@@ -43,10 +31,11 @@
                 </div>
 
                 <div class="dist-actions">
-                    <button type="submit" class="dist-btn dist-btn-primary">Acceder</button>
+                    <button type="submit" class="dist-btn dist-btn-secondary">
+                        Acceder
+                    </button>
 
-                    {{-- Por ahora solo visual: lo conectamos después --}}
-                    <a href="#" class="dist-btn dist-btn-secondary" style="text-align:center; line-height: 36px;">
+                    <a href="#" class="dist-btn dist-btn-secondary">
                         Crear una cuenta
                     </a>
                 </div>
@@ -58,7 +47,4 @@
 
         </div>
     </div>
-
-</body>
-
-</html>
+@endsection

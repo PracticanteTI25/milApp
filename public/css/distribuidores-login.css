@@ -1,6 +1,5 @@
 /* ===============================
    LOGIN DISTRIBUIDORES (UI)
-   Estilo corporativo como el login interno
    =============================== */
 
 :root {
@@ -10,6 +9,7 @@
     --borde: #e6e6e6;
 }
 
+/* BASE */
 html,
 body {
     height: 100%;
@@ -19,41 +19,37 @@ body {
     background: var(--secundario);
 }
 
-/* Fondo suave (similar a corporativo, sin imagen por ahora) */
-.dist-body {
-    background: var(--secundario);
-}
-
-/* Centrado */
+/* CONTENEDOR */
 .dist-container {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 28px 16px;
+    padding: 20px;
 }
 
-/* Card estilo corporativo */
+/* TARJETA */
 .dist-card {
     width: 100%;
-    max-width: 520px;
+    max-width: 400px;
     background: #ffffff;
     border-radius: 14px;
-    padding: 42px;
+    padding: 30px 30px;
     box-shadow:
         0 0 0 1px rgba(132, 182, 243, 0.25),
         0 18px 40px rgba(132, 182, 243, 0.2);
 }
 
-/* Título azul (como pediste) */
+/* TÍTULO */
 .dist-title {
-    margin: 0 0 26px;
-    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 24px;
     font-weight: 700;
     color: var(--primario);
 }
 
-/* Form */
+/* FORM */
 .dist-group {
     margin-bottom: 18px;
 }
@@ -67,161 +63,118 @@ body {
 
 .dist-input {
     width: 100%;
-    padding: 14px 12px;
+    padding: 12px 1px;
     border: 1px solid var(--borde);
     border-radius: 8px;
     font-size: 0.95rem;
     outline: none;
-    background: #fff;
 }
 
 .dist-input:focus {
     border-color: rgba(132, 182, 243, 0.8);
-    box-shadow: 0 0 0 4px rgba(132, 182, 243, 0.18);
+    box-shadow: 0 0 0 3px rgba(132, 182, 243, 0.15);
 }
 
-/* Botones */
+/* BOTONES */
 .dist-actions {
     display: flex;
-    gap: 14px;
-    margin-top: 24px;
+    gap: 12px;
+    margin-top: 20px;
 }
 
+/* BOTÓN GENERAL */
 .dist-btn {
     flex: 1;
-    padding: 12px 14px;
+    padding: 10px;
     border-radius: 8px;
     border: none;
     cursor: pointer;
     font-weight: 700;
     font-size: 0.95rem;
+    text-align: center;
+    text-decoration: none;
 }
 
-/* Acceder (azul) */
+/* ACCEDER */
 .dist-btn-primary {
     background: var(--primario);
     color: #fff;
-    box-shadow: 0 10px 22px rgba(132, 182, 243, 0.35);
+    box-shadow: 0 8px 18px rgba(132, 182, 243, 0.3);
 }
 
-.dist-btn-primary:hover {
-    filter: brightness(0.97);
-}
-
-/* Crear cuenta (gris claro) */
+/* CREAR CUENTA */
 .dist-btn-secondary {
-    background: #f1f1f1;
-    color: #666;
-    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.06);
+    background: #4f8cff;
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(79, 140, 255, 0.3);
 }
 
-.dist-btn-secondary:hover {
-    background: #eaeaea;
+/* HOVER */
+.dist-btn:hover {
+    transform: translateY(-1px);
+    opacity: 0.95;
 }
 
-/* Link de olvido */
+/* LINK OLVIDÓ */
 .dist-forgot {
     text-align: center;
-    margin-top: 22px;
+    margin-top: 15px;
+    font-size: 14px;
 }
 
 .dist-forgot a {
     color: #7a7a7a;
     text-decoration: none;
-    font-weight: 500;
 }
 
 .dist-forgot a:hover {
     text-decoration: underline;
 }
 
-/* Responsive */
-@media (max-width: 520px) {
+/* ALERTA */
+.dist-alert {
+    background: rgba(132, 182, 243, 0.18);
+    border: 1px solid rgba(132, 182, 243, 0.5);
+    color: #2c5fa8;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    font-size: 0.95rem;
+}
+
+/* ===============================
+    RESPONSIVE
+   =============================== */
+
+/* CELULAR */
+@media (max-width: 480px) {
     .dist-card {
-        padding: 28px;
+        padding: 22px 20px;
     }
+
+    .dist-input {
+        padding: 12px;
+    }
+
     .dist-title {
-        font-size: 1.6rem;
+        font-size: 20px;
     }
+
     .dist-actions {
         flex-direction: column;
     }
 }
 
-/* ===============================
-   Mensaje de error / aviso login
-   =============================== */
-
-.dist-alert {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    background: rgba(132, 182, 243, 0.18);
-    border: 1px solid rgba(132, 182, 243, 0.5);
-    color: #2c5fa8;
-
-    padding: 12px 14px;
-    border-radius: 10px;
-    margin-bottom: 18px;
-
-    font-size: 0.95rem;
-    font-weight: 500;
+/* TABLET */
+@media (min-width: 768px) {
+    .dist-card {
+        max-width: 420px;
+    }
 }
 
-.dist-alert i {
-    font-size: 1.1rem;
-    color: #2c5fa8;
+/* PANTALLAS GRANDES */
+@media (min-width: 1200px) {
+    .dist-card {
+        max-width: 450px;
+    }
 }
-
-.dist-section {
-    margin-bottom: 24px;
-}
-
-.dist-section-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 12px;
-}
-
-.dist-actions a,
-.dist-action-disabled {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    border-radius: 10px;
-    text-decoration: none;
-    width: 100%;
-}
-
-.dist-actions a {
-    background: #4f8cff;
-    color: #fff;
-}
-
-.dist-actions a:hover {
-    background: #3f78db;
-}
-
-.dist-action-disabled {
-    background: #f1f1f1;
-    color: #999;
-    border: none;
-    cursor: not-allowed;
-}
-
-.dist-action-icon {
-    font-size: 24px;
-}
-
-.dist-action-text strong {
-    display: block;
-    font-size: 15px;
-}
-
-.dist-action-text small {
-    font-size: 13px;
-    opacity: 0.9;
-}
-

@@ -359,10 +359,10 @@ return [
         ],
         [
             'text' => 'Nuevos negocios y SAC',
-            'route' => ['areas.show', ['slug' => 'negocios_sac']],
-            // 'route' => ['areas.show', 'negocios_sac'],
+            'route' => ['areas.show', ['slug' => 'nuevos_negocios_sac']],
+            // 'route' => ['areas.show', 'nuevos_negocios_sac'],
             'icon' => 'fas fa-handshake',
-            'permission' => 'negocios_sac.ver',
+            'permission' => 'nuevos_negocios_sac.ver',
         ],
         [
             'text' => 'Creativo',

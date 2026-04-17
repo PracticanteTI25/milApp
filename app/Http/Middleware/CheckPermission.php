@@ -68,9 +68,9 @@ class CheckPermission
             ->join('permissions', 'permissions.id', '=', 'role_permission.permission_id')
             ->join('modules', 'modules.id', '=', 'permissions.module_id')
             ->where('roles.id', $user->role_id)
-            ->where('modules.slug', $moduleSlug)
-            ->where('permissions.slug', $actionSlug)
+            ->where('permissions.slug', $permission)
             ->exists();
+
 
         /*
         |--------------------------------------------------------------------------
