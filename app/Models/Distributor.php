@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Notifications\DistributorResetPasswordNotification;
+use Illuminate\Contracts\Auth\CanResetPassword;
 
-class Distributor extends Authenticatable
+class Distributor extends Authenticatable implements CanResetPassword
 {
     use Notifiable;
 
@@ -53,4 +55,10 @@ class Distributor extends Authenticatable
     {
         return $this->hasMany(PointMovement::class)->orderByDesc('created_at');
     }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new DistributorResetPasswordNotification($token));
+    }
+
 }

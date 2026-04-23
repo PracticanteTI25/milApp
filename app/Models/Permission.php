@@ -12,7 +12,7 @@ class Permission extends Model
     {
         return $this->belongsToMany(
             Role::class,
-            'role_permission',   // ✅ pivote correcto
+            'role_permission',   // pivote correcto
             'permission_id',
             'role_id'
         );

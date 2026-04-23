@@ -8,7 +8,7 @@
 
 @section('content')
 
-    <form action="{{ route('logistica.productos.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('comercial.productos.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="card mt-3">

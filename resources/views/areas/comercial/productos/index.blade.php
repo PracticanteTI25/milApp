@@ -15,7 +15,7 @@
         </div>
     @endif
 
-    <a href="{{ route('logistica.productos.create') }}" class="btn btn-primary">
+    <a href="{{ route('comercial.productos.create') }}" class="btn btn-primary">
         + Nuevo producto
     </a>
 
@@ -44,12 +44,12 @@
                         <td>{{ $p->active ? 'Sí' : 'No' }}</td>
                         <td>
                             <!-- BOTÓN EDITAR -->
-                            <a href="{{ route('logistica.productos.edit', $p) }}" class="btn btn-warning btn-sm">
+                            <a href="{{ route('comercial.productos.edit', $p) }}" class="btn btn-warning btn-sm">
                                 Editar
                             </a>
 
                             <!-- FORM ELIMINAR -->
-                            <form action="{{ route('logistica.productos.destroy', $p) }}" method="POST" style="display:inline;">
+                            <form action="{{ route('comercial.productos.destroy', $p) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
 

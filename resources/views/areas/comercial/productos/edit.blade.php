@@ -8,7 +8,7 @@
 
 @section('content')
 
-<form action="{{ route('logistica.productos.update', $product) }}" 
+<form action="{{ route('comercial.productos.update', $product) }}" 
       method="POST" 
       enctype="multipart/form-data">
     @csrf
@@ -18,7 +18,7 @@
         <div class="card-body">
 
             <div class="form-group">
-                <label>Nombre</label>
+                <label>Nombre</label> 
                 <input name="name" class="form-control" required
                        value="{{ old('name', $product->name) }}">
             </div>

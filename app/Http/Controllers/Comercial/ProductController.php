@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Logistica;
+namespace App\Http\Controllers\Comercial;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
@@ -21,7 +21,7 @@ class ProductController extends Controller
             ->orderByDesc('id')
             ->get();
 
-        return view('areas.logistica.productos.index', compact('products'));
+        return view('areas.comercial.productos.index', compact('products'));
     }
 
     /**
@@ -29,7 +29,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('areas.logistica.productos.create');
+        return view('areas.comercial.productos.create');
     }
 
     /**
@@ -42,13 +42,13 @@ class ProductController extends Controller
          * - La imagen es opcional pero controlada por tipo y tamaño
          */
         $data = $request->validate([
-            'name'         => ['required', 'string', 'max:255'],
-            'description'  => ['nullable', 'string'],
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
             'presentation' => ['nullable', 'string', 'max:255'],
-            'stock'        => ['required', 'integer', 'min:0'],
-            'active'       => ['nullable', 'boolean'],
-            'points'       => ['required', 'integer', 'min:1'],
-            'image'        => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'stock' => ['required', 'integer', 'min:0'],
+            'active' => ['nullable', 'boolean'],
+            'points' => ['required', 'integer', 'min:1'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
         // Slug único (si se repite, le agregamos sufijo)
@@ -68,25 +68,25 @@ class ProductController extends Controller
 
         // Crear producto
         $product = Product::create([
-            'name'         => $data['name'],
-            'slug'         => $slug,          //texto limpio y amigable para identificar el recurso en la URL
-            'description'  => $data['description'] ?? null,
+            'name' => $data['name'],
+            'slug' => $slug,          //texto limpio y amigable para identificar el recurso en la URL
+            'description' => $data['description'] ?? null,
             'presentation' => $data['presentation'] ?? null,
-            'stock'        => $data['stock'],
-            'active'       => $request->boolean('active', true),
-            'image_path'   => $imagePath,
+            'stock' => $data['stock'],
+            'active' => $request->boolean('active', true),
+            'image_path' => $imagePath,
         ]);
 
         // Crear precio vigente
         ProductPointPrice::create([
             'product_id' => $product->id,
-            'points'     => $data['points'],
-            'starts_at'  => now(),
-            'ends_at'    => null,
+            'points' => $data['points'],
+            'starts_at' => now(),
+            'ends_at' => null,
         ]);
 
         return redirect()
-            ->route('logistica.productos.index')
+            ->route('comercial.productos.index')
             ->with('success', 'Producto creado correctamente.');
     }
 
@@ -96,7 +96,7 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $product->load('currentPrice');
-        return view('areas.logistica.productos.edit', compact('product'));
+        return view('areas.comercial.productos.edit', compact('product'));
     }
 
     /**
@@ -106,13 +106,13 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $data = $request->validate([
-            'name'         => ['required', 'string', 'max:255'],
-            'description'  => ['nullable', 'string'],
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
             'presentation' => ['nullable', 'string', 'max:255'],
-            'stock'        => ['required', 'integer', 'min:0'],
-            'active'       => ['nullable', 'boolean'],
-            'points'       => ['required', 'integer', 'min:1'],
-            'image'        => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'stock' => ['required', 'integer', 'min:0'],
+            'active' => ['nullable', 'boolean'],
+            'points' => ['required', 'integer', 'min:1'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
         // Actualizar imagen si viene una nueva
@@ -136,7 +136,7 @@ class ProductController extends Controller
         $product->load('currentPrice');
         $current = $product->currentPrice;
 
-        if (!$current || (int)$current->points !== (int)$data['points']) {
+        if (!$current || (int) $current->points !== (int) $data['points']) {
             // Cerramos precio vigente (si existe)
             if ($current) {
                 $current->ends_at = now();
@@ -146,14 +146,14 @@ class ProductController extends Controller
             // Creamos nuevo precio vigente
             ProductPointPrice::create([
                 'product_id' => $product->id,
-                'points'     => $data['points'],
-                'starts_at'  => now(),
-                'ends_at'    => null,
+                'points' => $data['points'],
+                'starts_at' => now(),
+                'ends_at' => null,
             ]);
         }
 
         return redirect()
-            ->route('logistica.productos.index')
+            ->route('comercial.productos.index')
             ->with('success', 'Producto actualizado correctamente.');
     }
 
@@ -169,7 +169,7 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()
-            ->route('logistica.productos.index')
+            ->route('comercial.productos.index')
             ->with('success', 'Producto eliminado correctamente.');
     }
 }

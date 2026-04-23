@@ -178,3 +178,42 @@ body {
         max-width: 450px;
     }
 }
+
+/*  Reenviar código  */
+
+.dist-resend {
+    text-align: center;
+    margin-top: 12px;
+}
+
+.dist-resend form {
+    display: inline-block;
+}
+
+.dist-resend-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.9rem;
+    color: #6c757d; /* gris elegante */
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.dist-resend-btn span {
+    color: #4f8cff; /* azul principal */
+    font-weight: 600;
+}
+
+.dist-resend-btn:hover {
+    color: #343a40;
+}
+
+.dist-resend-btn:hover span {
+    text-decoration: underline;
+}
+
+.dist-resend-disabled {
+    font-size: 0.9rem;
+    color: #6c757d;
+}

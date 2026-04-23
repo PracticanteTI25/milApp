@@ -2,6 +2,12 @@
    PORTAL DE ACCESO – milApp
    =============================== */
 
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     font-family: "Roboto", sans-serif;
@@ -9,72 +15,126 @@ body {
     color: #2c2c2c;
 }
 
+/* CONTENEDOR PRINCIPAL */
 .portal-container {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 20px;
 }
 
+/* CAJA CENTRAL */
 .portal-box {
+    width: 100%;
+    max-width: 1100px;
     text-align: center;
-    max-width: 720px;
     padding: 40px 20px;
 }
 
+/* LOGO */
 .portal-logo img {
     max-width: 220px;
+    width: 100%;
+    height: auto;
     margin-bottom: 20px;
 }
 
-.portal-title {
-    font-size: 2.2rem;
-    margin-bottom: 8px;
-    color: #2c5fa8;
-}
-
+/* TEXTO */
 .portal-subtitle {
     font-size: 1rem;
     margin-bottom: 40px;
     color: #6b6b6b;
 }
 
+/* CONTENEDOR DE CARDS */
 .portal-cards {
     display: flex;
     justify-content: center;
-    gap: 24px;
+    gap: 32px;
+    flex-wrap: wrap;
 }
 
+/* CARD */
 .portal-card {
-    width: 600px;
+    flex: 1 1 380px;
+    max-width: 420px;
     background: #ffffff;
-    border-radius: 16px;
-    padding: 28px 22px;
+    border-radius: 20px;
+    padding: 28px 32px 36px; /* menos arriba, más abajo */
     text-decoration: none;
     color: inherit;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    transition: transform .2s ease, box-shadow .2s ease;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
+.portal-icon-wrapper {
+    height: 70px;              
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+
+.portal-icon-cart {
+    max-height: 70px;   /* más grande que el logo */
+    max-width: 70px;
+}
+
+/* HOVER */
 .portal-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.12);
 }
 
+/* ===== CONTENEDOR FIJO DEL ICONO ===== */
+.portal-card::before {
+    content: "";
+    display: block;
+    height: 90px;
+}
+
+/* ICONOS */
 .portal-icon-img {
-    width: 210px;
-    height: 210px;
+    max-height: 60px;
+    max-width: 160px;
+    width: auto;
+    height: auto;
     object-fit: contain;
-    margin-bottom: 14px;
 }
 
-
+/* TEXTOS CARD */
 .portal-card h3 {
-    margin: 10px 0 6px;
+    margin: 0 0 6px;
     color: #2c5fa8;
+    text-align: center;
 }
 
 .portal-card p {
     font-size: 0.95rem;
     color: #6b6b6b;
+    text-align: center;
+    max-width: 300px;
+}
+
+
+/* RESPONSIVE MÓVIL */
+@media (max-width: 600px) {
+    .portal-box {
+        padding: 20px 10px;
+    }
+
+    .portal-subtitle {
+        font-size: 0.95rem;
+    }
+
+    .portal-card {
+        flex: 1 1 100%;
+        max-width: 100%;
+        padding: 28px 20px;
+    }
 }

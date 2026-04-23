@@ -17,12 +17,23 @@
 
             {{-- Asignación de puntos --}}
             @if (Route::has('comercial.puntos.index'))
-                <a href="{{ route('comercial.puntos.index') }}" class="btn btn-primary">
+                <a href="{{ route('comercial.puntos.index') }}" class="btn btn-primary mr-2">
                     Asignación de puntos
                 </a>
             @endif
 
-            @if (!Route::has('distribuidores.index') && !Route::has('comercial.puntos.index'))
+            {{-- Gestión de productos --}}
+            @if (Route::has('comercial.productos.index'))
+                <a href="{{ route('comercial.productos.index') }}" class="btn btn-primary mr-2">
+                    Gestión de productos
+                </a>
+            @endif
+
+            @if (
+                    !Route::has('distribuidores.index') &&
+                    !Route::has('comercial.puntos.index') &&
+                    !Route::has('comercial.productos.index')
+                )
                 <div class="alert alert-info mt-3">
                     Este módulo está en construcción. Ya tienes acceso al área
                     <b>{{ str_replace('_', ' ', $slug) }}</b>.
@@ -34,19 +45,14 @@
     @elseif($slug === 'logistica_distribucion')
         <div class="mt-3">
 
-            @if (Route::has('logistica.productos.index'))
-                <a href="{{ route('logistica.productos.index') }}" class="btn btn-primary mr-2">
-                    Gestión de productos
-                </a>
-            @endif
-
+            {{-- Pedidos --}}
             @if (Route::has('logistica.pedidos.index'))
-                <a href="{{ route('logistica.pedidos.index') }}" class="btn btn-secondary">
+                <a href="{{ route('logistica.pedidos.index') }}" class="btn btn-primary">
                     Pedidos
                 </a>
             @endif
 
-            @if (!Route::has('logistica.productos.index') && !Route::has('logistica.pedidos.index'))
+            @if (!Route::has('logistica.pedidos.index'))
                 <div class="alert alert-info mt-3">
                     Este módulo está en construcción. Ya tienes acceso al área
                     <b>{{ str_replace('_', ' ', $slug) }}</b>.

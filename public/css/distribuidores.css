@@ -1,5 +1,10 @@
 /* ===== CATÁLOGO DISTRIBUIDORES ===== */
 
+form {
+    display: flex;
+    justify-content: center;
+}
+
 .catalog-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -162,12 +167,10 @@
     gap: 6px;
 }
 
-
 .cart-item-info strong {
     font-size: 16px;
     font-weight: 700;
 }
-
 
 .cart-item-info label {
     font-size: 14px;
@@ -320,4 +323,102 @@
     display: inline-flex;
     align-items: center;
     margin: 0;
+}
+
+/* ===== BOTONES PANEL DISTRIBUIDORES ===== */
+
+.dist-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* CTA PRINCIPAL */
+.dist-btn-primary {
+    background: linear-gradient(135deg, #4f8cff, #3f78db);
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 8px 20px rgba(79, 140, 255, 0.35);
+}
+
+.dist-btn-primary:hover {
+    background: linear-gradient(135deg, #3f78db, #2f5fd0);
+    transform: translateY(-1px);
+}
+
+/* BOTÓN SECUNDARIO (CERRAR SESIÓN) */
+.dist-btn-secondary {
+    background: transparent;
+    color: #555;
+    border: 1px solid #ddd;
+    font-weight: 600;
+}
+
+.dist-btn-secondary:hover {
+    background: #fff5f5;
+    color: #d9534f;
+    border-color: #d9534f;
+}
+
+/* TAMAÑO GRANDE */
+.dist-btn-lg {
+    font-size: 1.1rem;
+    padding: 14px 24px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 320px;
+}
+
+/* ===== PANEL DISTRIBUIDORES MEJORADO ===== */
+
+/* Header */
+.dist-header {
+    margin-bottom: 25px;
+}
+
+.dist-description {
+    color: #666;
+    font-size: 15px;
+    margin-top: 5px;
+}
+
+/* Acciones */
+.dist-actions-panel {
+    margin: 25px 0;
+}
+
+/* Footer */
+.dist-footer {
+    margin-top: 20px;
+}
+
+/* Mejorar card */
+.dist-card {
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+/* Botón principal más protagonista */
+.dist-btn-primary {
+    width: 100%;
+    font-size: 16px;
+    padding: 16px;
+    border-radius: 12px;
+}
+
+/* Botón logout más sutil */
+.dist-btn-secondary {
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.dist-btn {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
