@@ -2,146 +2,68 @@
 
 namespace App\Services;
 
-use App\Models\Distributor;
-use App\Models\PointMovement;
+use App\Models\Venta;
+use App\Models\BolsaPuntos;
+use App\Models\KardexPuntos;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Models\BusinessSetting;
 
-/**
- * PointsService
- *
- * Servicio centralizado para manejar puntos.
- * Importante: centralizar aquí evita que “cada controlador haga su lógica”
- * y reduce errores en un sistema real.
- */
 class PointsService
 {
     /**
-     * Sumar puntos manualmente (Comercial).
-     *
-     * @param int $distributorId
-     * @param int $amount
-     * @param string|null $comment
-     * @param int|null $actorUserId  Usuario interno que asigna (auth()->id())
+     * Regla base: pesos por punto
+     * (Luego esto saldrá de configuración)
      */
-    public function manualCredit(int $distributorId, int $amount, ?string $comment, ?int $actorUserId): void
+
+    private function pesosPorPunto(): int
     {
-        if ($amount <= 0) {
-            // Seguridad: no permitir valores inválidos.
-            throw new \InvalidArgumentException('El valor a sumar debe ser mayor que cero.');
-        }
-
-        DB::transaction(function () use ($distributorId, $amount, $comment, $actorUserId) {
-
-            /**
-             * Bloqueo FOR UPDATE:
-             * Evita condiciones de carrera:
-             * - Dos personas actualizando puntos a la misma distribuidora al mismo tiempo.
-             * Esto previene inconsistencias en saldo (muy importante en “vida real”).
-             */
-            $distributor = Distributor::where('id', $distributorId)
-                ->lockForUpdate()
-                ->firstOrFail();
-
-            $newBalance = $distributor->points_balance + $amount;
-
-            // Actualizar saldo en tabla principal (rápido de consultar)
-            $distributor->points_balance = $newBalance;
-            $distributor->save();
-
-            // Guardar movimiento (historial / extracto)
-            PointMovement::create([
-                'distributor_id' => $distributor->id,
-                'delta' => $amount,
-                'balance_after' => $newBalance,
-                'type' => 'manual_credit',
-                'comment' => $comment,
-                'created_by_user_id' => $actorUserId,
-            ]);
-        });
+        return (int) BusinessSetting::where('key', 'pesos_por_punto')->value('value');
     }
 
-    /**
-     * Restar puntos manualmente (Comercial).
-     * Útil si algún día necesitan corregir un saldo.
-     */
-
-    // esto previene errores en producción (no saldo negativo), y deja trazabilidad (OWASP: control y auditoría)
-    
-    public function manualDebit(int $distributorId, int $amount, ?string $comment, ?int $actorUserId): void
-    {
-        if ($amount <= 0) {
-            throw new \InvalidArgumentException('El valor a restar debe ser mayor que cero.');
-        }
-
-        DB::transaction(function () use ($distributorId, $amount, $comment, $actorUserId) {
-
-            //  lockForUpdate evita inconsistencias si dos personas editan a la vez.
-            $distributor = Distributor::where('id', $distributorId)
-                ->lockForUpdate()
-                ->firstOrFail();
-
-            // No permitir saldo negativo
-            if ($distributor->points_balance < $amount) {
-                throw new \RuntimeException('No se puede restar más puntos de los que tiene la distribuidora.');
-            }
-
-            $newBalance = $distributor->points_balance - $amount;
-
-            $distributor->points_balance = $newBalance;
-            $distributor->save();
-
-            // Historial (extracto)
-            PointMovement::create([
-                'distributor_id' => $distributor->id,
-                'delta' => -$amount,
-                'balance_after' => $newBalance,
-                'type' => 'manual_debit',
-                'comment' => $comment,
-                'created_by_user_id' => $actorUserId,
-            ]);
-        });
-    }
 
     /**
-     * Restar puntos automáticamente por redención (pedido).
-     *
-     * @param int $distributorId
-     * @param int $amount
-     * @param int|null $orderId
+     * Procesa una venta y suma puntos
      */
-    public function debitForRedemption(int $distributorId, int $amount, ?int $orderId = null): void
+    public function procesarVenta(int $distributorId, Carbon $fecha, float $monto): void
     {
-        if ($amount <= 0) {
-            throw new \InvalidArgumentException('El valor a descontar debe ser mayor que cero');
-        }
+        DB::transaction(function () use ($distributorId, $fecha, $monto) {
 
-        DB::transaction(function () use ($distributorId, $amount, $orderId) {
+            // Calcular puntos (entero)
+            $puntos = intdiv((int) $monto, $this->pesosPorPunto());
 
-            $distributor = Distributor::where('id', $distributorId)
-                ->lockForUpdate()
-                ->firstOrFail();
-
-            // Bloqueo con mensaje claro: no permitir saldo negativo
-            if ($distributor->points_balance < $amount) {
-                throw new \RuntimeException('La distribuidora no tiene puntos suficientes para redimir');
+            if ($puntos <= 0) {
+                return; // venta sin puntos
             }
 
-            $newBalance = $distributor->points_balance - $amount;
+            //  Mes de la bolsa (YYYY-MM-01)
+            $mesBolsa = $fecha->copy()->startOfMonth();
 
-            // Actualizar saldo y acumulado redimido
-            $distributor->points_balance = $newBalance;
-            $distributor->points_redeemed = $distributor->points_redeemed + $amount;
-            $distributor->save();
+            //  Obtener o crear bolsa
+            $bolsa = BolsaPuntos::firstOrCreate(
+                [
+                    'distributor_id' => $distributorId,
+                    'mes' => $mesBolsa,
+                ],
+                [
+                    'puntos_generados' => 0,
+                    'puntos_disponibles' => 0,
+                    'estado' => 'pendiente',
+                ]
+            );
 
-            // Guardar movimiento negativo (extracto)
-            PointMovement::create([
-                'distributor_id' => $distributor->id,
-                'delta' => -$amount,
-                'balance_after' => $newBalance,
-                'type' => 'redemption',
-                'comment' => 'Redención por pedido',
-                'created_by_user_id' => null, // lo hace el sistema
-                'order_id' => $orderId,
+            //  Sumar puntos
+            $bolsa->increment('puntos_generados', $puntos);
+            $bolsa->increment('puntos_disponibles', $puntos);
+
+            //  Kardex
+            KardexPuntos::create([
+                'distributor_id' => $distributorId,
+                'bolsa_id' => $bolsa->id,
+                'tipo' => 'generacion',
+                'puntos' => $puntos,
+                'descripcion' => 'Generación automática por venta',
+                'fecha' => $fecha,
             ]);
         });
     }

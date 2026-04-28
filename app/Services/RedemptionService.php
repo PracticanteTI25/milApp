@@ -2,107 +2,73 @@
 
 namespace App\Services;
 
-use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Product;
+use App\Models\BolsaPuntos;
+use App\Models\KardexPuntos;
+use App\Models\Redencion;
+use App\Models\RedencionDetalle;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use RuntimeException;
 
 class RedemptionService
 {
-    /**
-     * Procesa una redención completa a partir del carrito.
-     *
-     * @param int   $distributorId
-     * @param array $cartItems
-     *
-     * @return Order
-     */
-    public function redeem(int $distributorId, array $cartItems): Order
-    {
-        if (empty($cartItems)) {
-            throw new RuntimeException('El carrito está vacío');
-        }
+    public function redimir(
+        int $distributorId,
+        int $direccionId,
+        int $puntosSolicitados
+    ): void {
+        DB::transaction(function () use ($distributorId, $direccionId, $puntosSolicitados) {
 
-        return DB::transaction(function () use ($distributorId, $cartItems) {
+            //  Bolsas habilitadas FIFO
+            $bolsas = BolsaPuntos::where('distributor_id', $distributorId)
+                ->where('estado', 'habilitado')
+                ->where('puntos_disponibles', '>', 0)
+                ->orderBy('fecha_habilitacion')
+                ->lockForUpdate()
+                ->get();
 
-            $totalPoints = 0;
-            $products = [];
+            $restantes = $puntosSolicitados;
 
-            /**
-             *  Revalidar productos y calcular puntos
-             */
-            foreach ($cartItems as $item) {
-
-                $product = Product::with('currentPrice')  //precio actual
-                    ->where('id', $item['product_id'])
-                    ->where('active', true)  //productos activos
-                    ->lockForUpdate() // evita que dos personas esten comprando el mismo stock al mismo tiempo
-                    ->firstOrFail();
-
-                if (!$product->currentPrice) {
-                    throw new RuntimeException(
-                        "El producto {$product->name} no tiene precio vigente"
-                    );
-                }
-
-                if ($product->stock < $item['quantity']) {
-                    throw new RuntimeException(
-                        "Stock insuficiente para {$product->name}."
-                    );
-                }
-
-                //calcular puntos por producto y sumar el total
-                $linePoints = $product->currentPrice->points * $item['quantity'];
-                $totalPoints += $linePoints;
-
-                //guarda info limpia para usar despues 
-                $products[] = [
-                    'product' => $product,
-                    'quantity' => $item['quantity'],
-                    'points' => $product->currentPrice->points,
-                ];
+            if ($bolsas->sum('puntos_disponibles') < $puntosSolicitados) {
+                throw new \Exception('Puntos insuficientes');
             }
 
-            /**
-             *  Descontar puntos (servicio central)
-             */
-            app(PointsService::class)->debitForRedemption(
-                distributorId: $distributorId,
-                amount: $totalPoints
-            );
-
-            /**
-             *  Crear pedido
-             */
-            $order = Order::create([
+            //  Crear redención
+            $redencion = Redencion::create([
                 'distributor_id' => $distributorId,
-                'total_points' => $totalPoints,
-                'status' => 'pendiente',
+                'direccion_id' => $direccionId,
+                'fecha' => now(),
+                'total_puntos_usados' => $puntosSolicitados,
             ]);
 
-            /**
-             *  Crear ítems y descontar stock
-             */
-            foreach ($products as $row) {
+            //  Consumir FIFO
+            foreach ($bolsas as $bolsa) {
+                if ($restantes <= 0)
+                    break;
 
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $row['product']->id,
-                    'points' => $row['points'],
-                    'quantity' => $row['quantity'],
+                $usar = min($bolsa->puntos_disponibles, $restantes);
+
+                // Detalle
+                RedencionDetalle::create([
+                    'redencion_id' => $redencion->id,
+                    'bolsa_id' => $bolsa->id,
+                    'puntos_usados' => $usar,
                 ]);
 
-                // Descontar stock
-                $row['product']->decrement('stock', $row['quantity']);
+                // Kardex
+                KardexPuntos::create([
+                    'distributor_id' => $distributorId,
+                    'bolsa_id' => $bolsa->id,
+                    'tipo' => 'consumo',
+                    'puntos' => -$usar,
+                    'descripcion' => 'Redención de puntos',
+                    'fecha' => Carbon::now(),
+                ]);
+
+                // Actualizar bolsa
+                $bolsa->decrement('puntos_disponibles', $usar);
+
+                $restantes -= $usar;
             }
-
-            /**
-             * Limpiar carrito
-             */
-            session()->forget('cart');
-
-            return $order;
         });
     }
 }

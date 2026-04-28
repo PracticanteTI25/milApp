@@ -18,6 +18,7 @@ use App\Http\Controllers\Logistica\OrderController;
 use App\Http\Controllers\Auth\DistributorForgotPasswordController;
 use App\Http\Controllers\Auth\DistributorResetPasswordController;
 use App\Http\Controllers\Comercial\ProductController as ComercialProductController;
+use App\Http\Controllers\Admin\ManualPointsAdjustmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -238,6 +239,18 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/productos/{product}', [ComercialProductController::class, 'destroy'])
             ->name('comercial.productos.destroy');
     });
+
+
+    Route::prefix('admin/finanzas')
+        ->middleware('permission:finanzas.ajustes')
+        ->group(function () {
+
+            Route::get('/ajustes', [ManualPointsAdjustmentController::class, 'create'])
+                ->name('finanzas.ajustes.create');
+
+            Route::post('/ajustes', [ManualPointsAdjustmentController::class, 'store'])
+                ->name('finanzas.ajustes.store');
+        });
 
 
 

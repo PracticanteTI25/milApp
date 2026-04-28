@@ -26,12 +26,12 @@ class User extends Authenticatable
      * IMPORTANTE:
      * - role_id y area_id se asignan SOLO desde el backend (admin).
      */
+
     protected $fillable = [
         'name',
         'email',
         'password',
         'role_id',
-        'area_id',
     ];
 
     /**
@@ -66,8 +66,36 @@ class User extends Authenticatable
      * Ejemplo:
      * auth()->user()->area->name
      */
-    public function area()
+    public function areas()
     {
-        return $this->belongsTo(Area::class);
+        return $this->belongsToMany(
+            Area::class,
+            'area_user'
+        );
     }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(
+            \App\Models\Permission::class,
+            'user_permission'
+        )->withTimestamps();
+    }
+
+    public function allPermissions()
+    {
+        // Permisos directos del usuario
+        $userPermissions = $this->permissions;
+
+        // Permisos heredados del rol (legacy)
+        $rolePermissions = $this->role
+            ? $this->role->permissions
+            : collect();
+
+        // Unificar sin duplicados
+        return $userPermissions
+            ->merge($rolePermissions)
+            ->unique('id');
+    }
+
 }

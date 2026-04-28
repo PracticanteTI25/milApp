@@ -17,4 +17,12 @@ class Area extends Model
         'slug',
         'active',
     ];
+
+    public function users()
+    {
+        return $this->belongsToMany(
+            \App\Models\User::class,
+            'area_user'
+        );
+    }
 }

@@ -22,4 +22,12 @@ class Permission extends Model
     {
         return $this->belongsTo(Module::class);
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(
+            \App\Models\User::class,
+            'user_permission'
+        )->withTimestamps();
+    }
 }

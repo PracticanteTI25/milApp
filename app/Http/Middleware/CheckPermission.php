@@ -4,29 +4,28 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Middleware CheckPermission
  *
- * Valida si el usuario autenticado tiene permiso
- * para acceder a un módulo y acción específicos.
+ * Valida si el usuario autenticado tiene un permiso específico.
  *
- * Ejemplo de uso en rutas:
- *   ->middleware('permission:reportes.ver')
+ * Uso en rutas:
+ *   ->middleware('permission:finanzas.ajustes')
  *
  * Seguridad:
- * - Controla acceso REAL (OWASP A01: Broken Access Control)
+ * - Control de acceso REAL (OWASP A01: Broken Access Control)
+ * - Soporta permisos por usuario y por rol
  * - El frontend NO decide permisos
  */
 class CheckPermission
 {
-    public function handle(Request $request, Closure $next, string $permission)
+    public function handle(Request $request, Closure $next, string $permissionSlug)
     {
         /*
-        |--------------------------------------------------------------------------
-        | 1. Verificar que haya un usuario autenticado
-        |--------------------------------------------------------------------------
+        |--------------------------------------------------------------
+        | 1. Usuario autenticado
+        |--------------------------------------------------------------
         */
         $user = auth()->user();
 
@@ -35,56 +34,28 @@ class CheckPermission
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | 2. Verificar que el usuario tenga un rol asignado
-        |--------------------------------------------------------------------------
+        |--------------------------------------------------------------
+        | 2. Obtener TODOS los permisos efectivos del usuario
+        |--------------------------------------------------------------
+        | Incluye:
+        | - Permisos directos (user_permission)
+        | - Permisos heredados del rol (role_permission)
         */
-        if (!$user->role) {
-            abort(403, 'Usuario sin rol asignado');
-        }
+        $permissions = $user->allPermissions();
 
         /*
-        |--------------------------------------------------------------------------
-        | 3. Separar el permiso solicitado
-        |--------------------------------------------------------------------------
-        | Formato esperado: modulo.accion
-        | Ejemplo: reportes.ver
+        |--------------------------------------------------------------
+        | 3. Validar permiso
+        |--------------------------------------------------------------
         */
-        if (!str_contains($permission, '.')) {
-            abort(500, 'Formato de permiso inválido');
-        }
-
-        [$moduleSlug, $actionSlug] = explode('.', $permission);
-
-        /*
-        |--------------------------------------------------------------------------
-        | 4. Consultar en base de datos si el rol tiene el permiso
-        |--------------------------------------------------------------------------
-        | Relaciones:
-        | roles -> role_permission -> permissions -> modules
-        */
-        $hasPermission = DB::table('roles')
-            ->join('role_permission', 'roles.id', '=', 'role_permission.role_id')
-            ->join('permissions', 'permissions.id', '=', 'role_permission.permission_id')
-            ->join('modules', 'modules.id', '=', 'permissions.module_id')
-            ->where('roles.id', $user->role_id)
-            ->where('permissions.slug', $permission)
-            ->exists();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | 5. Bloquear acceso si no tiene permiso
-        |--------------------------------------------------------------------------
-        */
-        if (!$hasPermission) {
+        if (!$permissions->contains('slug', $permissionSlug)) {
             abort(403, 'No autorizado');
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | 6. Permiso válido → continuar flujo normal
-        |--------------------------------------------------------------------------
+        |--------------------------------------------------------------
+        | 4. Permiso válido → continuar
+        |--------------------------------------------------------------
         */
         return $next($request);
     }
