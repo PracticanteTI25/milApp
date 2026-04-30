@@ -8,6 +8,7 @@ use App\Models\ProductPointPrice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Services\PermissionRegistry;
 
 class ProductController extends Controller
 {
@@ -172,4 +173,14 @@ class ProductController extends Controller
             ->route('comercial.productos.index')
             ->with('success', 'Producto eliminado correctamente.');
     }
+
+    public function __construct()
+{
+    PermissionRegistry::register(
+        slug: 'comercial.productos.gestionar',
+        name: 'Gestión de productos',
+        area: 'comercial'
+    );
+}
+
 }

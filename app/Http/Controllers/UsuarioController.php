@@ -8,15 +8,21 @@ use App\Models\Area;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Module;
+use App\Models\Permission;
+
 
 class UsuarioController extends Controller
 {
     /**
      * Listado de usuarios
      */
+
     public function index()
     {
-        $usuarios = User::with(['role', 'areas'])->get();
+        // Cargamos relaciones para evitar N+1
+        $usuarios = User::with(['role', 'areas'])
+            ->orderBy('name')
+            ->get();
 
         return view('usuarios.index', compact('usuarios'));
     }
@@ -27,15 +33,38 @@ class UsuarioController extends Controller
 
     public function create()
     {
-        $areas = Area::where('active', true)->get();
-        $roles = Role::where('active', true)->get();
+        $roles = Role::orderBy('name')->get();
+        $areas = Area::orderBy('name')->get();
 
-        $modules = Module::with('permissions')
-            ->where('active', true)
+        //  SOLO módulos migrados a permisos funcionales
+        $modules = Module::whereIn('slug', [
+            'comercial',
+        ])->orderBy('name')->get();
+
+        // SOLO permisos funcionales (no CRUD legacy)
+        $functionalPermissions = Permission::whereIn('module_id', $modules->pluck('id'))
+            ->whereNotIn('slug', [
+                // CRUD legacy
+                'ver',
+                'crear',
+                'editar',
+                'eliminar',
+
+                // PERMISOS LEGACY CONFLICTIVOS
+                'registrar_distribuidoras',
+                'gestionar_productos',
+                'asignar_puntos',
+            ])
+            ->orderBy('slug')
             ->get()
-            ->groupBy('slug');
+            ->groupBy('module_id');
 
-        return view('usuarios.create', compact('areas', 'roles', 'modules'));
+        return view('usuarios.create', compact(
+            'roles',
+            'areas',
+            'modules',
+            'functionalPermissions'
+        ));
     }
 
     /**
@@ -49,6 +78,7 @@ class UsuarioController extends Controller
             'email' => ['required', 'email', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
             'role_id' => ['nullable', 'integer'],
+            'roles' => ['nullable', 'array'],
             'areas' => ['required', 'array'],
             'permissions' => ['nullable', 'array'],
         ]);
@@ -60,6 +90,11 @@ class UsuarioController extends Controller
             'role_id' => $data['role_id'] ?? null,
             'active' => true,
         ]);
+
+
+        if (!empty($data['roles'])) {
+            $user->roles()->sync($data['roles']);
+        }
 
         // Áreas (nuevo modelo)
         $user->areas()->sync($data['areas']);
@@ -78,28 +113,48 @@ class UsuarioController extends Controller
      * Formulario de edición
      */
 
-
     public function edit($id)
     {
-        $user = User::findOrFail($id);
+        $user = User::with(['areas', 'permissions', 'role'])->findOrFail($id);
 
-        $areas = Area::where('active', true)->get();
-        $roles = Role::where('active', true)->get();
+        $roles = Role::orderBy('name')->get();
+        $areas = Area::orderBy('name')->get();
 
-        $modules = Module::with('permissions')
-            ->where('active', true)
+        // SOLO módulos migrados a permisos funcionales
+        $modules = Module::whereIn('slug', [
+            'comercial',
+        ])->orderBy('name')->get();
+
+        // SOLO permisos funcionales (no CRUD legacy)
+        $functionalPermissions = Permission::whereIn('module_id', $modules->pluck('id'))
+            ->whereNotIn('slug', [
+                // CRUD legacy
+                'ver',
+                'crear',
+                'editar',
+                'eliminar',
+
+                // PERMISOS LEGACY CONFLICTIVOS
+                'registrar_distribuidoras',
+                'gestionar_productos',
+                'asignar_puntos',
+            ])
+            ->orderBy('slug')
             ->get()
-            ->groupBy('slug');
+            ->groupBy('module_id');
 
-        // IDs ya asignados
+        // IDs de áreas del usuario (para marcar checkboxes)
         $userAreaIds = $user->areas->pluck('id')->toArray();
+
+        // IDs de permisos funcionales del usuario
         $userPermissionIds = $user->permissions->pluck('id')->toArray();
 
         return view('usuarios.edit', compact(
             'user',
-            'areas',
             'roles',
+            'areas',
             'modules',
+            'functionalPermissions',
             'userAreaIds',
             'userPermissionIds'
         ));
@@ -116,6 +171,7 @@ class UsuarioController extends Controller
             'name' => ['required', 'string'],
             'email' => ['required', 'email', 'unique:users,email,' . $user->id],
             'role_id' => ['nullable', 'integer'],
+            'roles' => ['nullable', 'array'],
             'areas' => ['required', 'array'],
             'permissions' => ['nullable', 'array'],
             'password' => ['nullable', 'string', 'min:8'],
@@ -132,6 +188,8 @@ class UsuarioController extends Controller
                 'password' => bcrypt($data['password']),
             ]);
         }
+
+        $user->roles()->sync($data['roles'] ?? []);
 
         // Sync áreas
         $user->areas()->sync($data['areas']);

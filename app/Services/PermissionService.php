@@ -3,22 +3,44 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
 
-/**
- * Servicio encargado de consultar permisos del sistema.
- *
- * IMPORTANTE:
- * - Centraliza toda la lógica de permisos.
- * - Evita duplicar queries en controladores y vistas.
- * - Facilita la migración futura a Directorio Activo.
- */
 class PermissionService
 {
     /**
-     * Obtiene los slugs de módulos que el rol puede VER.
-     *
-     * @param string $roleSlug Rol técnico del sistema (ej: admin_sistema)
-     * @return array Lista de slugs de módulos habilitados
+     * NUEVO MÉTODO (PRINCIPAL)
+     * Obtiene los módulos visibles para un usuario,
+     * considerando ROLES MÚLTIPLES.
+     */
+    public function getViewableModulesForUser(User $user): array
+    {
+        //  Obtener roles desde la relación nueva
+        $roleIds = $user->roles()->pluck('roles.id');
+
+        // Fallback: si aún no tiene roles múltiples,
+        // usamos el role_id legacy para NO romper nada
+        if ($roleIds->isEmpty() && $user->role_id) {
+            $roleIds = collect([$user->role_id]);
+        }
+
+        if ($roleIds->isEmpty()) {
+            return [];
+        }
+
+        return DB::table('role_permission')
+            ->join('permissions', 'permissions.id', '=', 'role_permission.permission_id')
+            ->join('modules', 'modules.id', '=', 'permissions.module_id')
+            ->whereIn('role_permission.role_id', $roleIds)
+            ->where('permissions.slug', 'ver')
+            ->pluck('modules.slug')
+            ->unique()
+            ->values()
+            ->toArray();
+    }
+
+    /**
+     *  MÉTODO LEGACY (NO TOCAR AÚN)
+     * Se mantiene para compatibilidad temporal.
      */
     public function getViewableModules(string $roleSlug): array
     {
@@ -27,7 +49,7 @@ class PermissionService
             ->join('permissions', 'permissions.id', '=', 'role_permission.permission_id')
             ->join('modules', 'modules.id', '=', 'permissions.module_id')
             ->where('roles.slug', $roleSlug)
-            ->where('permissions.slug', 'ver') // permiso base para ver módulo
+            ->where('permissions.slug', 'ver')
             ->pluck('modules.slug')
             ->unique()
             ->values()

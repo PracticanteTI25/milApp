@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Logistica;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\PermissionRegistry;
 
 class OrderController extends Controller
 {
@@ -42,5 +43,14 @@ class OrderController extends Controller
         return $pdf->stream("pedido_{$order->id}.pdf");  //genera el pdf, y lo abre en el navegador
 
         //para cambiar para descargar automaticamente:  return $pdf->download("pedido_{$order->id}.pdf");
+    }
+
+    public function __construct()
+    {
+        PermissionRegistry::register(
+            slug: 'logistica.pedidos.gestionar',
+            name: 'Gestión de pedidos',
+            area: 'logistica'
+        );
     }
 }

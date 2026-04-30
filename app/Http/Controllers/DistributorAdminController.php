@@ -184,4 +184,5 @@ class DistributorAdminController extends Controller
             ->route('distribuidores.index')
             ->with('success', 'Distribuidora eliminada correctamente.');
     }
+
 }

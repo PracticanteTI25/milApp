@@ -15,112 +15,69 @@ use App\Http\Controllers\Distribuidores\CatalogoController;
 use App\Http\Controllers\Distribuidores\CartController;
 use App\Http\Controllers\Distribuidores\RedemptionController;
 use App\Http\Controllers\Logistica\OrderController;
-use App\Http\Controllers\Auth\DistributorForgotPasswordController;
-use App\Http\Controllers\Auth\DistributorResetPasswordController;
 use App\Http\Controllers\Comercial\ProductController as ComercialProductController;
 use App\Http\Controllers\Admin\ManualPointsAdjustmentController;
 
 /*
 |--------------------------------------------------------------------------
-| RUTAS PÚBLICAS (LOGIN INTERNO)
+| RUTAS PÚBLICAS
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', function () {
-    return view('access.portal');
-})->name('access.portal');
+Route::get('/', fn() => view('access.portal'))->name('access.portal');
 
-Route::get('/login', [AuthController::class, 'showLogin'])
-    ->name('login');
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 
 Route::post('/login', [AuthController::class, 'login'])
     ->middleware('recaptcha')
     ->name('login.process');
 
-Route::post('/logout', [AuthController::class, 'logout'])
-    ->name('logout');
-
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 /*
 |--------------------------------------------------------------------------
-| RUTAS PÚBLICAS - DISTRIBUIDORES (UI EXTERNA)
+| RUTAS DISTRIBUIDORES
 |--------------------------------------------------------------------------
 */
 
-
 Route::prefix('distribuidores')->group(function () {
 
-    // LOGIN – solo invitados
     Route::middleware('guest:distributor')->group(function () {
-
         Route::get('/login', [DistributorAuthController::class, 'showEmailForm'])
             ->name('distribuidores.login');
 
         Route::post('/login', [DistributorAuthController::class, 'sendToken'])
             ->middleware('throttle:5,1')
             ->name('distribuidores.login.token');
-
-        Route::get('/login/token', [DistributorAuthController::class, 'showTokenForm'])
-            ->name('distribuidores.login.token.form');
-
-        Route::post('/login/token', [DistributorAuthController::class, 'verifyToken'])
-            ->name('distribuidores.login.token.verify');
-
-        Route::post('/login/token/resend', [DistributorAuthController::class, 'resendToken'])
-            ->middleware('throttle:5,1')
-            ->name('distribuidores.login.token.resend');
-
     });
 
-    // LOGOUT
-    Route::post('/logout', [DistributorAuthController::class, 'logout'])
-        ->name('distribuidores.logout');
-
-    // PANEL
-    Route::get('/panel', [DistributorAuthController::class, 'dashboard'])
-        ->middleware('auth:distributor')
-        ->name('distribuidores.panel');
-
-    // CATÁLOGO / CARRITO / CANJE
     Route::middleware('auth:distributor')->group(function () {
+
+        Route::get('/panel', [DistributorAuthController::class, 'dashboard'])
+            ->name('distribuidores.panel');
 
         Route::get('/catalogo', [CatalogoController::class, 'index'])
             ->name('distribuidores.catalogo');
 
-        Route::get('/catalogo/{slug}', [CatalogoController::class, 'show'])
-            ->name('distribuidores.catalogo.show');
-
-        Route::get('/carrito', [CartController::class, 'index'])
-            ->name('distribuidores.carrito.index');
-
-        Route::post('/carrito/agregar', [CartController::class, 'add'])
-            ->name('distribuidores.carrito.add');
-
-        Route::post('/carrito/actualizar', [CartController::class, 'update'])
-            ->name('distribuidores.carrito.update');
-
-        Route::post('/carrito/eliminar', [CartController::class, 'remove'])
-            ->name('distribuidores.carrito.remove');
-
         Route::post('/canje', [RedemptionController::class, 'store'])
             ->name('distribuidores.canje.store');
-
-        Route::get('/canje/{order}', function (\App\Models\Order $order) {
-            return view('distribuidores.canje-confirmacion', compact('order'));
-        })->name('distribuidores.canje.confirmacion');
     });
 });
 
-
 /*
 |--------------------------------------------------------------------------
-| RUTAS PROTEGIDAS (USUARIOS INTERNOS)
+| RUTAS INTERNAS (USUARIOS INTERNOS)
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware('auth')->group(function () {
 
-    // Panel principal
+    /*
+    |--------------------------------------------------------------------------
+    | PANEL ADMIN
+    |--------------------------------------------------------------------------
+    */
+
     Route::get('/admin', function (PermissionService $permissionService) {
 
         $user = auth()->user();
@@ -129,16 +86,17 @@ Route::middleware(['auth'])->group(function () {
             abort(403, 'Usuario sin rol asignado');
         }
 
-        $enabledModules = $permissionService->getViewableModules($user->role->slug);
+        $enabledModules = $permissionService->getViewableModulesForUser($user);
 
-        return view('admin', [
-            'enabledModules' => $enabledModules,
-        ]);
-
+        return view('admin', compact('enabledModules'));
     })->name('admin.dashboard');
 
+    /*
+    |--------------------------------------------------------------------------
+    | REPORTES
+    |--------------------------------------------------------------------------
+    */
 
-    // Reportes
     Route::get('/reportes', [ReporteController::class, 'index'])
         ->middleware('permission:reportes.ver')
         ->name('reportes.index');
@@ -147,8 +105,12 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:reportes.ver')
         ->name('reportes.show');
 
+    /*
+    |--------------------------------------------------------------------------
+    | USUARIOS
+    |--------------------------------------------------------------------------
+    */
 
-    // Usuarios
     Route::get('/usuarios', [UsuarioController::class, 'index'])
         ->middleware('permission:usuarios.ver')
         ->name('usuarios.index');
@@ -173,73 +135,97 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:usuarios.eliminar')
         ->name('usuarios.destroy');
 
-
-    // Áreas (sidebar)
-    Route::get('/areas/{slug}', [AreaController::class, 'show'])
-        ->name('areas.show');
-
-    Route::get('/corporativo', [CorporativoController::class, 'index'])
-        ->name('corporativo.index');
-
-
     /*
     |--------------------------------------------------------------------------
-    | ÁREA COMERCIAL – CRUD DISTRIBUIDORAS
+    | CORPORATIVO
     |--------------------------------------------------------------------------
     */
 
+    Route::get('/corporativo', [CorporativoController::class, 'index'])
+        ->middleware('permission:corporativo.ver')
+        ->name('corporativo.index');
 
+    // Áreas (navegación por módulos)
+    Route::get('/areas/{slug}', [AreaController::class, 'show'])
+        ->name('areas.show');
+
+    /*
+    |--------------------------------------------------------------------------
+    | ÁREA COMERCIAL
+    |--------------------------------------------------------------------------
+    */
 
     Route::prefix('areas/comercial')->group(function () {
 
+        // PUNTOS
         Route::get('/puntos', [DistributorPointsController::class, 'index'])
+            ->middleware('permission:comercial.puntos.ver')
             ->name('comercial.puntos.index');
 
         Route::post('/puntos/{id}', [DistributorPointsController::class, 'update'])
+            ->middleware('permission:comercial.puntos.editar')
             ->name('comercial.puntos.update');
 
         Route::get('/puntos/{id}/historial', [DistributorPointsController::class, 'history'])
+            ->middleware('permission:comercial.puntos.ver')
             ->name('comercial.puntos.historial');
 
+        // DISTRIBUIDORES
         Route::get('/distribuidores', [DistributorAdminController::class, 'index'])
+            ->middleware('permission:comercial.distribuidores.ver')
             ->name('distribuidores.index');
 
         Route::get('/distribuidores/create', [DistributorAdminController::class, 'create'])
+            ->middleware('permission:comercial.distribuidores.crear')
             ->name('distribuidores.create');
 
         Route::post('/distribuidores', [DistributorAdminController::class, 'store'])
+            ->middleware('permission:comercial.distribuidores.crear')
             ->name('distribuidores.store');
 
         Route::get('/distribuidores/{id}/edit', [DistributorAdminController::class, 'edit'])
+            ->middleware('permission:comercial.distribuidores.editar')
             ->name('distribuidores.edit');
 
         Route::put('/distribuidores/{id}', [DistributorAdminController::class, 'update'])
+            ->middleware('permission:comercial.distribuidores.editar')
             ->name('distribuidores.update');
 
         Route::delete('/distribuidores/{id}', [DistributorAdminController::class, 'destroy'])
+            ->middleware('permission:comercial.distribuidores.eliminar')
             ->name('distribuidores.destroy');
 
-
-
+        // PRODUCTOS
         Route::get('/productos', [ComercialProductController::class, 'index'])
+            ->middleware('permission:comercial.productos.ver')
             ->name('comercial.productos.index');
 
         Route::get('/productos/create', [ComercialProductController::class, 'create'])
+            ->middleware('permission:comercial.productos.crear')
             ->name('comercial.productos.create');
 
         Route::post('/productos', [ComercialProductController::class, 'store'])
+            ->middleware('permission:comercial.productos.crear')
             ->name('comercial.productos.store');
 
         Route::get('/productos/{product}/edit', [ComercialProductController::class, 'edit'])
+            ->middleware('permission:comercial.productos.editar')
             ->name('comercial.productos.edit');
 
         Route::put('/productos/{product}', [ComercialProductController::class, 'update'])
+            ->middleware('permission:comercial.productos.editar')
             ->name('comercial.productos.update');
 
         Route::delete('/productos/{product}', [ComercialProductController::class, 'destroy'])
+            ->middleware('permission:comercial.productos.eliminar')
             ->name('comercial.productos.destroy');
     });
 
+    /*
+    |--------------------------------------------------------------------------
+    | FINANZAS
+    |--------------------------------------------------------------------------
+    */
 
     Route::prefix('admin/finanzas')
         ->middleware('permission:finanzas.ajustes')
@@ -252,23 +238,27 @@ Route::middleware(['auth'])->group(function () {
                 ->name('finanzas.ajustes.store');
         });
 
-
+    /*
+    |--------------------------------------------------------------------------
+    | LOGÍSTICA
+    |--------------------------------------------------------------------------
+    */
 
     Route::prefix('areas/logistica_distribucion')->group(function () {
 
         Route::get('/pedidos', [OrderController::class, 'index'])
+            ->middleware('permission:logistica.pedidos.ver')
             ->name('logistica.pedidos.index');
 
         Route::get('/pedidos/{order}', [OrderController::class, 'show'])
+            ->middleware('permission:logistica.pedidos.ver')
             ->name('logistica.pedidos.show');
 
         Route::get('/pedidos/{order}/pdf', [OrderController::class, 'pdf'])
+            ->middleware('permission:logistica.pedidos.ver')
             ->name('logistica.pedidos.pdf');
-
     });
-
 });
-
 
 /*
 |--------------------------------------------------------------------------

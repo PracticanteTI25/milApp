@@ -60,6 +60,11 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'user_role');
+    }
+
     /**
      * Relación: el usuario pertenece a un área.
      *
@@ -79,23 +84,22 @@ class User extends Authenticatable
         return $this->belongsToMany(
             \App\Models\Permission::class,
             'user_permission'
-        )->withTimestamps();
+        );
     }
 
     public function allPermissions()
     {
-        // Permisos directos del usuario
-        $userPermissions = $this->permissions;
+        // Permisos funcionales asignados directamente al usuario
+        $directPermissions = $this->permissions ?? collect();
 
-        // Permisos heredados del rol (legacy)
+        // Permisos legacy heredados del rol (si existe)
         $rolePermissions = $this->role
             ? $this->role->permissions
             : collect();
 
-        // Unificar sin duplicados
-        return $userPermissions
+        // Unificamos sin duplicados
+        return $directPermissions
             ->merge($rolePermissions)
             ->unique('id');
     }
-
 }
