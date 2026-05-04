@@ -300,118 +300,136 @@ return [
     */
 
     'menu' => [
+
+        /*
+    |--------------------------------------------------------------------------
+    | ADMINISTRACIÓN (SOLO ADMIN)
+    |--------------------------------------------------------------------------
+    */
+
         [
-            'text' => 'Panel',
+            'text'  => 'Panel',
             'route' => 'admin.dashboard',
-            'icon' => 'fas fa-home',
-            'can' => 'usuarios.ver',
+            'icon'  => 'fas fa-home',
+            'can'   => 'view-admin-only',
         ],
 
         [
-            'text' => 'Reportes',
+            'text'  => 'Reportes',
             'route' => 'reportes.index',
-            'icon' => 'fas fa-chart-bar',
-            'can' => 'reportes.ver',
+            'icon'  => 'fas fa-chart-bar',
+            'can'   => 'view-admin-only',
         ],
 
         [
-            'text' => 'Usuarios',
+            'text'  => 'Usuarios',
             'route' => 'usuarios.index',
-            'icon' => 'fas fa-users',
-            'can' => 'usuarios.ver',
+            'icon'  => 'fas fa-users',
+            'can'   => 'view-admin-only',
         ],
 
+        /*
+    |--------------------------------------------------------------------------
+    | COMÚN A TODOS
+    |--------------------------------------------------------------------------
+    */
+
         [
-            'text' => 'Corporativo',
+            'text'  => 'Corporativo',
             'route' => 'corporativo.index',
-            'icon' => 'fas fa-building',
+            'icon'  => 'fas fa-building',
         ],
 
         ['header' => 'ÁREAS'],
 
-        // Áreas (todas visibles, habilitadas según permisos)
+        /*
+    |--------------------------------------------------------------------------
+    | ÁREAS (SEGÚN ASIGNACIÓN)
+    |--------------------------------------------------------------------------
+    */
+
         [
             'text' => 'Directivo',
             'route' => ['areas.show', ['slug' => 'directivo']],
             'icon' => 'fas fa-user-tie',
-            'permission' => 'directivo.ver',
+            'can'  => 'view-area-directivo',
         ],
+
         [
             'text' => 'Administrativo y financiero',
             'route' => ['areas.show', ['slug' => 'administrativo_financiero']],
-            // 'route' => ['areas.show', 'administrativo_financiero'],
             'icon' => 'fas fa-file-invoice-dollar',
-            'permission' => 'administrativo_financiero.ver',
+            'can'  => 'view-area-administrativo_financiero',
         ],
+
         [
             'text' => 'Investigación y desarrollo',
             'route' => ['areas.show', ['slug' => 'investigacion_desarrollo']],
-            // 'route' => ['areas.show', 'investigacion_desarrollo'],
             'icon' => 'fas fa-flask',
-            'permission' => 'investigacion_desarrollo.ver',
+            'can'  => 'view-area-investigacion_desarrollo',
         ],
+
         [
             'text' => 'Talento humano',
             'route' => ['areas.show', ['slug' => 'talento_humano']],
-            // 'route' => ['areas.show', 'talento_humano'],
             'icon' => 'fas fa-users-cog',
-            'permission' => 'talento_humano.ver',
+            'can'  => 'view-area-talento_humano',
         ],
+
         [
             'text' => 'Nuevos negocios y SAC',
             'route' => ['areas.show', ['slug' => 'nuevos_negocios_sac']],
-            // 'route' => ['areas.show', 'nuevos_negocios_sac'],
             'icon' => 'fas fa-handshake',
-            'permission' => 'nuevos_negocios_sac.ver',
+            'can'  => 'view-area-nuevos_negocios_sac',
         ],
+
         [
             'text' => 'Creativo',
             'route' => ['areas.show', ['slug' => 'creativo']],
-            // 'route' => ['areas.show', 'creativo'],
             'icon' => 'fas fa-palette',
-            'permission' => 'creativo.ver',
+            'can'  => 'view-area-creativo',
         ],
+
         [
             'text' => 'Marketing',
             'route' => ['areas.show', ['slug' => 'marketing']],
-            // 'route' => ['areas.show', 'marketing'],
             'icon' => 'fas fa-bullhorn',
-            'permission' => 'marketing.ver',
+            'can'  => 'view-area-marketing',
         ],
+
         [
             'text' => 'Comercial',
             'route' => ['areas.show', ['slug' => 'comercial']],
-            // 'route' => ['areas.show', 'comercial'],
             'icon' => 'fas fa-briefcase',
-            'permission' => 'comercial.ver',
+            'can'  => 'view-area-comercial',
         ],
+
         [
             'text' => 'Operaciones',
             'route' => ['areas.show', ['slug' => 'operaciones']],
-            // 'route' => ['areas.show', 'operaciones'],
             'icon' => 'fas fa-cogs',
-            'permission' => 'operaciones.ver',
+            'can'  => 'view-area-operaciones',
         ],
+
         [
             'text' => 'Abastecimiento',
             'route' => ['areas.show', ['slug' => 'abastecimiento']],
-            // 'route' => ['areas.show', 'abastecimiento'],
             'icon' => 'fas fa-boxes',
-            'permission' => 'abastecimiento.ver',
+            'can'  => 'view-area-abastecimiento',
         ],
+
         [
             'text' => 'Calidad',
             'route' => ['areas.show', ['slug' => 'calidad']],
-            // 'route' => ['areas.show', 'calidad'],
             'icon' => 'fas fa-check-circle',
-            'permission' => 'calidad.ver',
+            'can'  => 'view-area-calidad',
         ],
+
         [
             'text' => 'Logística y distribución',
             'route' => ['areas.show', ['slug' => 'logistica_distribucion']],
-            // 'route' => ['areas.show', 'logistica_distribucion'],
             'icon' => 'fas fa-truck',
-            'permission' => 'logistica_distribucion.ver',
+            'can'  => 'view-area-logistica_distribucion',
         ],
     ],
 

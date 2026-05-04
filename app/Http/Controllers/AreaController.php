@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-
 /**
  * ACCESO A ÁREAS SEGÚN PERMISOS
  * Controlador genérico para áreas.
@@ -16,25 +13,20 @@ class AreaController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user || !$user->role_id) {
-            abort(401);
+        // Admin entra siempre
+        if ($user->roles->contains('slug', 'admin')) {
+            return view('areas.show', compact('slug'));
         }
 
-        // Validar permiso requerido: {slug}.ver
-        $hasPermission = DB::table('role_permission')
-            ->join('permissions', 'permissions.id', '=', 'role_permission.permission_id')
-            ->join('modules', 'modules.id', '=', 'permissions.module_id')
-            ->where('role_permission.role_id', $user->role_id)
-            ->where('modules.slug', $slug)
-            ->where('permissions.slug', 'ver')
-            ->exists();
-
-        if (!$hasPermission) {
-            abort(403, 'No autorizado');
+        // Usuario con área O rol asignado entra
+        if (
+            $user->areas->contains('slug', $slug) ||
+            $user->roles->contains('slug', $slug)
+        ) {
+            return view('areas.show', compact('slug'));
         }
 
-        return view('areas.show', [
-            'slug' => $slug,
-        ]);
+        // Si no cumple, se bloquea
+        abort(403, 'No tienes acceso a este módulo');
     }
 }

@@ -20,7 +20,7 @@ class UsuarioController extends Controller
     public function index()
     {
         // Cargamos relaciones para evitar N+1
-        $usuarios = User::with(['role', 'areas'])
+        $usuarios = User::with(['roles', 'areas'])
             ->orderBy('name')
             ->get();
 
@@ -77,7 +77,6 @@ class UsuarioController extends Controller
             'name' => ['required', 'string'],
             'email' => ['required', 'email', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
-            'role_id' => ['nullable', 'integer'],
             'roles' => ['nullable', 'array'],
             'areas' => ['required', 'array'],
             'permissions' => ['nullable', 'array'],
@@ -87,7 +86,6 @@ class UsuarioController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
-            'role_id' => $data['role_id'] ?? null,
             'active' => true,
         ]);
 
@@ -115,7 +113,7 @@ class UsuarioController extends Controller
 
     public function edit($id)
     {
-        $user = User::with(['areas', 'permissions', 'role'])->findOrFail($id);
+        $user = User::with(['areas', 'permissions', 'roles'])->findOrFail($id);
 
         $roles = Role::orderBy('name')->get();
         $areas = Area::orderBy('name')->get();
@@ -170,17 +168,24 @@ class UsuarioController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string'],
             'email' => ['required', 'email', 'unique:users,email,' . $user->id],
-            'role_id' => ['nullable', 'integer'],
             'roles' => ['nullable', 'array'],
-            'areas' => ['required', 'array'],
+            'areas' => ['nullable', 'array'],
             'permissions' => ['nullable', 'array'],
             'password' => ['nullable', 'string', 'min:8'],
         ]);
 
+
+        if (empty($data['roles']) && empty($data['areas'])) {
+            return back()
+                ->withErrors([
+                    'roles' => 'Debes asignar al menos un rol o un área al usuario.',
+                ])
+                ->withInput();
+        }
+
         $user->update([
             'name' => $data['name'],
             'email' => $data['email'],
-            'role_id' => $data['role_id'] ?? null,
         ]);
 
         if (!empty($data['password'])) {
@@ -192,7 +197,13 @@ class UsuarioController extends Controller
         $user->roles()->sync($data['roles'] ?? []);
 
         // Sync áreas
-        $user->areas()->sync($data['areas']);
+        // Sync roles
+        $user->roles()->sync($data['roles'] ?? []);
+
+        // Sync áreas (solo si vienen)
+        if (isset($data['areas'])) {
+            $user->areas()->sync($data['areas']);
+        }
 
         // Sync permisos
         $user->permissions()->sync($data['permissions'] ?? []);

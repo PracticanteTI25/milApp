@@ -11,8 +11,13 @@
 body {
     margin: 0;
     font-family: "Roboto", sans-serif;
-    background: #edf4fd;
     color: #2c2c2c;
+}
+
+.login-page {
+    min-height: 100vh;
+    background: url("/img/portal/fondoPrincipal.png") no-repeat center center fixed;
+    background-size: cover;
 }
 
 /* CONTENEDOR PRINCIPAL */

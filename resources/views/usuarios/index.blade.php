@@ -37,12 +37,12 @@
 
                 {{-- ROL --}}
                 <td>
-                    @if ($u->role)
-                    <span class="badge bg-secondary">
-                        {{ $u->role->name }}
-                    </span>
+                    @if ($u->roles->isNotEmpty())
+                    @foreach ($u->roles as $role)
+                    <span class="badge bg-primary me-1">{{ $role->name }}</span>
+                    @endforeach
                     @else
-                    <span class="text-muted">Sin rol</span>
+                    <span class="text-muted">Sin roles</span>
                     @endif
                 </td>
 

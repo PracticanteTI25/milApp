@@ -2,6 +2,8 @@
 
 @section('title', 'milApp | Acceso')
 
+@section('body-class', 'login-page')
+
 @section('content')
 
     <div class="portal-container">
@@ -35,7 +37,7 @@
                 <a href="{{ route('distribuidores.login') }}" class="portal-card">
 
                     <div class="portal-icon-wrapper">
-                        <img src="{{ asset('img/portal/distribuidores.png') }}" class="portal-icon-img portal-icon-cart"
+                        <img src="{{ asset('img/portal/Carrito.png') }}" class="portal-icon-img portal-icon-cart"
                             alt="Distribuidores">
                     </div>
 

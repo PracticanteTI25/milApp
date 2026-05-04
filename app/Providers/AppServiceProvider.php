@@ -15,18 +15,60 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        /**
-         * Gate global:
-         * - Rol OR Usuario directo
-         * - ability = modulo.slug
-         */
+        /*
+        |--------------------------------------------------------------------------
+        | GATES DE UX (UNO POR ÁREA)
+        |--------------------------------------------------------------------------
+        */
+
+        $areas = [
+            'directivo',
+            'administrativo_financiero',
+            'investigacion_desarrollo',
+            'talento_humano',
+            'nuevos_negocios_sac',
+            'creativo',
+            'marketing',
+            'comercial',
+            'operaciones',
+            'abastecimiento',
+            'calidad',
+            'logistica_distribucion',
+        ];
+
+        foreach ($areas as $area) {
+            Gate::define("view-area-{$area}", function ($user) use ($area) {
+
+                // Admin ve todo
+                if ($user->roles->contains('slug', 'admin')) {
+                    return true;
+                }
+
+                // Área asignada
+                if ($user->areas->contains('slug', $area)) {
+                    return true;
+                }
+
+                // Rol con el mismo slug del área
+                if ($user->roles->contains('slug', $area)) {
+                    return true;
+                }
+
+                return false;
+            });
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | GATE DE SEGURIDAD (PERMISOS FUNCIONALES)
+        |--------------------------------------------------------------------------
+        */
         Gate::before(function ($user, string $ability) {
 
-
-            if ($user->role && $user->role->slug === 'admin') {
+            // Superadmin
+            if ($user->roles->contains('slug', 'admin')) {
                 return true;
             }
-
 
             if (!str_contains($ability, '.')) {
                 return null;
@@ -34,20 +76,24 @@ class AppServiceProvider extends ServiceProvider
 
             [$moduleSlug, $permissionSlug] = explode('.', $ability, 2);
 
-            // 1. Permisos por ROL
-            $byRole = DB::table('role_permission')
-                ->join('permissions', 'permissions.id', '=', 'role_permission.permission_id')
-                ->join('modules', 'modules.id', '=', 'permissions.module_id')
-                ->where('role_permission.role_id', $user->role_id)
-                ->where('modules.slug', $moduleSlug)
-                ->where('permissions.slug', $permissionSlug)
-                ->exists();
+            // Por rol
+            if ($user->roles->isNotEmpty()) {
+                $roleIds = $user->roles->pluck('id');
 
-            if ($byRole) {
-                return true;
+                $byRole = DB::table('role_permission')
+                    ->join('permissions', 'permissions.id', '=', 'role_permission.permission_id')
+                    ->join('modules', 'modules.id', '=', 'permissions.module_id')
+                    ->whereIn('role_permission.role_id', $roleIds)
+                    ->where('modules.slug', $moduleSlug)
+                    ->where('permissions.slug', $permissionSlug)
+                    ->exists();
+
+                if ($byRole) {
+                    return true;
+                }
             }
 
-            // 2. Permisos directos por USUARIO
+            // Por usuario
             return DB::table('user_permission')
                 ->join('permissions', 'permissions.id', '=', 'user_permission.permission_id')
                 ->join('modules', 'modules.id', '=', 'permissions.module_id')
@@ -56,5 +102,10 @@ class AppServiceProvider extends ServiceProvider
                 ->where('permissions.slug', $permissionSlug)
                 ->exists();
         });
+
+        Gate::define('view-admin-only', function ($user) {
+            return $user->roles->contains('slug', 'admin');
+        });
+        
     }
 }

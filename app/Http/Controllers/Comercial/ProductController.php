@@ -173,14 +173,4 @@ class ProductController extends Controller
             ->route('comercial.productos.index')
             ->with('success', 'Producto eliminado correctamente.');
     }
-
-    public function __construct()
-{
-    PermissionRegistry::register(
-        slug: 'comercial.productos.gestionar',
-        name: 'Gestión de productos',
-        area: 'comercial'
-    );
-}
-
 }

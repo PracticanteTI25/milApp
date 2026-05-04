@@ -5,6 +5,17 @@
 @section('content')
 <h1>Editar usuario</h1>
 
+@if ($errors->any())
+<div class="alert alert-danger">
+    <ul class="mb-0">
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
+
 <form method="POST" action="{{ route('usuarios.update', $user->id) }}">
     @csrf
     @method('PUT')
@@ -20,6 +31,17 @@
         <label>Email</label>
         <input name="email" type="email" class="form-control" value="{{ $user->email }}" required>
     </div>
+
+
+    <div class="form-group">
+        <label>Nueva contraseña</label>
+        <input
+            type="password"
+            name="password"
+            class="form-control"
+            placeholder="Dejar vacío para no cambiar">
+    </div>
+
 
     {{-- ROLES --}}
     <h5>Roles</h5>

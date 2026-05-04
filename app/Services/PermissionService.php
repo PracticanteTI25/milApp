@@ -2,55 +2,33 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\DB;
 use App\Models\User;
 
 class PermissionService
 {
     /**
-     * NUEVO MÉTODO (PRINCIPAL)
-     * Obtiene los módulos visibles para un usuario,
-     * considerando ROLES MÚLTIPLES.
+     * Devuelve los módulos habilitados en el sidebar
+     * usando SOLO áreas y roles (UX).
      */
     public function getViewableModulesForUser(User $user): array
     {
-        //  Obtener roles desde la relación nueva
-        $roleIds = $user->roles()->pluck('roles.id');
+        $modules = collect();
 
-        // Fallback: si aún no tiene roles múltiples,
-        // usamos el role_id legacy para NO romper nada
-        if ($roleIds->isEmpty() && $user->role_id) {
-            $roleIds = collect([$user->role_id]);
+        // Áreas habilitan módulos
+        if ($user->areas && $user->areas->isNotEmpty()) {
+            $modules = $modules->merge(
+                $user->areas->pluck('slug')
+            );
         }
 
-        if ($roleIds->isEmpty()) {
-            return [];
+        // Roles habilitan módulos
+        if ($user->roles && $user->roles->isNotEmpty()) {
+            $modules = $modules->merge(
+                $user->roles->pluck('slug')
+            );
         }
 
-        return DB::table('role_permission')
-            ->join('permissions', 'permissions.id', '=', 'role_permission.permission_id')
-            ->join('modules', 'modules.id', '=', 'permissions.module_id')
-            ->whereIn('role_permission.role_id', $roleIds)
-            ->where('permissions.slug', 'ver')
-            ->pluck('modules.slug')
-            ->unique()
-            ->values()
-            ->toArray();
-    }
-
-    /**
-     *  MÉTODO LEGACY (NO TOCAR AÚN)
-     * Se mantiene para compatibilidad temporal.
-     */
-    public function getViewableModules(string $roleSlug): array
-    {
-        return DB::table('roles')
-            ->join('role_permission', 'roles.id', '=', 'role_permission.role_id')
-            ->join('permissions', 'permissions.id', '=', 'role_permission.permission_id')
-            ->join('modules', 'modules.id', '=', 'permissions.module_id')
-            ->where('roles.slug', $roleSlug)
-            ->where('permissions.slug', 'ver')
-            ->pluck('modules.slug')
+        return $modules
             ->unique()
             ->values()
             ->toArray();

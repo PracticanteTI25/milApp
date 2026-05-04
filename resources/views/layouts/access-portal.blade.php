@@ -27,7 +27,7 @@
     @stack('styles')
 </head>
 
-<body>
+<body class="@yield('body-class')">
 
     @yield('content')
 

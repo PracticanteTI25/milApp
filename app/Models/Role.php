@@ -9,7 +9,7 @@ class Role extends Model
     protected $fillable = ['name', 'slug'];
 
     /**
-     * Relación Rol ↔ Permisos usando la tabla pivote REAL de tu proyecto.
+     * Relación Rol ↔ Permisos usando la tabla pivote
      * (Si no se especifica, Laravel busca permission_role y falla)
      */
     public function permissions()

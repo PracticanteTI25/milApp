@@ -45,12 +45,4 @@ class OrderController extends Controller
         //para cambiar para descargar automaticamente:  return $pdf->download("pedido_{$order->id}.pdf");
     }
 
-    public function __construct()
-    {
-        PermissionRegistry::register(
-            slug: 'logistica.pedidos.gestionar',
-            name: 'Gestión de pedidos',
-            area: 'logistica'
-        );
-    }
 }

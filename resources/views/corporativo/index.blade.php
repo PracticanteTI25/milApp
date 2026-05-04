@@ -97,11 +97,6 @@ ACCESOS CORPORATIVOS
             'icon' => 'fas fa-chart-line',
         ],
         [
-            'label' => 'Go mango',
-            'url' => 'https://beneficiosmilagros.gomango.co/',
-            'icon' => 'fas fa-seedling',
-        ],
-        [
             'label' => 'Solicitud debida diligencia',
             'url' => 'https://milagrosenterprisegroup.sharepoint.com/sites/Intranetgrupomilagros/_layouts/15/listforms.aspx?cid=OTA2ZDY0ZTYtZWI2NC00YzE2LTlkYTYtYWI3MmY5NDMxMWEy&nav=N2M0NzRiZDEtOTE3Ni00OGU3LTgwOGMtMGRjZTczM2YxNDVm',
             'icon' => 'fas fa-clipboard-check',

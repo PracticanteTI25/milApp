@@ -82,14 +82,27 @@ Route::middleware('auth')->group(function () {
 
         $user = auth()->user();
 
-        if (!$user || !$user->role) {
-            abort(403, 'Usuario sin rol asignado');
+        if (!$user) {
+            abort(403);
+        }
+
+        // Admin: ve todo
+        if ($user->roles->contains('slug', 'admin')) {
+            $enabledModules = \App\Models\Area::pluck('slug')->toArray();
+
+            return view('admin', compact('enabledModules'));
+        }
+
+        // Usuario normal: debe tener al menos un área o rol
+        if ($user->areas->isEmpty() && $user->roles->isEmpty()) {
+            abort(403, 'Usuario sin áreas ni roles asignados');
         }
 
         $enabledModules = $permissionService->getViewableModulesForUser($user);
 
         return view('admin', compact('enabledModules'));
     })->name('admin.dashboard');
+
 
     /*
     |--------------------------------------------------------------------------
@@ -142,7 +155,6 @@ Route::middleware('auth')->group(function () {
     */
 
     Route::get('/corporativo', [CorporativoController::class, 'index'])
-        ->middleware('permission:corporativo.ver')
         ->name('corporativo.index');
 
     // Áreas (navegación por módulos)
