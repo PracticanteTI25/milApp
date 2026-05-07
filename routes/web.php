@@ -17,6 +17,7 @@ use App\Http\Controllers\Distribuidores\RedemptionController;
 use App\Http\Controllers\Logistica\OrderController;
 use App\Http\Controllers\Comercial\ProductController as ComercialProductController;
 use App\Http\Controllers\Admin\ManualPointsAdjustmentController;
+use App\Http\Controllers\Distribuidores\PointsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +50,15 @@ Route::prefix('distribuidores')->group(function () {
         Route::post('/login', [DistributorAuthController::class, 'sendToken'])
             ->middleware('throttle:5,1')
             ->name('distribuidores.login.token');
+
+        Route::get('/login/token', [DistributorAuthController::class, 'showTokenForm'])
+            ->name('distribuidores.login.token.form');
+
+        Route::post('/login/token', [DistributorAuthController::class, 'verifyToken'])
+            ->name('distribuidores.login.token.verify');
+
+        Route::post('/login/token/resend', [DistributorAuthController::class, 'resendToken'])
+            ->name('distribuidores.login.token.resend');
     });
 
     Route::middleware('auth:distributor')->group(function () {
@@ -56,11 +66,32 @@ Route::prefix('distribuidores')->group(function () {
         Route::get('/panel', [DistributorAuthController::class, 'dashboard'])
             ->name('distribuidores.panel');
 
+
+        Route::get('/puntos', [PointsController::class, 'index'])
+            ->name('distribuidores.puntos');
+
         Route::get('/catalogo', [CatalogoController::class, 'index'])
             ->name('distribuidores.catalogo');
 
+        // CARRITO
+        Route::get('/carrito', [CartController::class, 'index'])
+            ->name('distribuidores.carrito.index');
+
+        Route::post('/carrito/agregar', [CartController::class, 'add'])
+            ->name('distribuidores.carrito.add');
+
+        Route::post('/carrito/actualizar', [CartController::class, 'updateQuantity'])
+            ->name('distribuidores.carrito.update');
+
+
+        Route::post('/carrito/eliminar', [CartController::class, 'remove'])
+            ->name('distribuidores.carrito.remove');
+
         Route::post('/canje', [RedemptionController::class, 'store'])
             ->name('distribuidores.canje.store');
+
+        Route::post('/logout', [DistributorAuthController::class, 'logout'])
+            ->name('distribuidores.logout');
     });
 });
 
@@ -167,71 +198,7 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::prefix('areas/comercial')->group(function () {
-
-        // PUNTOS
-        Route::get('/puntos', [DistributorPointsController::class, 'index'])
-            ->middleware('permission:comercial.puntos.ver')
-            ->name('comercial.puntos.index');
-
-        Route::post('/puntos/{id}', [DistributorPointsController::class, 'update'])
-            ->middleware('permission:comercial.puntos.editar')
-            ->name('comercial.puntos.update');
-
-        Route::get('/puntos/{id}/historial', [DistributorPointsController::class, 'history'])
-            ->middleware('permission:comercial.puntos.ver')
-            ->name('comercial.puntos.historial');
-
-        // DISTRIBUIDORES
-        Route::get('/distribuidores', [DistributorAdminController::class, 'index'])
-            ->middleware('permission:comercial.distribuidores.ver')
-            ->name('distribuidores.index');
-
-        Route::get('/distribuidores/create', [DistributorAdminController::class, 'create'])
-            ->middleware('permission:comercial.distribuidores.crear')
-            ->name('distribuidores.create');
-
-        Route::post('/distribuidores', [DistributorAdminController::class, 'store'])
-            ->middleware('permission:comercial.distribuidores.crear')
-            ->name('distribuidores.store');
-
-        Route::get('/distribuidores/{id}/edit', [DistributorAdminController::class, 'edit'])
-            ->middleware('permission:comercial.distribuidores.editar')
-            ->name('distribuidores.edit');
-
-        Route::put('/distribuidores/{id}', [DistributorAdminController::class, 'update'])
-            ->middleware('permission:comercial.distribuidores.editar')
-            ->name('distribuidores.update');
-
-        Route::delete('/distribuidores/{id}', [DistributorAdminController::class, 'destroy'])
-            ->middleware('permission:comercial.distribuidores.eliminar')
-            ->name('distribuidores.destroy');
-
-        // PRODUCTOS
-        Route::get('/productos', [ComercialProductController::class, 'index'])
-            ->middleware('permission:comercial.productos.ver')
-            ->name('comercial.productos.index');
-
-        Route::get('/productos/create', [ComercialProductController::class, 'create'])
-            ->middleware('permission:comercial.productos.crear')
-            ->name('comercial.productos.create');
-
-        Route::post('/productos', [ComercialProductController::class, 'store'])
-            ->middleware('permission:comercial.productos.crear')
-            ->name('comercial.productos.store');
-
-        Route::get('/productos/{product}/edit', [ComercialProductController::class, 'edit'])
-            ->middleware('permission:comercial.productos.editar')
-            ->name('comercial.productos.edit');
-
-        Route::put('/productos/{product}', [ComercialProductController::class, 'update'])
-            ->middleware('permission:comercial.productos.editar')
-            ->name('comercial.productos.update');
-
-        Route::delete('/productos/{product}', [ComercialProductController::class, 'destroy'])
-            ->middleware('permission:comercial.productos.eliminar')
-            ->name('comercial.productos.destroy');
-    });
+    Route::prefix('areas/comercial')->group(function () {});
 
     /*
     |--------------------------------------------------------------------------

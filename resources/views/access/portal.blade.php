@@ -25,7 +25,7 @@
                 <a href="{{ route('login') }}" class="portal-card">
 
                     <div class="portal-icon-wrapper">
-                        <img src="{{ asset('img/portal/logo-V2.png') }}" class="portal-icon-img" alt="Corporativo">
+                        <img src="{{ asset('img/portal/Logo-V2.png') }}" class="portal-icon-img" alt="Corporativo">
                     </div>
 
                     <h3>Equipo Corporativo</h3>

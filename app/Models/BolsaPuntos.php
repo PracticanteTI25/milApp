@@ -17,4 +17,10 @@ class BolsaPuntos extends Model
         'fecha_habilitacion',
         'fecha_vencimiento',
     ];
+
+    protected $casts = [
+        'mes' => 'date',
+        'fecha_habilitacion' => 'datetime',
+        'fecha_vencimiento' => 'datetime',
+    ];
 }

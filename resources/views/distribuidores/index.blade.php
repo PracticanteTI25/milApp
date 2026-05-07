@@ -1,63 +1,72 @@
-@extends('layouts.admin')
+@extends('layouts.distribuidores')
 
-@section('title', 'Distribuidoras')
+@section('title', 'Mis puntos')
 
 @section('content')
-    <h1 class="mb-3">Distribuidoras</h1>
+<div class="w">
 
-    <a href="{{ route('distribuidores.create') }}" class="btn btn-primary mb-3">
-        + Registrar distribuidora
-    </a>
+    {{-- HERO --}}
+    <div class="hero">
+        <div class="hero-top">
+            <div>
+                <div class="hero-brand">Milagros · Mis puntos</div>
+                <div class="hero-user">
+                    Hola, {{ auth('distributor')->user()->name }}
+                </div>
+            </div>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            {{-- Meta (temporal fija, luego se conecta a metas reales) --}}
+            <div class="badge-goal">
+                <span class="g-label">Meta del mes</span>
+                <span class="g-val">$15.000.000</span>
+                <span class="g-sub">en ventas / mes</span>
+            </div>
         </div>
-    @endif
 
-    <div class="table-responsive">
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Ciudad</th>
-                    <th>Departamento</th>
-                    <th>Activo</th>
-                    <th style="width:160px;">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($distributors as $d)
-                    <tr>
-                        <td>{{ $d->name }}</td>
-                        <td>{{ $d->email }}</td>
-                        <td>{{ optional($d->address)->city ?? '-' }}</td>
-                        <td>{{ optional($d->address)->state ?? '-' }}</td>
-                        <td>{{ $d->active ? 'Sí' : 'No' }}</td>
-                        <td>
-                            <a href="{{ route('distribuidores.edit', $d->id) }}" class="btn btn-sm btn-warning">
-                                Editar
-                            </a>
+        {{-- RESUMEN --}}
+        <div class="pts-row">
+            <div class="pts-block">
+                <span class="pts-lbl">Disponibles para usar</span>
+                <span class="pts-num">{{ $resumen['disponibles'] }}</span>
+                <span class="pts-unit">puntos Milagros</span>
+            </div>
 
-                            <form action="{{ route('distribuidores.destroy', $d->id) }}" method="POST"
-                                style="display:inline-block"
-                                onsubmit="return confirm('¿Seguro que deseas eliminar esta distribuidora?')">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-danger">Eliminar</button>
-                            </form>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="text-center text-muted">No hay distribuidoras registradas.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+            <div class="divider-v"></div>
+
+            <div class="pts-block">
+                <span class="pts-lbl">Congelados</span>
+                <span class="pts-num">{{ $resumen['congelados'] }}</span>
+                <span class="pts-unit">puntos</span>
+            </div>
+        </div>
+
+        {{-- ALERTA DE VENCIMIENTO --}}
+        @if($resumen['proximos_a_vencer'] > 0)
+        <div class="expire-banner">
+            ⚠ {{ $resumen['proximos_a_vencer'] }} puntos se vencerán pronto
+        </div>
+        @endif
     </div>
+
+    {{-- HISTORIAL --}}
+    <button class="hist-btn" onclick="toggleHist()">
+        ☰ Ver historial de puntos <span id="hi-arr">►</span>
+    </button>
+
+    <div class="panel" id="hist-panel">
+        @include('distribuidores.partials.historial', ['historial' => $historial])
+    </div>
+
+</div>
 @endsection
+
+@push('scripts')
+<script>
+    function toggleHist() {
+        const panel = document.getElementById('hist-panel');
+        const arrow = document.getElementById('hi-arr');
+        panel.classList.toggle('open');
+        arrow.innerText = panel.classList.contains('open') ? '▼' : '►';
+    }
+</script>
+@endpush

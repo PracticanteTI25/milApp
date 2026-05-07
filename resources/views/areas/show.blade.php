@@ -8,20 +8,6 @@
     @if($slug === 'comercial')
         <div class="mt-3">
 
-            {{-- Registro de distribuidoras --}}
-            @if (Route::has('distribuidores.index'))
-                <a href="{{ route('distribuidores.index') }}" class="btn btn-primary mr-2">
-                    Registro de distribuidoras
-                </a>
-            @endif
-
-            {{-- Asignación de puntos --}}
-            @if (Route::has('comercial.puntos.index'))
-                <a href="{{ route('comercial.puntos.index') }}" class="btn btn-primary mr-2">
-                    Asignación de puntos
-                </a>
-            @endif
-
             {{-- Gestión de productos --}}
             @if (Route::has('comercial.productos.index'))
                 <a href="{{ route('comercial.productos.index') }}" class="btn btn-primary mr-2">
@@ -30,8 +16,6 @@
             @endif
 
             @if (
-                    !Route::has('distribuidores.index') &&
-                    !Route::has('comercial.puntos.index') &&
                     !Route::has('comercial.productos.index')
                 )
                 <div class="alert alert-info mt-3">
