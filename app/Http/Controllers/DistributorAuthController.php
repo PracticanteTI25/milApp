@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use App\Models\DistributorMonthlyGoal;
 
 class DistributorAuthController extends Controller
 {
@@ -68,7 +69,6 @@ class DistributorAuthController extends Controller
         return redirect()
             ->route('distribuidores.login.token.form')
             ->with('status', 'Si el correo está registrado, recibirás un código de acceso.');
-
     }
 
     /*
@@ -166,7 +166,22 @@ class DistributorAuthController extends Controller
 
     public function dashboard()
     {
-        return view('distribuidores.panel');
+        $distributor = auth('distributor')->user();
+
+        $currentYear  = now()->year;
+        $currentMonth = now()->month;
+
+        $monthlyGoal = DistributorMonthlyGoal::where('distributor_id', $distributor->id)
+            ->where('year', $currentYear)
+            ->where('month', $currentMonth)
+            ->first();
+
+        return view('distribuidores.panel', [
+            'distributor'  => $distributor,
+            'monthlyGoal'  => $monthlyGoal,
+            'currentYear'  => $currentYear,
+            'currentMonth' => $currentMonth,
+        ]);
     }
 
     public function resendToken(Request $request)
@@ -206,7 +221,5 @@ class DistributorAuthController extends Controller
         ]);
 
         return back()->with('status', 'Si el correo está registrado, recibirás un nuevo código.');
-
     }
-
 }

@@ -10,10 +10,14 @@ class KardexPuntos extends Model
 
     protected $fillable = [
         'distributor_id',
-        'bolsa_id',
+        'bolsa_id',    
         'tipo',
         'puntos',
         'descripcion',
         'fecha',
+    ];
+
+    protected $casts = [
+        'fecha' => 'datetime',
     ];
 }

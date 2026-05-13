@@ -4,11 +4,20 @@
     padding: 0;
 }
 body {
-    font-family: var(--font-sans, system-ui);
+    background: #f4f8fd; /* fondo suave */
 }
+
+.page {
+    display: flex;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+}
+
 .w {
-    padding: 1rem 0;
+    width: 100%;
     max-width: 680px;
+    margin: 0 auto;
+    padding: 1rem 0;
 }
 
 .hero {
@@ -219,6 +228,14 @@ body {
     display: none;
     margin-top: 0.75rem;
 }
+
+.panel-wide {
+    width: 100%;
+    max-width: 1100px;
+    margin: 1rem auto 0;
+    padding: 0 1rem;
+}
+
 .panel.open {
     display: block;
 }

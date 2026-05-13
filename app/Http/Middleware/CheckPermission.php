@@ -9,10 +9,15 @@ class CheckPermission
 {
     public function handle($request, Closure $next, string $ability)
     {
-        if (!Gate::allows($ability)) {
-            abort(403, 'No autorizado');
+        // Soportar permisos múltiples separados por "|"
+        $abilities = explode('|', $ability);
+
+        foreach ($abilities as $singleAbility) {
+            if (Gate::allows(trim($singleAbility))) {
+                return $next($request);
+            }
         }
 
-        return $next($request);
+        abort(403, 'No autorizado');
     }
 }

@@ -102,37 +102,3 @@
     <button class="btn btn-success">Guardar</button>
 </form>
 @endsection
-
-@push('js')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-
-        const checkboxes = document.querySelectorAll('.permission-checkbox');
-
-        checkboxes.forEach(cb => {
-            cb.addEventListener('change', function() {
-
-                if (!this.checked) return;
-
-                const slug = this.dataset.slug;
-                if (!slug) return;
-
-                // Si marca crear / editar / eliminar → marcar automáticamente ".ver"
-                if (
-                    slug.endsWith('.crear') ||
-                    slug.endsWith('.editar') ||
-                    slug.endsWith('.eliminar')
-                ) {
-                    const viewSlug = slug.replace(/(\.crear|\.editar|\.eliminar)$/, '.ver');
-
-                    checkboxes.forEach(other => {
-                        if (other.dataset.slug === viewSlug) {
-                            other.checked = true;
-                        }
-                    });
-                }
-            });
-        });
-    });
-</script>
-@endpush

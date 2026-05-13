@@ -61,4 +61,10 @@ class Distributor extends Authenticatable implements CanResetPassword
         $this->notify(new DistributorResetPasswordNotification($token));
     }
 
+    public function monthlyGoals()
+    {
+        return $this->hasMany(
+            \App\Models\DistributorMonthlyGoal::class
+        );
+    }
 }

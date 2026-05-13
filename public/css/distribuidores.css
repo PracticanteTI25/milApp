@@ -3,6 +3,19 @@
 form {
     display: flex;
     justify-content: center;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* Botón de confirmación de canje */
+.distribuidores-checkout .btn-primary,
+.distribuidores-checkout .btn-primary:hover,
+.distribuidores-checkout .btn-primary:focus,
+.distribuidores-checkout .btn-primary:active {
+    background-color: #2563eb; /* tu azul */
+    border-color: #2563eb;
+    color: #ffffff;
+    box-shadow: none;
 }
 
 .catalog-grid {

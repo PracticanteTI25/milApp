@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Distribuidores;
 use App\Http\Controllers\Controller;
 use App\Services\CartService;
 use Illuminate\Http\Request;
+use App\Services\PointsReadService;
 
 class CartController extends Controller
 {
@@ -28,7 +29,6 @@ class CartController extends Controller
             return redirect()
                 ->back()
                 ->with('success', 'Producto agregado al carrito.');
-
         } catch (\Throwable $e) {
             // Mensaje controlado, sin exponer errores internos
             return redirect()
@@ -39,22 +39,21 @@ class CartController extends Controller
         }
     }
 
-
-
-    public function index(CartService $cartService)
+    public function index(CartService $cartService, PointsReadService $pointsReadService)
     {
         $cartItems = $cartService->get();
         $totalPoints = $cartService->totalPoints();
 
-        // Distribuidora autenticada
         $distributor = auth('distributor')->user();
 
-        // Puntos disponibles (campo que ya manejas)
-        $availablePoints = $distributor->points_balance ?? 0;
+        // Fuente de verdad: sistema nuevo de puntos
+        $resumenPuntos = $pointsReadService->resumen($distributor->id);
+
+        $availablePoints = $resumenPuntos['disponibles'];
 
         return view('distribuidores.carrito', [
-            'cartItems' => $cartItems,
-            'totalPoints' => $totalPoints,
+            'cartItems'       => $cartItems,
+            'totalPoints'     => $totalPoints,
             'availablePoints' => $availablePoints,
         ]);
     }
@@ -73,7 +72,6 @@ class CartController extends Controller
             );
 
             return redirect()->route('distribuidores.carrito.index');
-
         } catch (\Throwable $e) {
             return redirect()
                 ->back()
@@ -91,5 +89,4 @@ class CartController extends Controller
 
         return redirect()->route('distribuidores.carrito.index');
     }
-
 }

@@ -1,6 +1,6 @@
 @php
-    $nav = config('distribuidores_nav');
-    $cartCount = count(session('cart', []));
+$nav = config('distribuidores_nav');
+$cartCount = count(session('cart', []));
 @endphp
 
 <nav class="dist-navbar">
@@ -23,8 +23,12 @@
             <a href="{{ route('distribuidores.carrito.index') }}" class="dist-link">
                 Carrito
                 @if($cartCount > 0)
-                    <span class="dist-badge">{{ $cartCount }}</span>
+                <span class="dist-badge">{{ $cartCount }}</span>
                 @endif
+            </a>
+
+            <a href="{{ route('distribuidores.puntos') }}" class="dist-link">
+                Mis puntos
             </a>
 
             <div class="dist-navbar-separator"></div>

@@ -6,33 +6,48 @@ use App\Models\BolsaPuntos;
 use App\Models\KardexPuntos;
 use App\Models\Redencion;
 use App\Models\RedencionDetalle;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Exception;
 
 class RedemptionService
 {
+    /**
+     * Ejecuta una redención de puntos usando FIFO sobre bolsas habilitadas.
+     *
+     * @throws Exception
+     */
     public function redimir(
         int $distributorId,
         int $direccionId,
-        int $puntosSolicitados
-    ): void {
-        DB::transaction(function () use ($distributorId, $direccionId, $puntosSolicitados) {
+        int $puntosSolicitados,
+        string $descripcion = 'Redención de puntos'
+    ): Redencion {
+        if ($puntosSolicitados <= 0) {
+            throw new Exception('Los puntos a canjear deben ser mayores a cero.');
+        }
 
-            //  Bolsas habilitadas FIFO
+        return DB::transaction(function () use (
+            $distributorId,
+            $direccionId,
+            $puntosSolicitados,
+            $descripcion
+        ) {
+
+            //  Bolsas habilitadas FIFO (por vencimiento)
             $bolsas = BolsaPuntos::where('distributor_id', $distributorId)
                 ->where('estado', 'habilitado')
                 ->where('puntos_disponibles', '>', 0)
-                ->orderBy('fecha_habilitacion')
+                ->orderBy('fecha_vencimiento')
                 ->lockForUpdate()
                 ->get();
 
-            $restantes = $puntosSolicitados;
+            $totalDisponible = $bolsas->sum('puntos_disponibles');
 
-            if ($bolsas->sum('puntos_disponibles') < $puntosSolicitados) {
-                throw new \Exception('Puntos insuficientes');
+            if ($totalDisponible < $puntosSolicitados) {
+                throw new Exception('Puntos insuficientes para completar la redención.');
             }
 
-            //  Crear redención
+            // Crear redención
             $redencion = Redencion::create([
                 'distributor_id' => $distributorId,
                 'direccion_id' => $direccionId,
@@ -40,28 +55,32 @@ class RedemptionService
                 'total_puntos_usados' => $puntosSolicitados,
             ]);
 
-            //  Consumir FIFO
+            $restantes = $puntosSolicitados;
+
+            // Consumo FIFO (canje parcial interno)
             foreach ($bolsas as $bolsa) {
-                if ($restantes <= 0)
+
+                if ($restantes <= 0) {
                     break;
+                }
 
                 $usar = min($bolsa->puntos_disponibles, $restantes);
 
-                // Detalle
+                // Detalle de redención
                 RedencionDetalle::create([
                     'redencion_id' => $redencion->id,
                     'bolsa_id' => $bolsa->id,
                     'puntos_usados' => $usar,
                 ]);
 
-                // Kardex
+                // Kardex (tipo unificado)
                 KardexPuntos::create([
                     'distributor_id' => $distributorId,
                     'bolsa_id' => $bolsa->id,
-                    'tipo' => 'consumo',
+                    'tipo' => 'canje',
                     'puntos' => -$usar,
-                    'descripcion' => 'Redención de puntos',
-                    'fecha' => Carbon::now(),
+                    'descripcion' => $descripcion,
+                    'fecha' => now(),
                 ]);
 
                 // Actualizar bolsa
@@ -69,6 +88,8 @@ class RedemptionService
 
                 $restantes -= $usar;
             }
+
+            return $redencion;
         });
     }
 }

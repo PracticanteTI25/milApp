@@ -8,11 +8,16 @@ class RedencionDetalle extends Model
 {
     protected $table = 'redencion_detalle';
 
-    public $timestamps = false; 
+    public $timestamps = false;
 
     protected $fillable = [
         'redencion_id',
         'bolsa_id',
         'puntos_usados',
     ];
+
+    public function productos()
+    {
+        return $this->hasMany(RedencionProducto::class);
+    }
 }

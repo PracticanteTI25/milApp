@@ -13,9 +13,9 @@ class PointsReadService
      */
     public function resumen(int $distributorId): array
     {
-        $hoy = Carbon::today();      //obtener solo la fecha
+        $hoy = Carbon::today();      // obtener solo la fecha
 
-        //filtra por distribuidor, ordena por mes y trae todo
+        // filtra por distribuidor, ordena por mes y trae todo
         $bolsas = BolsaPuntos::where('distributor_id', $distributorId)
             ->orderBy('mes', 'desc')
             ->get();
@@ -27,11 +27,11 @@ class PointsReadService
 
             'congelados' => $bolsas
                 ->whereIn('estado', ['pendiente', 'congelado'])
-                ->sum('puntos_disponibles'),
+                ->sum('puntos_generados'),
 
             'proximos_a_vencer' => $bolsas
                 ->where('estado', 'habilitado')
-                ->filter(function ($bolsa) use ($hoy) {    //solo alerta cuando aun no está vencido y/o faltan ≤ 30 días
+                ->filter(function ($bolsa) use ($hoy) {    // solo alerta cuando aún no está vencido y/o faltan ≤ 7 días
 
                     if (!$bolsa->fecha_vencimiento) {
                         return false;
@@ -48,7 +48,8 @@ class PointsReadService
     }
 
     /**
-     * Historial completo de puntos (para tu prototipo)
+     * Historial completo de puntos
+     * (misma información que ve la distribuidora)
      */
     public function historial(int $distributorId): array
     {
@@ -64,10 +65,32 @@ class PointsReadService
                 'disponibles' => $bolsa->puntos_disponibles,
                 'fecha_habilitacion' => $bolsa->fecha_habilitacion,
                 'fecha_vencimiento' => $bolsa->fecha_vencimiento,
+
+                // Detalle real (kardex) igual que ve la distribuidora
                 'detalle' => KardexPuntos::where('bolsa_id', $bolsa->id)
                     ->orderBy('fecha')
                     ->get(),
             ];
         })->toArray();
+    }
+
+    /**
+     * Detalle de puntos congelados (tooltip / panel)
+     */
+    public function congeladosDetalle(int $distributorId): array
+    {
+        return BolsaPuntos::where('distributor_id', $distributorId)
+            ->where('estado', 'congelado')
+            ->orderBy('mes')
+            ->get()
+            ->map(function ($bolsa) {
+                return [
+                    'mes' => $bolsa->mes->format('M Y'),
+                    'puntos' => $bolsa->puntos_generados,
+                    'vencen' => optional($bolsa->fecha_vencimiento)?->format('M Y'),
+                    'motivo' => 'Meta mensual no alcanzada en ' . $bolsa->mes->translatedFormat('F'),
+                ];
+            })
+            ->toArray();
     }
 }

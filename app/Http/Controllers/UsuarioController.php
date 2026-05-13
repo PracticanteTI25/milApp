@@ -36,28 +36,33 @@ class UsuarioController extends Controller
         $roles = Role::orderBy('name')->get();
         $areas = Area::orderBy('name')->get();
 
-        //  SOLO módulos migrados a permisos funcionales
-        $modules = Module::whereIn('slug', [
-            'comercial',
-        ])->orderBy('name')->get();
+        // Prefijos permitidos (solo funcionalidades reales)
+        $allowedPermissionPrefixes = [
+            'comercial.stock.',
+            'comercial.metas.',
+            'financiera.productos.',
+            'logistica.redenciones.',
+        ];
 
-        // SOLO permisos funcionales (no CRUD legacy)
-        $functionalPermissions = Permission::whereIn('module_id', $modules->pluck('id'))
-            ->whereNotIn('slug', [
-                // CRUD legacy
-                'ver',
-                'crear',
-                'editar',
-                'eliminar',
-
-                // PERMISOS LEGACY CONFLICTIVOS
-                'registrar_distribuidoras',
-                'gestionar_productos',
-                'asignar_puntos',
-            ])
+        // Traemos SOLO permisos funcionales correctos
+        $functionalPermissions = Permission::where(function ($query) use ($allowedPermissionPrefixes) {
+            foreach ($allowedPermissionPrefixes as $prefix) {
+                $query->orWhere('slug', 'like', $prefix . '%');
+            }
+        })
+            ->with('module')
+            ->orderBy('module_id')
             ->orderBy('slug')
             ->get()
             ->groupBy('module_id');
+
+        // Traemos SOLO módulos que tienen esos permisos
+        $modules = Module::whereIn(
+            'id',
+            $functionalPermissions->keys()
+        )
+            ->orderBy('name')
+            ->get();
 
         return view('usuarios.create', compact(
             'roles',
@@ -118,28 +123,30 @@ class UsuarioController extends Controller
         $roles = Role::orderBy('name')->get();
         $areas = Area::orderBy('name')->get();
 
-        // SOLO módulos migrados a permisos funcionales
-        $modules = Module::whereIn('slug', [
-            'comercial',
-        ])->orderBy('name')->get();
+        $allowedPermissionPrefixes = [
+            'comercial.stock.',
+            'comercial.metas.',
+            'financiera.productos.',
+            'logistica.redenciones.',
+        ];
 
-        // SOLO permisos funcionales (no CRUD legacy)
-        $functionalPermissions = Permission::whereIn('module_id', $modules->pluck('id'))
-            ->whereNotIn('slug', [
-                // CRUD legacy
-                'ver',
-                'crear',
-                'editar',
-                'eliminar',
-
-                // PERMISOS LEGACY CONFLICTIVOS
-                'registrar_distribuidoras',
-                'gestionar_productos',
-                'asignar_puntos',
-            ])
+        $functionalPermissions = Permission::where(function ($query) use ($allowedPermissionPrefixes) {
+            foreach ($allowedPermissionPrefixes as $prefix) {
+                $query->orWhere('slug', 'like', $prefix . '%');
+            }
+        })
+            ->with('module')
+            ->orderBy('module_id')
             ->orderBy('slug')
             ->get()
             ->groupBy('module_id');
+
+        $modules = Module::whereIn(
+            'id',
+            $functionalPermissions->keys()
+        )
+            ->orderBy('name')
+            ->get();
 
         // IDs de áreas del usuario (para marcar checkboxes)
         $userAreaIds = $user->areas->pluck('id')->toArray();
@@ -194,10 +201,6 @@ class UsuarioController extends Controller
             ]);
         }
 
-        $user->roles()->sync($data['roles'] ?? []);
-
-        // Sync áreas
-        // Sync roles
         $user->roles()->sync($data['roles'] ?? []);
 
         // Sync áreas (solo si vienen)

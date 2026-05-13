@@ -328,6 +328,13 @@ return [
             'can'   => 'view-admin-only',
         ],
 
+        [
+            'text'  => 'Control de puntos',
+            'route' => 'admin.puntos.dashboard',
+            'icon'  => 'fas fa-coins',
+            'can'   => 'view-admin-only',
+        ],
+
         /*
     |--------------------------------------------------------------------------
     | COMÚN A TODOS

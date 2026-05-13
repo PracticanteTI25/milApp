@@ -8,16 +8,20 @@ use App\Http\Controllers\ReporteController;
 use App\Services\PermissionService;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\CorporativoController;
-use App\Http\Controllers\DistributorAdminController;
 use App\Http\Controllers\DistributorAuthController;
-use App\Http\Controllers\Commercial\DistributorPointsController;
 use App\Http\Controllers\Distribuidores\CatalogoController;
 use App\Http\Controllers\Distribuidores\CartController;
 use App\Http\Controllers\Distribuidores\RedemptionController;
-use App\Http\Controllers\Logistica\OrderController;
-use App\Http\Controllers\Comercial\ProductController as ComercialProductController;
-use App\Http\Controllers\Admin\ManualPointsAdjustmentController;
 use App\Http\Controllers\Distribuidores\PointsController;
+use \App\Http\Controllers\Distribuidores\CheckoutController;
+use App\Exports\Redenciones;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Controllers\Financiera\ProductController;
+use App\Http\Controllers\Comercial\ProductStockController;
+use App\Http\Controllers\Comercial\DistributorGoalController;
+use \App\Http\Controllers\Admin\PointSettingsController;
+use \App\Http\Controllers\Admin\PointAdjustmentsController;
+use \App\Http\Controllers\Admin\PointHistoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -80,9 +84,8 @@ Route::prefix('distribuidores')->group(function () {
         Route::post('/carrito/agregar', [CartController::class, 'add'])
             ->name('distribuidores.carrito.add');
 
-        Route::post('/carrito/actualizar', [CartController::class, 'updateQuantity'])
+        Route::post('/carrito/actualizar', [CartController::class, 'update'])
             ->name('distribuidores.carrito.update');
-
 
         Route::post('/carrito/eliminar', [CartController::class, 'remove'])
             ->name('distribuidores.carrito.remove');
@@ -92,7 +95,46 @@ Route::prefix('distribuidores')->group(function () {
 
         Route::post('/logout', [DistributorAuthController::class, 'logout'])
             ->name('distribuidores.logout');
+
+        // Ver checkout de canje
+        Route::get(
+            '/checkout',
+            [CheckoutController::class, 'show']
+        )->name('distribuidores.checkout');
+
+        // Confirmar canje (POST)
+        Route::post(
+            '/checkout/confirm',
+            [CheckoutController::class, 'confirm']
+        )->name('distribuidores.checkout.confirm');
     });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Administrativa y financiera
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware([
+    'auth',
+    'permission:financiera.productos.crear|financiera.productos.editar'
+])->prefix('areas/administrativa_financiera')->group(function () {
+
+    Route::get('/productos', [ProductController::class, 'index'])
+        ->name('financiera.productos.index');
+
+    Route::get('/productos/crear', [ProductController::class, 'create'])
+        ->name('financiera.productos.create');
+
+    Route::post('/productos', [ProductController::class, 'store'])
+        ->name('financiera.productos.store');
+
+    Route::get('/productos/{product}/editar', [ProductController::class, 'edit'])
+        ->name('financiera.productos.edit');
+
+    Route::put('/productos/{product}', [ProductController::class, 'update'])
+        ->name('financiera.productos.update');
 });
 
 /*
@@ -134,6 +176,35 @@ Route::middleware('auth')->group(function () {
         return view('admin', compact('enabledModules'));
     })->name('admin.dashboard');
 
+    /*
+    |--------------------------------------------------------------------------
+    | PANEL DE CONTROL DE PUNTOS (SOLO ADMIN)
+    |--------------------------------------------------------------------------
+    */
+
+    Route::middleware(['auth'])->prefix('admin/puntos')->group(function () {
+
+        Route::get('/', function () {
+            return view('admin.points.dashboard');
+        })->name('admin.puntos.dashboard');
+
+        //configuracion de vencimiento
+        Route::get('/configuracion', [PointSettingsController::class, 'edit'])
+            ->name('admin.puntos.configuracion');
+
+        Route::post('/configuracion', [PointSettingsController::class, 'update'])
+            ->name('admin.puntos.configuracion.update');
+
+        //ajustes manuales
+        Route::get('/ajustes', [PointAdjustmentsController::class, 'index'])
+            ->name('admin.puntos.ajustes');
+
+        Route::post('/ajustes', [PointAdjustmentsController::class, 'store'])
+            ->name('admin.puntos.ajustes.store');
+
+        Route::get('/historial', [PointHistoryController::class, 'index'])
+            ->name('admin.puntos.historial');
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -198,24 +269,31 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::prefix('areas/comercial')->group(function () {});
 
-    /*
-    |--------------------------------------------------------------------------
-    | FINANZAS
-    |--------------------------------------------------------------------------
-    */
+    Route::middleware([
+        'auth',
+        'permission:comercial.stock.editar'
+    ])->prefix('areas/comercial')->group(function () {
 
-    Route::prefix('admin/finanzas')
-        ->middleware('permission:finanzas.ajustes')
-        ->group(function () {
 
-            Route::get('/ajustes', [ManualPointsAdjustmentController::class, 'create'])
-                ->name('finanzas.ajustes.create');
+        Route::get('/stock', [ProductStockController::class, 'index'])
+            ->name('comercial.stock.index');
 
-            Route::post('/ajustes', [ManualPointsAdjustmentController::class, 'store'])
-                ->name('finanzas.ajustes.store');
-        });
+        Route::get('/stock/{product}/editar', [ProductStockController::class, 'edit'])
+            ->name('comercial.stock.edit');
+
+        Route::put('/stock/{product}', [ProductStockController::class, 'update'])
+            ->name('comercial.stock.update');
+
+        Route::get('/metas', [DistributorGoalController::class, 'index'])
+            ->name('comercial.metas.index');
+
+        Route::get('/metas/{distributor}/editar', [DistributorGoalController::class, 'edit'])
+            ->name('comercial.metas.edit');
+
+        Route::post('/metas/{distributor}', [DistributorGoalController::class, 'update'])
+            ->name('comercial.metas.update');
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -223,19 +301,18 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::prefix('areas/logistica_distribucion')->group(function () {
 
-        Route::get('/pedidos', [OrderController::class, 'index'])
-            ->middleware('permission:logistica.pedidos.ver')
-            ->name('logistica.pedidos.index');
+    Route::middleware([
+        'auth',
+        'permission:logistica.redenciones.exportar'
+    ])->prefix('areas/logistica_distribucion')->group(function () {
 
-        Route::get('/pedidos/{order}', [OrderController::class, 'show'])
-            ->middleware('permission:logistica.pedidos.ver')
-            ->name('logistica.pedidos.show');
-
-        Route::get('/pedidos/{order}/pdf', [OrderController::class, 'pdf'])
-            ->middleware('permission:logistica.pedidos.ver')
-            ->name('logistica.pedidos.pdf');
+        Route::get('/redenciones/excel', function () {
+            return Excel::download(
+                new Redenciones(),
+                'pedidos_distribuidoras.xlsx'
+            );
+        })->name('logistica.redenciones.excel');
     });
 });
 
