@@ -31,6 +31,52 @@
     </div>
 </form>
 
+{{-- ================= NUEVO BLOQUE ================= --}}
+@if($selectedDistributor)
+
+<div class="row mb-4">
+
+    {{-- Avance hacia la meta --}}
+    <div class="col-md-8">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="mb-2">Avance hacia la meta del mes</h6>
+
+                <div class="progress mb-2" style="height: 12px;">
+                    <div
+                        class="progress-bar bg-primary"
+                        role="progressbar"
+                        style="width: {{ min($porcentajeMeta, 100) }}%;"></div>
+                </div>
+
+                <div class="d-flex justify-content-between small text-muted">
+                    <span>
+                        ${{ number_format($ventasAcumuladas, 0, ',', '.') }} acumulados
+                    </span>
+                    <span>
+                        {{ $porcentajeMeta }}% · meta
+                        ${{ number_format($metaMensual, 0, ',', '.') }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Canjes del año --}}
+    <div class="col-md-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <h6 class="mb-1">Canjes este año</h6>
+                <h2 class="mb-0">{{ $canjesAnio }}</h2>
+                <small class="text-muted">redenciones realizadas</small>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@endif
+
 @if($selectedDistributor)
 
 {{-- ================= RESUMEN ================= --}}
@@ -112,7 +158,12 @@
                 <tr>
                     <td>{{ $item['mes'] }}</td>
                     <td>{{ $item['puntos'] }}</td>
-                    <td>{{ ucfirst($item['estado']) }}</td>
+                    <td>
+                        <strong>{{ $item['estado'] }}</strong>
+                        <div class="small text-muted">
+                            {{ $item['disponibles'] }} disp · {{ $item['congelados'] }} cong
+                        </div>
+                    </td>
                     <td>
                         {{ $item['fecha_vencimiento']
                             ? \Carbon\Carbon::parse($item['fecha_vencimiento'])->format('d/m/Y')
@@ -121,10 +172,28 @@
                     </td>
                     <td>
                         @foreach($item['detalle'] as $mov)
-                        <div class="small text-muted">
-                            {{ $mov->descripcion }}
-                        </div>
-                        @endforeach
+
+                        @php
+                        $impactoTexto = match($mov->impacto) {
+                        'suma_habilitada' => 'Puntos habilitados',
+                        'suma_congelada' => 'Puntos congelados',
+                        'resta' => 'Puntos descontados',
+                        default => 'Movimiento de puntos',
+                        };
+                        @endphp
+
+                        <div class="small {{ $mov->puntos < 0 ? 'text-danger' : 'text-muted' }}">
+
+                            @if($mov->puntos < 0)
+                                −{{ abs($mov->puntos) }} pts
+                                @else
+                                +{{ $mov->puntos }} pts
+                                @endif
+
+                                · {{ $mov->descripcion }}
+                                </div>
+
+                                @endforeach
                     </td>
                 </tr>
                 @empty

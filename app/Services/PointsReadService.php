@@ -13,25 +13,25 @@ class PointsReadService
      */
     public function resumen(int $distributorId): array
     {
-        $hoy = Carbon::today();      // obtener solo la fecha
+        $hoy = Carbon::today(); // solo fecha, sin hora
 
-        // filtra por distribuidor, ordena por mes y trae todo
-        $bolsas = BolsaPuntos::where('distributor_id', $distributorId)
-            ->orderBy('mes', 'desc')
-            ->get();
+        // Traer TODAS las bolsas del distribuidor
+        $bolsas = BolsaPuntos::where('distributor_id', $distributorId)->get();
+
+        $totalGenerados   = $bolsas->sum('puntos_generados');
+        $totalDisponibles = $bolsas->sum('puntos_disponibles');
 
         return [
-            'disponibles' => $bolsas
-                ->where('estado', 'habilitado')
-                ->sum('puntos_disponibles'),
+            // DISPONIBLES: se leen DIRECTAMENTE del contador
+            'disponibles' => $totalDisponibles,
 
-            'congelados' => $bolsas
-                ->whereIn('estado', ['pendiente', 'congelado'])
-                ->sum('puntos_generados'),
+            // CONGELADOS: diferencia contable (NO por estado)
+            'congelados' => max($totalGenerados - $totalDisponibles, 0),
 
+            // PRÓXIMOS A VENCER:
+            // solo se evalúan los puntos que ESTÁN DISPONIBLES
             'proximos_a_vencer' => $bolsas
-                ->where('estado', 'habilitado')
-                ->filter(function ($bolsa) use ($hoy) {    // solo alerta cuando aún no está vencido y/o faltan ≤ 7 días
+                ->filter(function ($bolsa) use ($hoy) {
 
                     if (!$bolsa->fecha_vencimiento) {
                         return false;
@@ -41,7 +41,8 @@ class PointsReadService
                     $diasRestantes = $hoy->diffInDays($bolsa->fecha_vencimiento, false);
 
                     // Próximos a vencer = últimos 7 días antes del vencimiento
-                    return $diasRestantes >= 0 && $diasRestantes <= 7;
+                    return $diasRestantes >= 0 && $diasRestantes <= 7
+                        && $bolsa->puntos_disponibles > 0;
                 })
                 ->sum('puntos_disponibles'),
         ];
@@ -58,15 +59,23 @@ class PointsReadService
             ->get();
 
         return $bolsas->map(function ($bolsa) {
+
+            // Estado DERIVADO (no guardado)
+            if ($bolsa->puntos_disponibles <= 0) {
+                $estado = 'Congelado';
+            } elseif ($bolsa->puntos_disponibles >= $bolsa->puntos_generados) {
+                $estado = 'Habilitado';
+            } else {
+                $estado = 'Mixto'; // ← muy importante para transparencia
+            }
+
             return [
                 'mes' => $bolsa->mes->format('Y-m'),
                 'puntos' => $bolsa->puntos_generados,
-                'estado' => $bolsa->estado,
                 'disponibles' => $bolsa->puntos_disponibles,
-                'fecha_habilitacion' => $bolsa->fecha_habilitacion,
+                'congelados' => $bolsa->puntos_generados - $bolsa->puntos_disponibles,
+                'estado' => $estado,
                 'fecha_vencimiento' => $bolsa->fecha_vencimiento,
-
-                // Detalle real (kardex) igual que ve la distribuidora
                 'detalle' => KardexPuntos::where('bolsa_id', $bolsa->id)
                     ->orderBy('fecha')
                     ->get(),

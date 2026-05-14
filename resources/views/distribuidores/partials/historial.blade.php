@@ -17,9 +17,10 @@
                 <td>{{ $item['mes'] }}</td>
                 <td><strong>{{ $item['puntos'] }}</strong></td>
                 <td>
-                    <span class="tag t-{{ $item['estado'] }}">
-                        {{ ucfirst($item['estado']) }}
-                    </span>
+                    <strong>{{ $item['estado'] }}</strong>
+                    <div class="note">
+                        {{ $item['disponibles'] }} disponibles · {{ $item['congelados'] }} congelados
+                    </div>
                 </td>
                 <td>
                     {{ $item['fecha_vencimiento']
@@ -29,7 +30,32 @@
                 </td>
                 <td>
                     @foreach($item['detalle'] as $mov)
-                    <div class="note">{{ $mov->descripcion }}</div>
+
+                    @php
+                    $impactoTexto = match($mov->impacto) {
+                    'suma_habilitada' => 'Puntos habilitados',
+                    'suma_congelada' => 'Puntos congelados',
+                    'resta' => 'Puntos descontados',
+                    default => 'Movimiento de puntos',
+                    };
+                    @endphp
+
+                    <div class="note">
+                        <!-- <strong>[{{ $impactoTexto }}]</strong> -->
+
+                        @if($mov->puntos < 0)
+                            <span style="color:#dc3545;font-weight:600;">
+                            −{{ abs($mov->puntos) }} pts
+                            </span>
+                            @else
+                            <span style="font-weight:600;">
+                                +{{ $mov->puntos }} pts
+                            </span>
+                            @endif
+
+                            · {{ $mov->descripcion }}
+                    </div>
+
                     @endforeach
                 </td>
             </tr>

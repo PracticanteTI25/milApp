@@ -4,29 +4,39 @@ namespace App\Services;
 
 use App\Models\BolsaPuntos;
 use App\Models\KardexPuntos;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class PointAdjustmentService
 {
-    //suma puntos en la bolsa del mes y deja registro
+    /**
+     * Ajuste manual POSITIVO de puntos
+     *
+     * Reglas:
+     * - Siempre suma a puntos_generados
+     * - Solo suma a puntos_disponibles si el ajuste es "habilitado"
+     * - NO modifica puntos existentes
+     * - Usa una sola bolsa mensual
+     */
     public function addPoints(
         int $distributorId,
         int $points,
-        string $initialState,
+        string $initialState, // habilitado | congelado
         string $reason
     ): void {
-        //solo permitir habilitado y congelado
+
         if (!in_array($initialState, ['habilitado', 'congelado'])) {
             throw new \InvalidArgumentException('Estado inicial inválido.');
         }
 
-        //evalua si TODO se guarda o NADA se guarda
+        if ($points <= 0) {
+            throw new \InvalidArgumentException('Los puntos deben ser mayores que cero.');
+        }
+
         DB::transaction(function () use ($distributorId, $points, $initialState, $reason) {
 
-            $month = Carbon::now()->startOfMonth();  //obtiene el mes actual
+            $month = now()->startOfMonth();
 
-            //si existe bolsa del mes la usa, si no existe, la crea
+            // UNA sola bolsa por mes
             $bag = BolsaPuntos::firstOrCreate(
                 [
                     'distributor_id' => $distributorId,
@@ -35,70 +45,137 @@ class PointAdjustmentService
                 [
                     'puntos_generados' => 0,
                     'puntos_disponibles' => 0,
-                    'estado' => $initialState,
                 ]
             );
 
-            //incrementar puntos
+            // Siempre suma a generados (existencia contable)
             $bag->increment('puntos_generados', $points);
-            $bag->increment('puntos_disponibles', $points);
 
-            //registra en el kardex para trazabilidad
+            // Solo suma a disponibles si el ajuste entra habilitado
+            if ($initialState === 'habilitado') {
+                $bag->increment('puntos_disponibles', $points);
+            }
+
+            // Kardex: fuente de verdad
             KardexPuntos::create([
                 'distributor_id' => $distributorId,
-                'bolsa_id' => $bag->id,
-                'tipo' => 'ajuste',
-                'puntos' => $points,
-                'descripcion' => $reason,
-                'fecha' => now(),
+                'bolsa_id'       => $bag->id,
+                'tipo'           => 'ajuste',
+
+                //  IMPACTO SEMÁNTICO
+                'impacto'        => $initialState === 'habilitado'
+                    ? 'suma_habilitada'
+                    : 'suma_congelada',
+
+                'puntos'         => $points,
+                'descripcion'    => $reason,
+                'fecha'          => now(),
             ]);
         });
     }
 
-    // Ajuste negativo de puntos (FIFO) y registrro
+    /**
+     * Ajuste manual NEGATIVO de puntos (eliminación / corrección)
+     *
+     * Reglas:
+     * - Resta de puntos_generados
+     * - Resta de puntos_disponibles SOLO si hay disponibles
+     * - Respeta FIFO
+     * - Nunca deja saldos negativos
+     */
     public function subtractPoints(
         int $distributorId,
         int $points,
         string $reason
     ): void {
+
+        if ($points <= 0) {
+            throw new \InvalidArgumentException('Los puntos a restar deben ser mayores que cero.');
+        }
+
         DB::transaction(function () use ($distributorId, $points, $reason) {
 
             $bags = BolsaPuntos::where('distributor_id', $distributorId)
-                ->where('puntos_disponibles', '>', 0)
-                ->orderByRaw("FIELD(estado, 'habilitado', 'congelado')")  //primero usa bolsas habilitadas y luego las congeladas
-                ->orderBy('fecha_habilitacion')  //las mas antiguas primero (FIFO)
-                ->lockForUpdate()  //evita que otro proceso use los mismo puntos al mismo tiempo
+                ->orderBy('mes') // FIFO por mes
+                ->lockForUpdate()
                 ->get();
 
-            $available = $bags->sum('puntos_disponibles'); //saldo total
+            $totalDisponibles = $bags->sum('puntos_disponibles');
+            $totalGenerados   = $bags->sum('puntos_generados');
 
-            if ($available < $points) {
-                throw new \RuntimeException('La distribuidora no tiene puntos suficientes.');
+            if ($totalGenerados < $points) {
+                throw new \RuntimeException('No hay puntos suficientes para realizar el ajuste.');
             }
 
             $remaining = $points;
 
-            //recorre bolsa por bolsa
+            // DESCONTAR DE DISPONIBLES (OBLIGATORIO)
+
             foreach ($bags as $bag) {
                 if ($remaining <= 0) {
                     break;
                 }
 
-                $use = min($bag->puntos_disponibles, $remaining);   //toma solo lo nencesario
+                if ($bag->puntos_disponibles <= 0) {
+                    continue;
+                }
 
-                $bag->decrement('puntos_disponibles', $use);      //descuenta
+                $use = min($bag->puntos_disponibles, $remaining);
 
-                //registar en el kardex
+                $bag->decrement('puntos_disponibles', $use);
+                $bag->decrement('puntos_generados', $use);
+
                 KardexPuntos::create([
                     'distributor_id' => $distributorId,
-                    'bolsa_id' => $bag->id,
-                    'tipo' => 'ajuste',
-                    'puntos' => -$use,
-                    'descripcion' => $reason,
-                    'fecha' => now(),
+                    'bolsa_id'       => $bag->id,
+                    'tipo'           => 'ajuste',
+
+                    //IMPACTO
+                    'impacto'        => 'resta',
+
+                    'puntos'         => -$use,
+                    'descripcion'    => $reason . ' (descuento de disponibles)',
+                    'fecha'          => now(),
                 ]);
 
                 $remaining -= $use;
+            }
+
+            //SOLO SI NO ALCANZÓ DISPONIBLES, TOCAR CONGELADOS
+
+            if ($remaining > 0) {
+
+                // Guard clause: aquí ya sabemos que disponibles NO alcanzaron
+                foreach ($bags as $bag) {
+                    if ($remaining <= 0) {
+                        break;
+                    }
+
+                    $congelados = $bag->puntos_generados - $bag->puntos_disponibles;
+
+                    if ($congelados <= 0) {
+                        continue;
+                    }
+
+                    $use = min($congelados, $remaining);
+
+                    $bag->decrement('puntos_generados', $use);
+
+                    KardexPuntos::create([
+                        'distributor_id' => $distributorId,
+                        'bolsa_id'       => $bag->id,
+                        'tipo'           => 'ajuste',
+
+                        // IMPACTO
+                        'impacto'        => 'resta',
+
+                        'puntos'         => -$use,
+                        'descripcion'    => $reason . ' (descuento de congelados)',
+                        'fecha'          => now(),
+                    ]);
+
+                    $remaining -= $use;
+                }
             }
         });
     }

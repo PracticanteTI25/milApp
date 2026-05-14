@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Distribuidores;
 use App\Http\Controllers\Controller;
 use App\Services\PointsReadService;
 use App\Models\DistributorMonthlyGoal;
+use App\Models\Redencion;
 
 class PointsController extends Controller
 {
@@ -40,8 +41,12 @@ class PointsController extends Controller
 
         $faltanteMeta = max($metaMensual - $ventasAcumuladas, 0);
 
+        $canjesAnio = Redencion::where('distributor_id', $distributorId)
+            ->whereYear('fecha', $currentYear)
+            ->count();
+
         return view('distribuidores.puntos.index', [
-            // puntos (igual que antes)
+            // puntos 
             'resumen' => $resumen,
             'historial' => $historial,
             'congeladosDetalle' => $congeladosDetalle,
@@ -57,8 +62,8 @@ class PointsController extends Controller
             'porcentajeMeta' => $porcentajeMeta,
             'faltanteMeta' => $faltanteMeta,
 
-            // métricas adicionales (igual que antes)
-            'canjesAnio' => 7,
+            // métricas adicionales 
+            'canjesAnio' => $canjesAnio,
             'valorCredito' => $resumen['disponibles'],
         ]);
     }
