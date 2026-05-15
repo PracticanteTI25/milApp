@@ -15,6 +15,8 @@ class Product extends Model
         'presentation',
         'stock',
         'active',
+        'source',        
+        'external_id',
     ];
 
     protected $casts = [

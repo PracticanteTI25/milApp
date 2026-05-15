@@ -74,46 +74,48 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'presentation' => 'nullable|string|max:255',
-            'points' => 'required|integer|min:1',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // VALIDACIÓN
-        ]);
-
-        // Actualizar producto
-        $product->update([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name),
-            'description' => $request->description,
-            'presentation' => $request->presentation,
-            'active' => $request->has('active'),
-        ]);
-
-        // ACTUALIZAR IMAGEN
-        if ($request->hasFile('image')) {
-
-            // borrar imagen anterior
-            if ($product->image_path) {
-                Storage::disk('public')->delete($product->image_path);
-            }
-
-            $path = $request->file('image')->store('products', 'public');
+        if ($product->source === 'api') {
+            // PRODUCTO DE API: SOLO ACTIVO + PRECIO
+            $data = $request->validate([
+                'points' => 'required|integer|min:1',
+            ]);
 
             $product->update([
-                'image_path' => $path,
+                'active' => $request->has('active'),
             ]);
+        } else {
+            // PRODUCTO MANUAL: EDICIÓN COMPLETA
+            $data = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'presentation' => 'nullable|string|max:255',
+                'points' => 'required|integer|min:1',
+                'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            ]);
+
+            $product->update([
+                'name' => $request->name,
+                'slug' => Str::slug($request->name),
+                'description' => $request->description,
+                'presentation' => $request->presentation,
+                'active' => $request->has('active'),
+            ]);
+
+            if ($request->hasFile('image')) {
+                if ($product->image_path) {
+                    Storage::disk('public')->delete($product->image_path);
+                }
+
+                $path = $request->file('image')->store('products', 'public');
+                $product->update(['image_path' => $path]);
+            }
         }
 
-        // Cerrar precio actual
+        // PRECIO (COMÚN A AMBOS)
         if ($product->currentPrice) {
-            $product->currentPrice->update([
-                'ends_at' => now(),
-            ]);
+            $product->currentPrice->update(['ends_at' => now()]);
         }
 
-        // Crear nuevo precio
         ProductPointPrice::create([
             'product_id' => $product->id,
             'points' => $request->points,
