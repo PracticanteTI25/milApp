@@ -20,7 +20,10 @@ class Redenciones implements FromCollection, WithHeadings
             'distributor',
             'direccion',
             'productos.product',
-        ])->orderBy('fecha')->get();
+        ])
+            ->whereHas('productos') // SOLO redenciones con productos
+            ->orderBy('fecha')
+            ->get();
 
         $rows = collect();
 
