@@ -14,6 +14,12 @@
 
     <h1>Confirmar canje</h1>
 
+    @if ($errors->any())
+    <div class="alert alert-danger mb-3">
+        {{ $errors->first() }}
+    </div>
+    @endif
+
     {{-- =========================
         DATOS DE LA DISTRIBUIDORA
        ========================= --}}
@@ -41,64 +47,87 @@
     </div>
 
     {{-- =========================
-        DIRECCIÓN DE ENTREGA
-       ========================= --}}
-    <div class="card">
-        <h3>Dirección de entrega</h3>
-
-        <p class="text-muted">
-            Selecciona la dirección donde se enviará el pedido.
-        </p>
-
-        {{-- Placeholder: luego será listado desde API --}}
-        <div class="alert alert-info">
-            Las direcciones se cargarán desde la API de distribuidoras.
-        </div>
-    </div>
-
-    {{-- =========================
-        RESUMEN DEL CARRITO
-       ========================= --}}
-    <div class="card">
-        <h3>Resumen del pedido</h3>
-
-        <ul>
-            @foreach($cart as $item)
-            <li>
-                {{ $item['name'] }}
-                —
-                {{ $item['quantity'] }} cajas
-            </li>
-            @endforeach
-        </ul>
-    </div>
-
-    {{-- =========================
-        CONFIRMACIÓN
+        FORMULARIO COMPLETO
        ========================= --}}
     <div class="distribuidores-checkout">
         <div class="mt-4">
+
             <form method="POST" action="{{ route('distribuidores.checkout.confirm') }}">
                 @csrf
 
-                {{-- Dirección seleccionada (placeholder) --}}
-                <input type="hidden" name="direccion_id" value="1">
+                {{-- =========================
+                    DIRECCIÓN DE ENTREGA
+                   ========================= --}}
+                <div class="card">
+                    <h3>Dirección de entrega</h3>
 
+                    <p class="text-muted">
+                        Selecciona la dirección donde se enviará el pedido.
+                    </p>
+
+                    @if(isset($direcciones) && count($direcciones))
+                    <div class="mb-3">
+                        <select name="direccion_id" class="form-select" required>
+                            @foreach($direcciones as $direccion)
+                            <option value="{{ $direccion->id }}" {{ $direccion->is_default ? 'selected' : '' }}>
+                                {{ $direccion->address_line1 }} — {{ $direccion->city }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @else
+                    <div class="alert alert-danger">
+                        No tienes direcciones registradas. Por favor contacta al administrador.
+                    </div>
+                    @endif
+                </div>
+
+                {{-- =========================
+                    RESUMEN DEL CARRITO
+                   ========================= --}}
+                <div class="card">
+                    <h3>Resumen del pedido</h3>
+
+                    <ul>
+                        @foreach($cart as $item)
+                        <li>
+                            {{ $item['name'] }} — {{ $item['quantity'] }} cajas
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+
+                {{-- =========================
+                    CONFIRMACIÓN
+                   ========================= --}}
                 <div class="form-check mb-3">
-                    <label>
-                        <input type="checkbox" name="confirmar" value="1">
+                    <input
+                        type="checkbox"
+                        name="confirmar"
+                        value="1"
+                        id="confirmar"
+                        class="form-check-input"
+                        {{ old('confirmar') ? 'checked' : '' }}
+                        required>
+                    <label class="form-check-label" for="confirmar">
                         Confirmo que deseo realizar este canje
                     </label>
                 </div>
-                <br>
+
+                @error('confirmar')
+                <div class="alert alert-danger mt-2">
+                    {{ $message }}
+                </div>
+                @enderror
 
                 <button type="submit" class="btn btn-primary">
                     Confirmar canje
                 </button>
+
             </form>
+
         </div>
     </div>
-
 
 </div>
 @endsection

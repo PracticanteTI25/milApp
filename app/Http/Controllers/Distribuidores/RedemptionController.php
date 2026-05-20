@@ -20,16 +20,17 @@ class RedemptionController extends Controller
             $cartItems = session('cart', []);
 
             // Ejecutamos la redención real
-            $order = $redemptionService->redeem(
+            $order = $redemptionService->redimir(
                 distributorId: $distributor->id,
-                cartItems: $cartItems
+                direccionId: 1, // placeholder temporal
+                puntosSolicitados: collect($cartItems)->sum(fn($i) => $i['points'] * $i['quantity']),
+                descripcion: 'Canje desde checkout'
             );
 
             // Redirigir a confirmación
             return redirect()
                 ->route('distribuidores.canje.confirmacion', $order)
                 ->with('success', 'Canje realizado correctamente.');
-
         } catch (\Throwable $e) {
 
             // Error controlado (no mostramos detalles técnicos)

@@ -107,6 +107,11 @@ Route::prefix('distribuidores')->group(function () {
             '/checkout/confirm',
             [CheckoutController::class, 'confirm']
         )->name('distribuidores.checkout.confirm');
+
+        Route::get(
+            '/canje/confirmacion/{redencion}',
+            [CheckoutController::class, 'confirmacion']
+        )->name('distribuidores.canje.confirmacion');
     });
 });
 

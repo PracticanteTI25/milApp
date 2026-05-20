@@ -35,7 +35,6 @@ class RedemptionService
 
             //  Bolsas habilitadas FIFO (por vencimiento)
             $bolsas = BolsaPuntos::where('distributor_id', $distributorId)
-                ->where('estado', 'habilitado')
                 ->where('puntos_disponibles', '>', 0)
                 ->orderBy('fecha_vencimiento')
                 ->lockForUpdate()

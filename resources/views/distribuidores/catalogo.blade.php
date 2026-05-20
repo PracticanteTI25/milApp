@@ -62,7 +62,7 @@
                 </div>
             </div>
 
-            {{-- Acción (IMPORTANTE: wrapper) --}}
+            {{-- Acción --}}
             <div class="catalog-actions">
                 <form method="POST" action="{{ route('distribuidores.carrito.add') }}">
                     @csrf
