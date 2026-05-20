@@ -10,8 +10,7 @@ use App\Models\RedencionProducto;
 use App\Models\Redencion;
 use App\Services\CartService;
 use App\Models\DistributorAddress;
-
-
+use App\Models\Product;
 
 class CheckoutController extends Controller
 {
@@ -104,12 +103,27 @@ class CheckoutController extends Controller
                     'redencion_id' => $redencion->id,
                     'product_id'   => $item['product_id'],
                     'cantidad'     => $item['quantity'],
-                    // estos campos los puedes eliminar luego si decides no guardar puntos por producto
+                    // estos campos se pueden eliminar luego si se decide no guardar puntos por producto
                     'puntos_unitarios' => $item['points'] ?? null,
                     'puntos_total'     => isset($item['points'])
                         ? $item['points'] * $item['quantity']
                         : null,
                 ]);
+
+                // Descontar stock del producto
+                $product = Product::lockForUpdate()->find($item['product_id']);
+
+                if (!$product) {
+                    throw new \Exception('Producto no encontrado.');
+                }
+
+                if ($product->stock < $item['quantity']) {
+                    throw new \Exception(
+                        'Stock insuficiente para el producto: ' . $product->name
+                    );
+                }
+
+                $product->decrement('stock', $item['quantity']);
             }
 
             // Limpiar carrito
