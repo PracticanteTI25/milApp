@@ -12,4 +12,10 @@ class BusinessSetting extends Model
         'key',
         'value',
     ];
+
+    // Obtener un valor de configuración del negocio
+    public static function getValue(string $key, $default = null)
+    {
+        return static::where('key', $key)->value('value') ?? $default;
+    }
 }

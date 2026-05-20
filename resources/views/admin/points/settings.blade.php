@@ -16,36 +16,55 @@
     <div class="card">
         <div class="card-body">
 
-            <h5 class="card-title">Vencimiento de puntos</h5>
+            <h5 class="card-title">Configuración general</h5>
 
             <br>
+
             <p class="text-muted">
-                Define cuántos meses después de ser otorgados vencen los puntos.
-                Esta regla aplica de forma global a todo el sistema.
+                Define las reglas globales del sistema de puntos.
             </p>
 
             <form method="POST" action="{{ route('admin.puntos.configuracion.update') }}">
                 @csrf
 
-                <div class="form-group">
+                {{-- VENCIMIENTO DE PUNTOS --}}
+                <div class="form-group mb-4">
                     <label for="expiration_months">Meses antes de vencer</label>
                     <input
                         type="number"
                         id="expiration_months"
                         name="expiration_months"
                         class="form-control"
-                        value="{{ old('expiration_months', $settings->expiration_months) }}"
+                        value="{{ old('expiration_months', $pointSettings->expiration_months) }}"
                         min="1"
                         max="36"
                         required>
                     <small class="form-text text-muted">
-                        Ejemplo: si ingresas <b>12</b>, los puntos vencerán a los 12 meses de haber sido otorgados.
+                        Ejemplo: si ingresas <b>12</b>, los puntos vencerán a los 12 meses.
+                    </small>
+                </div>
+
+                {{-- VALOR DEL PUNTO --}}
+                <div class="form-group mb-4">
+                    <label for="pesos_por_punto">Valor de 1 punto (COP)</label>
+                    <input
+                        type="number"
+                        id="pesos_por_punto"
+                        name="pesos_por_punto"
+                        class="form-control"
+                        value="{{ old('pesos_por_punto', $pesosPorPunto) }}"
+                        min="1"
+                        step="1"
+                        required>
+                    <small class="form-text text-muted">
+                        Este valor es interno y no se muestra a distribuidores.
                     </small>
                 </div>
 
                 <button class="btn btn-primary mt-3">
                     Guardar configuración
                 </button>
+
             </form>
 
         </div>

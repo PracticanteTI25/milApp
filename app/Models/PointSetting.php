@@ -10,9 +10,6 @@ class PointSetting extends Model
         'expiration_months',
     ];
 
-    /**
-     * Siempre trabajamos con un solo registro (configuración global)
-     */
     public static function current(): self
     {
         return self::firstOrFail();

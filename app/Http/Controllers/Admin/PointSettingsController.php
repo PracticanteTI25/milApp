@@ -4,33 +4,38 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PointSetting;
+use App\Models\BusinessSetting;
 use Illuminate\Http\Request;
 
 class PointSettingsController extends Controller
 {
-    /**
-     * Mostrar configuración actual
-     */
     public function edit()
     {
-        $settings = PointSetting::current();   //obtiene la configuracion actual
-
-        return view('admin.points.settings', compact('settings'));   //envia los datos a la vista
+        return view('admin.points.settings', [
+            'pointSettings' => PointSetting::current(),
+            'pesosPorPunto' => BusinessSetting::getValue('pesos_por_punto', 28000),
+        ]);
     }
 
-    //Guarda el formulario (la configuracion)
     public function update(Request $request)
     {
-        // Validación (OWASP: input validation)
         $data = $request->validate([
             'expiration_months' => ['required', 'integer', 'min:1', 'max:36'],
+            'pesos_por_punto'   => ['required', 'numeric', 'min:1'],
         ]);
 
-        $settings = PointSetting::current();   //trabajamos sobre la misma cofiguracion, la que obtuvimos
-        $settings->update($data);   //actualiza la configuracion 
+        // Actualizar vencimiento
+        $pointSetting = PointSetting::current();
+        $pointSetting->update([
+            'expiration_months' => $data['expiration_months'],
+        ]);
 
-        return redirect()
-            ->back()
-            ->with('success', 'La configuración de vencimiento fue actualizada correctamente.');
+        // Actualizar valor económico del punto
+        BusinessSetting::updateOrCreate(
+            ['key' => 'pesos_por_punto'],
+            ['value' => $data['pesos_por_punto']]
+        );
+
+        return back()->with('success', 'Configuración actualizada correctamente.');
     }
 }

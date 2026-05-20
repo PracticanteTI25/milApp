@@ -46,6 +46,18 @@
         </p>
     </div>
 
+
+    @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
+
     {{-- =========================
         FORMULARIO COMPLETO
        ========================= --}}
@@ -69,7 +81,8 @@
                     <div class="mb-3">
                         <select name="direccion_id" class="form-select" required>
                             @foreach($direcciones as $direccion)
-                            <option value="{{ $direccion->id }}" {{ $direccion->is_default ? 'selected' : '' }}>
+                            <option value="{{ $direccion->id }}"
+                                {{ old('direccion_id', $direccion->is_default ? $direccion->id : null) == $direccion->id ? 'selected' : '' }}>
                                 {{ $direccion->address_line1 }} — {{ $direccion->city }}
                             </option>
                             @endforeach

@@ -12,8 +12,6 @@ class RedencionProducto extends Model
         'redencion_id',
         'product_id',
         'cantidad',
-        'puntos_unitarios',
-        'puntos_total',
     ];
 
     public function redencion()

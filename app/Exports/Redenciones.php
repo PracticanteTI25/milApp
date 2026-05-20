@@ -31,11 +31,11 @@ class Redenciones implements FromCollection, WithHeadings
 
             // Fila base (datos fijos)
             $row = [
-                'NIT' => $redencion->distributor->nit ?? '',
-                'NOMBRE VENDEDORES' => $redencion->distributor->name ?? '',
-                'DIRECCIÓN' => $redencion->direccion->calle_1 ?? '',
-                'MUNICIPIO' => $redencion->direccion->poblacion ?? '',
-                'CELULAR' => $redencion->distributor->telefono ?? '',
+                'NIT' => $redencion->document_snapshot ?? '',
+                'NOMBRE VENDEDORES' => $redencion->nombre_snapshot ?? '',
+                'DIRECCIÓN' => $redencion->direccion_snapshot ?? '',
+                'MUNICIPIO' => $redencion->municipio_snapshot ?? '',
+                'CELULAR' => $redencion->telefono_snapshot ?? '',
             ];
 
             // Inicializar columnas de productos en 0
