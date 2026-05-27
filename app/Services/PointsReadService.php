@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\BolsaPuntos;
 use App\Models\KardexPuntos;
+use App\Models\PointLot;
 use Carbon\Carbon;
 
 class PointsReadService
@@ -28,8 +29,7 @@ class PointsReadService
             // CONGELADOS: diferencia contable (NO por estado)
             'congelados' => max($totalGenerados - $totalDisponibles, 0),
 
-            // PRÓXIMOS A VENCER:
-            // solo se evalúan los puntos que ESTÁN DISPONIBLES
+            // PRÓXIMOS A VENCER (se mantiene igual por ahora)
             'proximos_a_vencer' => $bolsas
                 ->filter(function ($bolsa) use ($hoy) {
 
@@ -37,11 +37,10 @@ class PointsReadService
                         return false;
                     }
 
-                    // Días restantes hasta vencer
                     $diasRestantes = $hoy->diffInDays($bolsa->fecha_vencimiento, false);
 
-                    // Próximos a vencer = últimos 7 días antes del vencimiento
-                    return $diasRestantes >= 0 && $diasRestantes <= 7
+                    return $diasRestantes >= 0
+                        && $diasRestantes <= 7
                         && $bolsa->puntos_disponibles > 0;
                 })
                 ->sum('puntos_disponibles'),
@@ -50,7 +49,7 @@ class PointsReadService
 
     /**
      * Historial completo de puntos
-     * (misma información que ve la distribuidora)
+     * (estructura ORIGINAL, vencimientos corregidos)
      */
     public function historial(int $distributorId): array
     {
@@ -60,22 +59,49 @@ class PointsReadService
 
         return $bolsas->map(function ($bolsa) {
 
-            // Estado DERIVADO (no guardado)
+            // ============================
+            // ESTADO DERIVADO (SIN CAMBIOS)
+            // ============================
             if ($bolsa->puntos_disponibles <= 0) {
                 $estado = 'Congelado';
             } elseif ($bolsa->puntos_disponibles >= $bolsa->puntos_generados) {
                 $estado = 'Habilitado';
             } else {
-                $estado = 'Mixto'; // ← muy importante para transparencia
+                $estado = 'Mixto';
             }
 
+            // =================================================
+            // VENCIMIENTOS REALES DESDE POINT_LOTS
+            // =================================================
+            $vencimientos = PointLot::where('bolsa_id', $bolsa->id)
+                ->where('status', 'disponible')
+                ->where('points_remaining', '>', 0)
+                ->whereNotNull('fecha_vencimiento')
+                ->get()
+                ->groupBy(fn($lot) => $lot->fecha_vencimiento->format('Y-m-d'))
+                ->map(function ($lots, $fecha) {
+                    $totalPuntos = $lots->sum('points_remaining');
+
+                    return Carbon::parse($fecha)->format('d/m/Y') . " ({$totalPuntos} pts)";
+                })
+                ->values()
+                ->toArray();
+
+
             return [
+                // ESTRUCTURA ORIGINAL (NO SE TOCA)
                 'mes' => $bolsa->mes->format('Y-m'),
                 'puntos' => $bolsa->puntos_generados,
                 'disponibles' => $bolsa->puntos_disponibles,
                 'congelados' => $bolsa->puntos_generados - $bolsa->puntos_disponibles,
                 'estado' => $estado,
-                'fecha_vencimiento' => $bolsa->fecha_vencimiento,
+
+                'vencimientos' => $vencimientos,
+
+                // Se deja por compatibilidad
+                'fecha_vencimiento' => null,
+
+                // Detalle ORIGINAL (kardex)
                 'detalle' => KardexPuntos::where('bolsa_id', $bolsa->id)
                     ->orderBy('fecha')
                     ->get(),
@@ -85,6 +111,7 @@ class PointsReadService
 
     /**
      * Detalle de puntos congelados (tooltip / panel)
+     * (SIN CAMBIOS)
      */
     public function congeladosDetalle(int $distributorId): array
     {

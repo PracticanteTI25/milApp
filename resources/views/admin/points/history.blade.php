@@ -129,7 +129,15 @@
                 <tr>
                     <td>{{ $item['mes'] }}</td>
                     <td>{{ $item['puntos'] }}</td>
-                    <td>{{ $item['vencen'] ?? '—' }}</td>
+                    <td>
+                        @if(!empty($item['vencimientos']))
+                        <small>
+                            {{ implode(', ', $item['vencimientos']) }}
+                        </small>
+                        @else
+                        —
+                        @endif
+                    </td>
                     <td>{{ $item['motivo'] }}</td>
                 </tr>
                 @endforeach
@@ -165,10 +173,13 @@
                         </div>
                     </td>
                     <td>
-                        {{ $item['fecha_vencimiento']
-                            ? \Carbon\Carbon::parse($item['fecha_vencimiento'])->format('d/m/Y')
-                            : '—'
-                        }}
+                        @if(!empty($item['vencimientos']))
+                        <small>
+                            {{ implode(', ', $item['vencimientos']) }}
+                        </small>
+                        @else
+                        —
+                        @endif
                     </td>
                     <td>
                         @foreach($item['detalle'] as $mov)

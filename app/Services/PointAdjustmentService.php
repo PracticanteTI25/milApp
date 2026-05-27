@@ -4,7 +4,10 @@ namespace App\Services;
 
 use App\Models\BolsaPuntos;
 use App\Models\KardexPuntos;
+use App\Models\PointLot;
+use App\Models\PointSetting;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class PointAdjustmentService
 {
@@ -16,6 +19,7 @@ class PointAdjustmentService
      * - Solo suma a puntos_disponibles si el ajuste es "habilitado"
      * - NO modifica puntos existentes
      * - Usa una sola bolsa mensual
+     * - CREA un PointLot (nuevo)
      */
     public function addPoints(
         int $distributorId,
@@ -36,33 +40,32 @@ class PointAdjustmentService
 
             $month = now()->startOfMonth();
 
-            // UNA sola bolsa por mes
+            // UNA sola bolsa por mes (lógica existente)
             $bag = BolsaPuntos::firstOrCreate(
                 [
                     'distributor_id' => $distributorId,
-                    'mes' => $month,
+                    'mes'            => $month,
                 ],
                 [
-                    'puntos_generados' => 0,
+                    'puntos_generados'   => 0,
                     'puntos_disponibles' => 0,
                 ]
             );
 
-            // Siempre suma a generados (existencia contable)
+            // Actualizar bolsa (lógica existente)
             $bag->increment('puntos_generados', $points);
 
-            // Solo suma a disponibles si el ajuste entra habilitado
             if ($initialState === 'habilitado') {
                 $bag->increment('puntos_disponibles', $points);
             }
 
-            // Kardex: fuente de verdad
-            KardexPuntos::create([
+            // Kardex: FUENTE DE VERDAD (lógica existente)
+            $kardex = KardexPuntos::create([
                 'distributor_id' => $distributorId,
                 'bolsa_id'       => $bag->id,
                 'tipo'           => 'ajuste',
 
-                //  IMPACTO SEMÁNTICO
+                // Impacto semántico
                 'impacto'        => $initialState === 'habilitado'
                     ? 'suma_habilitada'
                     : 'suma_congelada',
@@ -70,6 +73,32 @@ class PointAdjustmentService
                 'puntos'         => $points,
                 'descripcion'    => $reason,
                 'fecha'          => now(),
+            ]);
+
+            // NUEVO: Crear LOTE DE PUNTOS (PointLot)
+
+            // Configuración vigente
+            $expirationMonths = PointSetting::first()->expiration_months;
+
+            $isDisponible = $initialState === 'habilitado';
+
+            // La fecha REAL de habilitación viene del kardex
+            $fechaHabilitacion = $isDisponible ? $kardex->fecha : null;
+
+            // La fecha de vencimiento solo existe si está habilitado
+            $fechaVencimiento = $isDisponible
+                ? Carbon::parse($fechaHabilitacion)->addMonths($expirationMonths)
+                : null;
+
+            PointLot::create([
+                'distributor_id'     => $distributorId,
+                'bolsa_id'           => $bag->id,
+                'source'             => 'manual',
+                'points_initial'     => $points,
+                'points_remaining'   => $points,
+                'fecha_habilitacion' => $fechaHabilitacion,
+                'fecha_vencimiento'  => $fechaVencimiento,
+                'status'             => $isDisponible ? 'disponible' : 'congelado',
             ]);
         });
     }
@@ -96,12 +125,11 @@ class PointAdjustmentService
         DB::transaction(function () use ($distributorId, $points, $reason) {
 
             $bags = BolsaPuntos::where('distributor_id', $distributorId)
-                ->orderBy('mes') // FIFO por mes
+                ->orderBy('mes') // FIFO por mes (lógica existente)
                 ->lockForUpdate()
                 ->get();
 
-            $totalDisponibles = $bags->sum('puntos_disponibles');
-            $totalGenerados   = $bags->sum('puntos_generados');
+            $totalGenerados = $bags->sum('puntos_generados');
 
             if ($totalGenerados < $points) {
                 throw new \RuntimeException('No hay puntos suficientes para realizar el ajuste.');
@@ -109,7 +137,7 @@ class PointAdjustmentService
 
             $remaining = $points;
 
-            // DESCONTAR DE DISPONIBLES (OBLIGATORIO)
+            // DESCONTAR DE DISPONIBLES (BOLSAS)
 
             foreach ($bags as $bag) {
                 if ($remaining <= 0) {
@@ -129,10 +157,7 @@ class PointAdjustmentService
                     'distributor_id' => $distributorId,
                     'bolsa_id'       => $bag->id,
                     'tipo'           => 'ajuste',
-
-                    //IMPACTO
                     'impacto'        => 'resta',
-
                     'puntos'         => -$use,
                     'descripcion'    => $reason . ' (descuento de disponibles)',
                     'fecha'          => now(),
@@ -141,11 +166,8 @@ class PointAdjustmentService
                 $remaining -= $use;
             }
 
-            //SOLO SI NO ALCANZÓ DISPONIBLES, TOCAR CONGELADOS
-
+            // SI NO ALCANZÓ DISPONIBLES, TOCAR CONGELADOS
             if ($remaining > 0) {
-
-                // Guard clause: aquí ya sabemos que disponibles NO alcanzaron
                 foreach ($bags as $bag) {
                     if ($remaining <= 0) {
                         break;
@@ -165,10 +187,7 @@ class PointAdjustmentService
                         'distributor_id' => $distributorId,
                         'bolsa_id'       => $bag->id,
                         'tipo'           => 'ajuste',
-
-                        // IMPACTO
                         'impacto'        => 'resta',
-
                         'puntos'         => -$use,
                         'descripcion'    => $reason . ' (descuento de congelados)',
                         'fecha'          => now(),
@@ -176,6 +195,36 @@ class PointAdjustmentService
 
                     $remaining -= $use;
                 }
+            }
+
+            // PASO 4: CONSUMO FIFO REAL DESDE POINT_LOTS
+
+            $remainingToConsume = $points;
+
+            $lots = PointLot::where('distributor_id', $distributorId)
+                ->where('status', 'disponible')
+                ->where('points_remaining', '>', 0)
+                ->orderBy('fecha_vencimiento') // FIFO REAL POR VENCIMIENTO
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($lots as $lot) {
+
+                if ($remainingToConsume <= 0) {
+                    break;
+                }
+
+                $use = min($lot->points_remaining, $remainingToConsume);
+
+                $lot->points_remaining -= $use;
+
+                if ($lot->points_remaining === 0) {
+                    $lot->status = 'consumido';
+                }
+
+                $lot->save();
+
+                $remainingToConsume -= $use;
             }
         });
     }

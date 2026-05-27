@@ -23,10 +23,11 @@
                     </div>
                 </td>
                 <td>
-                    {{ $item['fecha_vencimiento']
-                            ? \Carbon\Carbon::parse($item['fecha_vencimiento'])->format('d/m/Y')
-                            : '—'
-                        }}
+                    @if(!empty($item['vencimientos']))
+                    {{ implode(', ', $item['vencimientos']) }}
+                    @else
+                    —
+                    @endif
                 </td>
                 <td>
                     @foreach($item['detalle'] as $mov)
