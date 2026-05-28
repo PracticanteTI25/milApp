@@ -26,21 +26,44 @@ class PointAdjustmentsController extends Controller
             'reason' => ['required', 'string', 'min:5'],
         ]);
 
-        if ($data['type'] === 'add') {
-            $service->addPoints(
-                $data['distributor_id'],
-                $data['points'],
-                $data['initial_state'],
-                $data['reason']
-            );
-        } else {
-            $service->subtractPoints(
-                $data['distributor_id'],
-                $data['points'],
-                $data['reason']
-            );
-        }
+        try {
 
-        return back()->with('success', 'Ajuste aplicado correctamente.');
+            if ($data['type'] === 'add') {
+
+                $service->addPoints(
+                    $data['distributor_id'],
+                    $data['points'],
+                    $data['initial_state'],
+                    $data['reason']
+                );
+            } else {
+
+                $service->subtractPoints(
+                    $data['distributor_id'],
+                    $data['points'],
+                    $data['reason']
+                );
+            }
+
+            return back()->with('success', 'Ajuste aplicado correctamente.');
+        } catch (\RuntimeException $e) {
+
+            // Mensaje de negocio (esperado)
+            return back()
+                ->withErrors([
+                    'points' => $e->getMessage(),
+                ])
+                ->withInput();
+        } catch (\Throwable $e) {
+
+            // Cualquier otro error inesperado
+            report($e);
+
+            return back()
+                ->withErrors([
+                    'general' => 'Ocurrió un error inesperado. Intenta nuevamente o contacta soporte.',
+                ])
+                ->withInput();
+        }
     }
 }
