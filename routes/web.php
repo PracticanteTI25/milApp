@@ -22,6 +22,7 @@ use App\Http\Controllers\Comercial\DistributorGoalController;
 use \App\Http\Controllers\Admin\PointSettingsController;
 use \App\Http\Controllers\Admin\PointAdjustmentsController;
 use \App\Http\Controllers\Admin\PointHistoryController;
+use \App\Http\Controllers\Distribuidores\DevolucionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -112,6 +113,15 @@ Route::prefix('distribuidores')->group(function () {
             '/canje/confirmacion/{redencion}',
             [CheckoutController::class, 'confirmacion']
         )->name('distribuidores.canje.confirmacion');
+
+        Route::post(
+            '/devoluciones',
+            [DevolucionController::class, 'store']
+        )->name('devoluciones.store');
+
+        Route::get('/devoluciones', function () {
+            return view('distribuidores.devoluciones.create');
+        })->name('distribuidores.devoluciones.create');
     });
 });
 

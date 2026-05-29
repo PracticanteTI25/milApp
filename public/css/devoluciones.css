@@ -1,0 +1,154 @@
+/* =====================================
+   FORMULARIO DEVOLUCIONES (VERSIÓN FINAL)
+===================================== */
+
+/* RESET SUAVE */
+.devoluciones-wrapper,
+.devoluciones-wrapper * {
+    box-sizing: border-box;
+}
+
+/*  FONDO COMO EL DE TU DISEÑO */
+body {
+    background: #ffffff; 
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* CONTENEDOR */
+.devoluciones-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 60px 20px;
+}
+
+/* TARJETA */
+.devoluciones-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 35px;
+
+    width: 100%;
+    max-width: 520px;
+
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+}
+
+/* TÍTULO */
+.devoluciones-title {
+    text-align: center;
+    color: #2563eb;
+    font-weight: 700;
+    font-size: 26px;
+    margin-bottom: 30px;
+}
+
+/* ===== GRUPOS ===== */
+.devoluciones-group {
+    margin-bottom: 22px;
+}
+
+.devoluciones-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #374151;
+}
+
+/*  ASTERISCO AZUL */
+.devoluciones-group label::after {
+    content: " *";
+    color: #2563eb;
+    font-weight: 700;
+}
+
+/* ===== INPUTS ===== */
+.devoluciones-input,
+.devoluciones-select,
+.devoluciones-textarea {
+    width: 100%;
+    padding: 12px 14px;
+
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+
+    font-size: 14px;
+    background-color: #ffffff;
+
+    outline: none;
+}
+
+/* ALTURA */
+.devoluciones-select,
+.devoluciones-input {
+    height: 48px;
+}
+
+/* TEXTAREA */
+.devoluciones-textarea {
+    min-height: 130px;
+    resize: vertical;
+}
+
+/* FOCUS */
+.devoluciones-input:focus,
+.devoluciones-select:focus,
+.devoluciones-textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(79, 140, 255, 0.2);
+}
+
+/* SELECT BONITO */
+.devoluciones-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='%234f8cff' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5 7l5 5 5-5H5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+}
+
+/* ===== UPLOAD ===== */
+.devoluciones-upload {
+    border: 2px dashed #cbd5e1;
+    padding: 30px;
+    border-radius: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.devoluciones-upload p {
+    margin: 0;
+    font-weight: 600;
+    color: #2563eb;
+}
+
+.devoluciones-upload small {
+    color: #6b7280;
+}
+
+.devoluciones-upload:hover {
+    background: #f8fafc;
+    border-color: #2563eb;
+}
+
+/* ===== BOTÓN ===== */
+.devoluciones-btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: 12px;
+
+    background: linear-gradient(135deg, #2563eb, #2563eb);
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.devoluciones-btn:hover {
+    background: linear-gradient(135deg, #2563eb, #2563eb);
+    transform: translateY(-1px);
+}
