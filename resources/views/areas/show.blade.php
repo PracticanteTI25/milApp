@@ -3,12 +3,14 @@
 @section('title', 'Área')
 
 @section('content')
+
 <h1 class="colorgris body text-capitalize">
     Área: {{ str_replace('_', ' ', $slug) }}
 </h1>
 
 {{-- ================= COMERCIAL ================= --}}
 @if($slug === 'comercial')
+
 <div class="mt-3">
 
     {{-- Gestión de stock --}}
@@ -33,7 +35,9 @@
 
 {{-- ================= ADMINISTRATIVA Y FINANCIERA ================= --}}
 @elseif($slug === 'administrativo_financiero')
+
 <div class="mt-3">
+
 
     {{-- Gestión de productos de incentivos --}}
     @if (Route::has('financiera.productos.index'))
@@ -49,10 +53,12 @@
     </div>
     @endif
 
+
 </div>
 
 {{-- ================= LOGÍSTICA ================= --}}
 @elseif($slug === 'logistica_distribucion')
+
 <div class="mt-3">
 
     @if (Route::has('logistica.redenciones.excel'))
@@ -70,8 +76,25 @@
 
 </div>
 
+{{-- ================= CALIDAD ================= --}}
+@elseif($slug === 'calidad')
+<div class="mt-3">
+
+    @if (Route::has('calidad.devoluciones.index'))
+    <a href="{{ route('calidad.devoluciones.index') }}"
+        class="btn btn-info mb-2">
+
+        <i class="fas fa-undo-alt"></i>
+        Gestión de devoluciones
+
+    </a>
+    @endif
+
+</div>
+
 {{-- ================= OTROS MÓDULOS ================= --}}
 @else
+
 <div class="card mt-3">
     <div class="card-body">
         <p class="mb-0">

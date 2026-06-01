@@ -119,9 +119,11 @@ Route::prefix('distribuidores')->group(function () {
             [DevolucionController::class, 'store']
         )->name('devoluciones.store');
 
-        Route::get('/devoluciones', function () {
-            return view('distribuidores.devoluciones.create');
-        })->name('distribuidores.devoluciones.create');
+        Route::get(
+            '/devoluciones',
+            [DevolucionController::class, 'create']
+        )->name('distribuidores.devoluciones.create');
+
     });
 });
 
@@ -329,6 +331,25 @@ Route::middleware('auth')->group(function () {
             );
         })->name('logistica.redenciones.excel');
     });
+
+    /*
+|--------------------------------------------------------------------------
+| ÁREA CALIDAD
+|--------------------------------------------------------------------------
+*/
+
+    Route::middleware([
+        'auth',
+        'permission:calidad.devoluciones.ver'
+    ])
+        ->prefix('areas/calidad')
+        ->group(function () {
+
+            Route::get(
+                '/devoluciones',
+                [\App\Http\Controllers\Calidad\DevolucionController::class, 'index']
+            )->name('calidad.devoluciones.index');
+        });
 });
 
 /*

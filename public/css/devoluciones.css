@@ -10,7 +10,7 @@
 
 /*  FONDO COMO EL DE TU DISEÑO */
 body {
-    background: #ffffff; 
+    background: #ffffff;
     margin: 0;
     font-family: Arial, sans-serif;
 }
@@ -152,3 +152,45 @@ body {
     background: linear-gradient(135deg, #2563eb, #2563eb);
     transform: translateY(-1px);
 }
+
+.alert-success {
+    background: #e6f4ea;
+    color: #15803d;
+
+    padding: 12px;
+    border-radius: 10px;
+
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.file-name {
+    display: block;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #4b5563;
+}
+
+/* INPUT FILE LIMPIO */
+.devoluciones-input-file {
+    width: 100%;
+    padding: 10px;
+
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* TEXTO DE AYUDA */
+.file-help {
+    display: block;
+    margin-top: 6px;
+
+    font-size: 12px;
+    color: #6b7280;
+}
+
+

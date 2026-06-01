@@ -3,11 +3,18 @@
 @section('title', 'Devoluciones')
 
 @section('content')
+
 <div class="devoluciones-wrapper">
 
     <div class="devoluciones-card">
 
         <h2 class="devoluciones-title">Formulario de Devolución</h2>
+
+        @if(session('success'))
+        <div class="alert-success">
+            {{ session('success') }}
+        </div>
+        @endif
 
         <form action="{{ route('devoluciones.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -17,6 +24,11 @@
                 <label>Referencia Lote</label>
                 <select name="lote" class="devoluciones-select">
                     <option value="">Busca o selecciona un producto...</option>
+                    @foreach($lotes as $lote)
+                    <option value="{{ $lote['codigo'] }}">
+                        {{ $lote['nombre'] }}
+                    </option>
+                    @endforeach
                 </select>
             </div>
 
@@ -30,12 +42,15 @@
             <div class="devoluciones-group">
                 <label>Adjunta imagen</label>
 
-                <label class="devoluciones-upload">
-                    <input type="file" name="imagen" hidden>
+                <input
+                    type="file"
+                    name="imagen"
+                    class="devoluciones-input-file"
+                    accept="image/*">
 
-                    <p><strong>Haz clic o arrastra</strong></p>
-                    <small>JPG, PNG, WEBP – máx. 10MB</small>
-                </label>
+                <small class="file-help">
+                    JPG, PNG, WEBP – máx. 10MB
+                </small>
             </div>
 
             {{-- OBSERVACIONES --}}
@@ -56,3 +71,4 @@
 
 </div>
 @endsection
+

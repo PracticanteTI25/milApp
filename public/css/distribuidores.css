@@ -642,4 +642,32 @@ form {
     margin: 8px 0;
 }
 
+/* BADGES ESTADO (devoluciones) */
+
+.badge-estado {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.estado-pendiente {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.estado-en_revision {
+    background: #eef2ff;
+    color: #3730a3;
+}
+
+.estado-aprobado {
+    background: #e6f4ea;
+    color: #15803d;
+}
+
+.estado-rechazado {
+    background: #fee2e2;
+    color: #b91c1c;
+}
 
