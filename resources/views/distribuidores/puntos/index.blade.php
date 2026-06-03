@@ -2,19 +2,18 @@
 
 @section('title', 'Mis puntos')
 
-{{-- CSS necesario SOLO para esta vista --}}
 @section('css')
+
 <link rel="stylesheet" href="{{ asset('css/distribuidores.css') }}">
 <link rel="stylesheet" href="{{ asset('css/points.css') }}">
 @endsection
 
-{{-- Navbar igual que catálogo --}}
 @include('distribuidores.partials.navbar')
 
 @section('content')
+
 <div class="w">
 
-    {{-- HERO --}}
     <div class="hero">
         <div class="hero-top">
             <div>
@@ -24,7 +23,6 @@
                 </div>
             </div>
 
-            {{-- Meta --}}
             <div class="badge-goal">
                 <span class="g-label">
                     Meta del mes ({{ $currentMonth }}/{{ $currentYear }})
@@ -47,7 +45,6 @@
 
         </div>
 
-        {{-- RESUMEN --}}
         <div class="pts-row">
             <div class="pts-block">
                 <span class="pts-lbl">Disponibles para usar</span>
@@ -73,7 +70,6 @@
             </div>
         </div>
 
-        {{-- ALERTA DE VENCIMIENTO --}}
         @if($resumen['proximos_a_vencer'] > 0)
         <div class="expire-banner">
             ⚠ {{ $resumen['proximos_a_vencer'] }} puntos se vencerán pronto
@@ -84,11 +80,22 @@
     <div class="metrics">
 
         <div class="mc">
-            <div class="mc-lbl">Falta para tu meta</div>
+            <div class="mc-lbl">Resultado del mes</div>
+
             <div class="mc-val">
-                ${{ number_format($faltanteMeta, 0, ',', '.') }}
+                {{ number_format($percentage, 0) }}%
             </div>
-            <div class="mc-sub">en ventas este mes</div>
+
+            <div class="mc-sub">
+                ${{ number_format($achieved, 0, ',', '.') }} de
+                ${{ number_format($goal->goal_amount ?? 0, 0, ',', '.') }}
+            </div>
+
+            @if($percentage >= 100)
+            <span class="badge bg-success">Meta cumplida</span>
+            @else
+            <span class="badge bg-danger">Pendiente</span>
+            @endif
         </div>
 
         <div class="mc">
@@ -107,24 +114,54 @@
 
     </div>
 
+    {{-- SECCIÓN MODIFICADA --}}
     <div class="progress-wrap">
-        <div class="prog-title">Avance hacia la meta del mes</div>
+        <div class="prog-title">Resultado del mes</div>
 
-        <div class="prog-track">
-            <div class="prog-fill" style="width: {{ $porcentajeMeta }}%;"></div>
+        @if(!$monthlyGoal)
+        <div class="alert alert-warning">
+            No hay meta definida para este mes.
+        </div>
+        @elseif(!$monthlyGoal->sale)
+        <div class="alert alert-info">
+            Ventas pendientes de carga para este mes.
+        </div>
+        @else
+
+        @php
+        $goalAmount = $monthlyGoal->goal_amount ?? 0;
+        $achieved = $monthlyGoal->sale->achieved_amount ?? 0;
+
+        $percentage = $goalAmount > 0
+        ? ($achieved / $goalAmount) * 100
+        : 0;
+
+        $percentage = min($percentage, 100);
+        @endphp
+
+        <div class="progress mb-2" style="height: 12px;">
+            <div
+                class="progress-bar 
+                    {{ $percentage >= 100 ? 'bg-success' : ($percentage >= 50 ? 'bg-warning' : 'bg-danger') }}"
+                role="progressbar"
+                style="width: {{ $percentage }}%;">
+            </div>
         </div>
 
-        <div class="prog-labels">
+        <div class="d-flex justify-content-between small text-muted">
             <span>
-                ${{ number_format($ventasAcumuladas, 0, ',', '.') }} acumulados
+                ${{ number_format($achieved, 0, ',', '.') }} ventas
             </span>
             <span>
-                {{ $porcentajeMeta }}% · meta ${{ number_format($metaMensual, 0, ',', '.') }}
+                {{ number_format($percentage, 2) }}% · meta
+                ${{ number_format($goalAmount, 0, ',', '.') }}
             </span>
         </div>
+
+        @endif
     </div>
+    {{-- FIN MODIFICACIÓN --}}
 
-    {{-- DETALLE DE CONGELADOS --}}
     @if(!empty($congeladosDetalle))
     <div class="panel" id="frozen-panel">
         <div class="panel-head">Detalle de puntos congelados</div>
@@ -152,7 +189,6 @@
     </div>
     @endif
 
-    {{-- HISTORIAL --}}
     <button class="hist-btn" id="toggle-hist">
         ☰ Ver historial de puntos <span id="hi-arr">►</span>
     </button>
@@ -161,10 +197,12 @@
         @include('distribuidores.partials.historial', ['historial' => $historial])
     </div>
 
+
 </div>
 @endsection
 
 @section('js')
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
 
@@ -190,4 +228,5 @@
 
     });
 </script>
+
 @endsection

@@ -43,6 +43,7 @@ class UsuarioController extends Controller
             'financiera.productos.',
             'logistica.redenciones.',
             'calidad.devoluciones.',
+            'comercial.datos.',
         ];
 
         // Traemos SOLO permisos funcionales correctos
@@ -130,6 +131,7 @@ class UsuarioController extends Controller
             'financiera.productos.',
             'logistica.redenciones.',
             'calidad.devoluciones.',
+            'comercial.datos.',
         ];
 
         $functionalPermissions = Permission::where(function ($query) use ($allowedPermissionPrefixes) {

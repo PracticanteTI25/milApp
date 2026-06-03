@@ -23,6 +23,7 @@ use \App\Http\Controllers\Admin\PointSettingsController;
 use \App\Http\Controllers\Admin\PointAdjustmentsController;
 use \App\Http\Controllers\Admin\PointHistoryController;
 use \App\Http\Controllers\Distribuidores\DevolucionController;
+use  App\Http\Controllers\Comercial\ImportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -123,7 +124,6 @@ Route::prefix('distribuidores')->group(function () {
             '/devoluciones',
             [DevolucionController::class, 'create']
         )->name('distribuidores.devoluciones.create');
-
     });
 });
 
@@ -287,37 +287,54 @@ Route::middleware('auth')->group(function () {
     */
 
 
-    Route::middleware([
-        'auth',
-        'permission:comercial.stock.editar'
-    ])->prefix('areas/comercial')->group(function () {
+    Route::middleware(['auth'])
+        ->prefix('areas/comercial')
+        ->group(function () {
 
 
-        Route::get('/stock', [ProductStockController::class, 'index'])
-            ->name('comercial.stock.index');
+            // ================= STOCK =================
+            Route::middleware('permission:comercial.stock.editar')->group(function () {
 
-        Route::get('/stock/{product}/editar', [ProductStockController::class, 'edit'])
-            ->name('comercial.stock.edit');
+                Route::get('/stock', [ProductStockController::class, 'index'])
+                    ->name('comercial.stock.index');
 
-        Route::put('/stock/{product}', [ProductStockController::class, 'update'])
-            ->name('comercial.stock.update');
+                Route::get('/stock/{product}/editar', [ProductStockController::class, 'edit'])
+                    ->name('comercial.stock.edit');
 
-        Route::get('/metas', [DistributorGoalController::class, 'index'])
-            ->name('comercial.metas.index');
+                Route::put('/stock/{product}', [ProductStockController::class, 'update'])
+                    ->name('comercial.stock.update');
+            });
 
-        Route::get('/metas/{distributor}/editar', [DistributorGoalController::class, 'edit'])
-            ->name('comercial.metas.edit');
+            // ================= METAS =================
+            Route::middleware('permission:comercial.metas.editar')->group(function () {
 
-        Route::post('/metas/{distributor}', [DistributorGoalController::class, 'update'])
-            ->name('comercial.metas.update');
-    });
+                Route::get('/metas', [DistributorGoalController::class, 'index'])
+                    ->name('comercial.metas.index');
+
+                Route::get('/metas/{distributor}/editar', [DistributorGoalController::class, 'edit'])
+                    ->name('comercial.metas.edit');
+
+                Route::post('/metas/{distributor}', [DistributorGoalController::class, 'update'])
+                    ->name('comercial.metas.update');
+            });
+
+            // ================= IMPORTACIONES =================
+            Route::middleware(['permission:comercial.datos.importar'])
+                ->group(function () {
+
+                    Route::get('/importaciones', [ImportController::class, 'index'])
+                        ->name('comercial.importaciones.index');
+
+                    Route::post('/importaciones', [ImportController::class, 'store'])
+                        ->name('comercial.importaciones.store');
+                });
+        });
 
     /*
     |--------------------------------------------------------------------------
     | LOGÍSTICA
     |--------------------------------------------------------------------------
     */
-
 
     Route::middleware([
         'auth',

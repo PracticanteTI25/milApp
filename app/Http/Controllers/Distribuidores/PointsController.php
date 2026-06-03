@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\PointsReadService;
 use App\Models\DistributorMonthlyGoal;
 use App\Models\Redencion;
+use App\Models\Sale;
 
 class PointsController extends Controller
 {
@@ -14,7 +15,7 @@ class PointsController extends Controller
         $distributor = auth('distributor')->user();
         $distributorId = $distributor->id;
 
-        // DATOS DE PUNTOS (NO SE TOCA)
+        // PUNTOS (NO SE TOCA)
         $resumen = $pointsReadService->resumen($distributorId);
         $historial = $pointsReadService->historial($distributorId);
         $congeladosDetalle = $pointsReadService->congeladosDetalle($distributorId);
@@ -23,46 +24,49 @@ class PointsController extends Controller
         $currentYear  = now()->year;
         $currentMonth = now()->month;
 
-        // META DESDE BD (reemplaza el hardcodeo)
-        $monthlyGoal = DistributorMonthlyGoal::where('distributor_id', $distributorId)
+        // META
+        $monthlyGoal = DistributorMonthlyGoal::with('sale')
+            ->where('distributor_id', $distributorId)
             ->where('year', $currentYear)
             ->where('month', $currentMonth)
             ->first();
 
-        // Si no hay meta, evitar errores
         $metaMensual = $monthlyGoal->goal_amount ?? 0;
 
-        // Esto sigue siendo temporal hasta conectar ventas reales
-        $ventasAcumuladas = 10650000;
+        // VENTAS REALES (DESDE BD)
+        $ventasAcumuladas = $monthlyGoal->sale->achieved_amount ?? 0;
 
+        // CÁLCULO DE CUMPLIMIENTO
         $porcentajeMeta = $metaMensual > 0
-            ? round(($ventasAcumuladas / $metaMensual) * 100)
+            ? min(100, round(($ventasAcumuladas / $metaMensual) * 100))
             : 0;
 
+        // resultado
         $faltanteMeta = max($metaMensual - $ventasAcumuladas, 0);
 
+        // MÉTRICAS ADICIONALES
         $canjesAnio = Redencion::where('distributor_id', $distributorId)
             ->whereYear('fecha', $currentYear)
             ->count();
 
         return view('distribuidores.puntos.index', [
-            // puntos 
+            // puntos
             'resumen' => $resumen,
             'historial' => $historial,
             'congeladosDetalle' => $congeladosDetalle,
 
-            // meta real
+            // meta
             'metaMensual' => $metaMensual,
             'monthlyGoal' => $monthlyGoal,
             'currentYear' => $currentYear,
             'currentMonth' => $currentMonth,
 
-            // métricas calculadas
-            'ventasAcumuladas' => $ventasAcumuladas,
-            'porcentajeMeta' => $porcentajeMeta,
-            'faltanteMeta' => $faltanteMeta,
+            // cálculo real (compatibles con la vista)
+            'achieved' => $ventasAcumuladas,
+            'percentage' => $porcentajeMeta,
+            'goal' => $monthlyGoal,
 
-            // métricas adicionales 
+            // métricas adicionales
             'canjesAnio' => $canjesAnio,
             'valorCredito' => $resumen['disponibles'],
         ]);

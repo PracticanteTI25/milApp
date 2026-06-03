@@ -17,8 +17,11 @@ class DistributorGoalController extends Controller
 
         $distributors = Distributor::with([
             'monthlyGoals' => function ($query) use ($currentYear, $currentMonth) {
+
                 $query->where('year', $currentYear)
-                    ->where('month', $currentMonth);
+                    ->where('month', $currentMonth)
+                    ->with('sale');
+
             }
         ])
             ->orderBy('name')
@@ -55,7 +58,7 @@ class DistributorGoalController extends Controller
     public function update(Request $request, Distributor $distributor)
     {
         $data = $request->validate([
-            'goal_amount' => ['required', 'numeric', 'min:0'],   //obligatorio, numero, no negativo
+            'goal_amount' => ['required', 'numeric', 'min:1'],   //obligatorio, numero, no negativo
         ]);
 
         //si hay meta este mes, se actualiza, si no hay, se crea

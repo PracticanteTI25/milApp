@@ -131,11 +131,20 @@ class DistributorAuthController extends Controller
         // Marcar token como usado
         $record->update(['used_at' => now()]);
 
-        // Buscar o crear distribuidora
-        $distributor = Distributor::firstOrCreate(
-            ['email' => $email],
-            ['active' => true]
-        );
+
+        // Buscar distribuidor autorizado
+        $authorized = AuthorizedDistributor::where('email', $email)
+            ->where('active', true)
+            ->first();
+
+        if (!$authorized || !$authorized->distributor) {
+            return redirect()->route('distribuidores.login')
+                ->withErrors(['email' => 'Acceso no autorizado.']);
+        }
+
+        // Obtener distribuidor real (NO crear nuevos)
+        $distributor = $authorized->distributor;
+
 
         Auth::guard('distributor')->login($distributor);
 

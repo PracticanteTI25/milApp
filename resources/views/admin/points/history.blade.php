@@ -31,33 +31,58 @@
     </div>
 </form>
 
-{{-- ================= NUEVO BLOQUE ================= --}}
 @if($selectedDistributor)
 
 <div class="row mb-4">
 
-    {{-- Avance hacia la meta --}}
+    {{-- RESULTADO DEL MES --}}
     <div class="col-md-8">
         <div class="card h-100">
             <div class="card-body">
-                <h6 class="mb-2">Avance hacia la meta del mes</h6>
+                <h6 class="mb-2">Resultado del mes</h6>
+
+                @if(!$metaMensual)
+                <div class="alert alert-warning">
+                    No hay meta definida para este mes.
+                </div>
+                @elseif(!$ventasAcumuladas)
+                <div class="alert alert-info">
+                    Ventas pendientes de carga para este mes.
+                </div>
+                @else
+
+                @php
+                $goalAmount = $metaMensual ?? 0;
+                $achieved = $ventasAcumuladas ?? 0;
+
+                $percentage = $goalAmount > 0
+                ? ($achieved / $goalAmount) * 100
+                : 0;
+
+                $percentage = min($percentage, 100);
+                @endphp
 
                 <div class="progress mb-2" style="height: 12px;">
                     <div
-                        class="progress-bar bg-primary"
+                        class="progress-bar 
+                            {{ $percentage >= 100 ? 'bg-success' : ($percentage >= 50 ? 'bg-warning' : 'bg-danger') }}"
                         role="progressbar"
-                        style="width: {{ min($porcentajeMeta, 100) }}%;"></div>
+                        style="width: {{ $percentage }}%;">
+                    </div>
                 </div>
 
                 <div class="d-flex justify-content-between small text-muted">
                     <span>
-                        ${{ number_format($ventasAcumuladas, 0, ',', '.') }} acumulados
+                        ${{ number_format($achieved, 0, ',', '.') }} ventas
                     </span>
                     <span>
-                        {{ $porcentajeMeta }}% · meta
-                        ${{ number_format($metaMensual, 0, ',', '.') }}
+                        {{ number_format($percentage, 2) }}% · meta
+                        ${{ number_format($goalAmount, 0, ',', '.') }}
                     </span>
                 </div>
+
+                @endif
+
             </div>
         </div>
     </div>
@@ -79,7 +104,6 @@
 
 @if($selectedDistributor)
 
-{{-- ================= RESUMEN ================= --}}
 <div class="card mb-4">
     <div class="card-header">
         <strong>{{ $selectedDistributor->name }}</strong>
@@ -110,8 +134,8 @@
     </div>
 </div>
 
-{{-- ================= CONGELADOS ================= --}}
 @if(!empty($congeladosDetalle))
+
 <div class="card mb-4">
     <div class="card-header">Detalle de puntos congelados</div>
     <div class="card-body p-0">
@@ -147,7 +171,6 @@
 </div>
 @endif
 
-{{-- ================= HISTORIAL ================= --}}
 <div class="card">
     <div class="card-header">Historial completo de puntos</div>
     <div class="card-body p-0">
@@ -184,6 +207,7 @@
                     <td>
                         @foreach($item['detalle'] as $mov)
 
+                        ```
                         @php
                         $impactoTexto = match($mov->impacto) {
                         'suma_habilitada' => 'Puntos habilitados',
@@ -217,6 +241,7 @@
             </tbody>
         </table>
     </div>
+
 </div>
 
 @endif

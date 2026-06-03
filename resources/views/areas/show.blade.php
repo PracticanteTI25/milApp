@@ -31,6 +31,15 @@
     </a>
     @endif
 
+    {{-- Importación masiva --}}
+    @if (Route::has('comercial.importaciones.index'))
+    <a href="{{ route('comercial.importaciones.index') }}"
+        class="btn btn-primary mb-2">
+        <i class="fas fa-file-upload"></i>
+        Carga masiva de datos
+    </a>
+    @endif
+
 </div>
 
 {{-- ================= ADMINISTRATIVA Y FINANCIERA ================= --}}
