@@ -26,6 +26,7 @@
 
                             <p style="color:#555; font-size:14px;">
                                 Tu código de acceso es:
+                                
                             </p>
 
                             <div style="

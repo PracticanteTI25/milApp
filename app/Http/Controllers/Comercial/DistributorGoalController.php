@@ -20,8 +20,10 @@ class DistributorGoalController extends Controller
 
                 $query->where('year', $currentYear)
                     ->where('month', $currentMonth)
-                    ->with('sale');
-
+                    ->with(['sales' => function ($query) use ($currentYear, $currentMonth) {
+                        $query->where('year', $currentYear)
+                            ->where('month', $currentMonth);
+                    }]);
             }
         ])
             ->orderBy('name')
@@ -57,19 +59,33 @@ class DistributorGoalController extends Controller
 
     public function update(Request $request, Distributor $distributor)
     {
+        $currentYear  = now()->year;
+        $currentMonth = now()->month;
+
         $data = $request->validate([
-            'goal_amount' => ['required', 'numeric', 'min:1'],   //obligatorio, numero, no negativo
+            'goal_amount' => ['nullable', 'numeric', 'min:1'],   // ahora puede venir vacío
         ]);
+
+        // eliminar meta (sin meta asignada)
+        if (empty($request->goal_amount)) {
+
+            DistributorMonthlyGoal::where('distributor_id', $distributor->id)
+                ->where('year', $currentYear)
+                ->where('month', $currentMonth)
+                ->delete();
+
+            return back()->with('success', 'Meta eliminada correctamente');
+        }
 
         //si hay meta este mes, se actualiza, si no hay, se crea
         DistributorMonthlyGoal::updateOrCreate(
             [
                 'distributor_id' => $distributor->id,
-                'year'  => now()->year,
-                'month' => now()->month,
+                'year'  => $currentYear,
+                'month' => $currentMonth,
             ],
             [
-                'goal_amount' => $data['goal_amount'],
+                'goal_amount' => $request->goal_amount,
             ]
         );
 

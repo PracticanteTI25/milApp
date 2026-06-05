@@ -52,9 +52,14 @@ class PointsService
                 ]
             );
 
-            //  Sumar puntos
+            // puntos_generados = siempre congelados hasta cierre mensual
             $bolsa->increment('puntos_generados', $puntos);
-            $bolsa->increment('puntos_disponibles', $puntos);
+
+            //  NO sumar a disponibles todavía
+            // se habilitan en cierre mensual
+
+            $bolsa->estado = 'congelado';
+            $bolsa->save();
 
             //  Kardex
             KardexPuntos::create([

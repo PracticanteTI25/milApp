@@ -17,16 +17,13 @@ class PointHistoryController extends Controller
     ) {
         $distributors = Distributor::orderBy('name')->get();
 
-        // ===============================
-        // Inicializar SIEMPRE variables
-        // ===============================
+        // Inicialización
         $selectedDistributor = null;
 
         $resumen = null;
-        $historial = [];               // HISTORIAL ESTRUCTURADO (APROBADO)
+        $historial = [];
         $congeladosDetalle = [];
 
-        // Meta
         $monthlyGoal = null;
         $metaMensual = 0;
         $ventasAcumuladas = 0;
@@ -38,35 +35,40 @@ class PointHistoryController extends Controller
 
         $canjesAnio = 0;
 
-        // ===============================
-        // Cuando el admin selecciona distribuidora
-        // ===============================
+        // Cuando seleccionan distribuidor
         if ($request->filled('distributor_id')) {
 
             $selectedDistributor = Distributor::findOrFail($request->distributor_id);
 
-            // ===============================
-            // ✅ FUENTE ÚNICA DE VERDAD
-            // ===============================
+            // FUENTE DE VERDAD (PUNTOS)
             $resumen = $pointsReadService->resumen($selectedDistributor->id);
             $historial = $pointsReadService->historial($selectedDistributor->id);
             $congeladosDetalle = $pointsReadService->congeladosDetalle($selectedDistributor->id);
 
-            // ===============================
-            // Meta mensual
-            // ===============================
-            $monthlyGoal = DistributorMonthlyGoal::where('distributor_id', $selectedDistributor->id)
+            // META + VENTAS (CORRECTO)
+            $monthlyGoal = DistributorMonthlyGoal::with([
+                'sales' => function ($query) use ($currentYear, $currentMonth) {
+                    $query->where('year', $currentYear)
+                        ->where('month', $currentMonth);
+                }
+            ])
+                ->where('distributor_id', $selectedDistributor->id)
                 ->where('year', $currentYear)
                 ->where('month', $currentMonth)
                 ->first();
 
             $metaMensual = $monthlyGoal->goal_amount ?? 0;
 
-            // Temporal hasta API de ventas
-            $ventasAcumuladas = 10650000;
+            // Obtener venta correcta
+            $sale = ($monthlyGoal && $monthlyGoal->sales->isNotEmpty())
+                ? $monthlyGoal->sales->first()
+                : null;
 
+            $ventasAcumuladas = $sale ? $sale->achieved_amount : 0;
+
+            // Cálculo 
             $porcentajeMeta = $metaMensual > 0
-                ? round(($ventasAcumuladas / $metaMensual) * 100)
+                ? min(100, round(($ventasAcumuladas / $metaMensual) * 100))
                 : 0;
 
             $faltanteMeta = max($metaMensual - $ventasAcumuladas, 0);
@@ -77,9 +79,7 @@ class PointHistoryController extends Controller
                 ->count();
         }
 
-        // ===============================
         // Vista
-        // ===============================
         return view('admin.points.history', [
             'distributors'        => $distributors,
             'selectedDistributor' => $selectedDistributor,
@@ -88,7 +88,6 @@ class PointHistoryController extends Controller
             'historial'           => $historial,
             'congeladosDetalle'   => $congeladosDetalle,
 
-            // Meta
             'monthlyGoal'         => $monthlyGoal,
             'metaMensual'         => $metaMensual,
             'currentYear'         => $currentYear,
@@ -97,7 +96,6 @@ class PointHistoryController extends Controller
             'porcentajeMeta'      => $porcentajeMeta,
             'faltanteMeta'        => $faltanteMeta,
 
-            // Métricas adicionales
             'valorCredito'        => $resumen['disponibles'] ?? 0,
             'canjesAnio'          => $canjesAnio,
         ]);

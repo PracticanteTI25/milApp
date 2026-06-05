@@ -26,10 +26,8 @@ class DistributorMonthlyGoal extends Model
     /**
      * Relación con la venta del mismo distribuidor, año y mes
      */
-    public function sale()
+    public function sales()
     {
-        return $this->hasOne(\App\Models\Sale::class, 'distributor_id', 'distributor_id')
-            ->whereColumn('sales.year', 'distributor_monthly_goals.year')
-            ->whereColumn('sales.month', 'distributor_monthly_goals.month');
+        return $this->hasMany(\App\Models\Sale::class, 'distributor_id', 'distributor_id');
     }
 }

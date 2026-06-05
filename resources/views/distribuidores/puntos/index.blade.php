@@ -94,7 +94,7 @@
             @if($percentage >= 100)
             <span class="badge bg-success">Meta cumplida</span>
             @else
-            <span class="badge bg-danger">Pendiente</span>
+            <span class="badge bg-danger">Pendiente cumplir meta</span>
             @endif
         </div>
 
@@ -114,53 +114,68 @@
 
     </div>
 
-    {{-- SECCIÓN MODIFICADA --}}
     <div class="progress-wrap">
-        <div class="prog-title">Resultado del mes</div>
-
-        @if(!$monthlyGoal)
-        <div class="alert alert-warning">
-            No hay meta definida para este mes.
-        </div>
-        @elseif(!$monthlyGoal->sale)
-        <div class="alert alert-info">
-            Ventas pendientes de carga para este mes.
-        </div>
-        @else
+        <div class="prog-title">Progreso hacia la meta</div>
 
         @php
-        $goalAmount = $monthlyGoal->goal_amount ?? 0;
-        $achieved = $monthlyGoal->sale->achieved_amount ?? 0;
+        $goalAmount = $metaMensual ?? 0;
+        $achieved = $achieved ?? 0;
 
         $percentage = $goalAmount > 0
         ? ($achieved / $goalAmount) * 100
         : 0;
 
         $percentage = min($percentage, 100);
+
+        // COLOR SEGURO (evita error del editor)
+        $color = $percentage >= 100
+        ? '#16a34a'
+        : ($percentage >= 50 ? '#facc15' : '#dc2626');
         @endphp
 
-        <div class="progress mb-2" style="height: 12px;">
-            <div
-                class="progress-bar 
-                    {{ $percentage >= 100 ? 'bg-success' : ($percentage >= 50 ? 'bg-warning' : 'bg-danger') }}"
-                role="progressbar"
-                style="width: {{ $percentage }}%;">
+        {{-- BARRA --}}
+        <div style="
+        width: 100%;
+        height: 14px;
+        background: #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 8px;
+    ">
+
+            <div style="
+            height: 100%;
+            width: {{ $percentage }}%;
+            transition: width 0.6s ease;
+            background: {{ $color }};
+        ">
             </div>
+
         </div>
 
-        <div class="d-flex justify-content-between small text-muted">
-            <span>
+        <div class="progress-info">
+            <span class="left">
                 ${{ number_format($achieved, 0, ',', '.') }} ventas
             </span>
-            <span>
-                {{ number_format($percentage, 2) }}% · meta
+
+            <span class="right">
+                {{ round($percentage) }}% · meta
                 ${{ number_format($goalAmount, 0, ',', '.') }}
             </span>
         </div>
 
+        {{-- MENSAJES --}}
+        @if(!$monthlyGoal)
+        <small class="text-muted">
+            No tienes meta asignada este mes.
+        </small>
+        @elseif($achieved == 0)
+        <small class="text-muted">
+            Aún no se han registrado ventas.
+        </small>
         @endif
+
     </div>
-    {{-- FIN MODIFICACIÓN --}}
 
     @if(!empty($congeladosDetalle))
     <div class="panel" id="frozen-panel">
@@ -196,7 +211,6 @@
     <div class="panel" id="hist-panel">
         @include('distribuidores.partials.historial', ['historial' => $historial])
     </div>
-
 
 </div>
 @endsection

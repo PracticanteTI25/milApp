@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Services\PointsReadService;
 use App\Models\DistributorMonthlyGoal;
 use App\Models\Redencion;
-use App\Models\Sale;
 
 class PointsController extends Controller
 {
@@ -24,24 +23,33 @@ class PointsController extends Controller
         $currentYear  = now()->year;
         $currentMonth = now()->month;
 
-        // META
-        $monthlyGoal = DistributorMonthlyGoal::with('sale')
+        // META + VENTAS 
+        $monthlyGoal = DistributorMonthlyGoal::with([
+            'sales' => function ($query) use ($currentYear, $currentMonth) {
+                $query->where('year', $currentYear)
+                    ->where('month', $currentMonth);
+            }
+        ])
             ->where('distributor_id', $distributorId)
             ->where('year', $currentYear)
             ->where('month', $currentMonth)
             ->first();
 
+        // Meta
         $metaMensual = $monthlyGoal->goal_amount ?? 0;
 
-        // VENTAS REALES (DESDE BD)
-        $ventasAcumuladas = $monthlyGoal->sale->achieved_amount ?? 0;
+        // Venta segura (evita null)
+        $sale = ($monthlyGoal && $monthlyGoal->sales->isNotEmpty())
+            ? $monthlyGoal->sales->first()
+            : null;
+
+        $ventasAcumuladas = $sale ? $sale->achieved_amount : 0;
 
         // CÁLCULO DE CUMPLIMIENTO
         $porcentajeMeta = $metaMensual > 0
             ? min(100, round(($ventasAcumuladas / $metaMensual) * 100))
             : 0;
 
-        // resultado
         $faltanteMeta = max($metaMensual - $ventasAcumuladas, 0);
 
         // MÉTRICAS ADICIONALES
@@ -61,12 +69,13 @@ class PointsController extends Controller
             'currentYear' => $currentYear,
             'currentMonth' => $currentMonth,
 
-            // cálculo real (compatibles con la vista)
+            // datos finales ya listos para la vista
             'achieved' => $ventasAcumuladas,
             'percentage' => $porcentajeMeta,
             'goal' => $monthlyGoal,
+            'faltanteMeta' => $faltanteMeta,
 
-            // métricas adicionales
+            // otras métricas
             'canjesAnio' => $canjesAnio,
             'valorCredito' => $resumen['disponibles'],
         ]);

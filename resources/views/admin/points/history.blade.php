@@ -207,7 +207,6 @@
                     <td>
                         @foreach($item['detalle'] as $mov)
 
-                        ```
                         @php
                         $impactoTexto = match($mov->impacto) {
                         'suma_habilitada' => 'Puntos habilitados',

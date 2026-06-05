@@ -10,26 +10,33 @@ use Carbon\Carbon;
 class PointsReadService
 {
     /**
-     * Resumen general de puntos de una distribuidora
+     * RESUMEN GENERAL
      */
     public function resumen(int $distributorId): array
     {
-        $hoy = Carbon::today(); // solo fecha, sin hora
+        $hoy = Carbon::today();
 
-        // Traer TODAS las bolsas del distribuidor
         $bolsas = BolsaPuntos::where('distributor_id', $distributorId)->get();
 
-        $totalGenerados   = $bolsas->sum('puntos_generados');
         $totalDisponibles = $bolsas->sum('puntos_disponibles');
 
         return [
-            // DISPONIBLES: se leen DIRECTAMENTE del contador
             'disponibles' => $totalDisponibles,
 
-            // CONGELADOS: diferencia contable (NO por estado)
-            'congelados' => max($totalGenerados - $totalDisponibles, 0),
+            // CONGELADOS DESDE KARDEX (CORRECTO)
+            'congelados' => $bolsas->sum(function ($bolsa) {
 
-            // PRÓXIMOS A VENCER (se mantiene igual por ahora)
+                $generados = KardexPuntos::where('bolsa_id', $bolsa->id)
+                    ->where('tipo', 'generacion')
+                    ->sum('puntos');
+
+                $habilitados = KardexPuntos::where('bolsa_id', $bolsa->id)
+                    ->where('tipo', 'habilitacion')
+                    ->sum('puntos');
+
+                return max($generados - $habilitados, 0);
+            }),
+
             'proximos_a_vencer' => $bolsas
                 ->filter(function ($bolsa) use ($hoy) {
 
@@ -47,9 +54,9 @@ class PointsReadService
         ];
     }
 
+
     /**
-     * Historial completo de puntos
-     * (estructura ORIGINAL, vencimientos corregidos)
+     * HISTORIAL COMPLETO
      */
     public function historial(int $distributorId): array
     {
@@ -59,20 +66,27 @@ class PointsReadService
 
         return $bolsas->map(function ($bolsa) {
 
-            // ============================
-            // ESTADO DERIVADO (SIN CAMBIOS)
-            // ============================
+            // CONGELADOS DESDE KARDEX (CORRECTO)
+            $generados = KardexPuntos::where('bolsa_id', $bolsa->id)
+                ->where('tipo', 'generacion')
+                ->sum('puntos');
+
+            $habilitados = KardexPuntos::where('bolsa_id', $bolsa->id)
+                ->where('tipo', 'habilitacion')
+                ->sum('puntos');
+
+            $congelados = max($generados - $habilitados, 0);
+
+            // ESTADO CORRECTO
             if ($bolsa->puntos_disponibles <= 0) {
                 $estado = 'Congelado';
-            } elseif ($bolsa->puntos_disponibles >= $bolsa->puntos_generados) {
+            } elseif ($congelados <= 0) {
                 $estado = 'Habilitado';
             } else {
                 $estado = 'Mixto';
             }
 
-            // =================================================
-            // VENCIMIENTOS REALES DESDE POINT_LOTS
-            // =================================================
+            // VENCIMIENTOS
             $vencimientos = PointLot::where('bolsa_id', $bolsa->id)
                 ->where('status', 'disponible')
                 ->where('points_remaining', '>', 0)
@@ -87,21 +101,18 @@ class PointsReadService
                 ->values()
                 ->toArray();
 
-
             return [
-                // ESTRUCTURA ORIGINAL (NO SE TOCA)
                 'mes' => $bolsa->mes->format('Y-m'),
                 'puntos' => $bolsa->puntos_generados,
                 'disponibles' => $bolsa->puntos_disponibles,
-                'congelados' => $bolsa->puntos_generados - $bolsa->puntos_disponibles,
+
+                // AQUÍ ESTÁ EL FIX REAL
+                'congelados' => $congelados,
+
                 'estado' => $estado,
-
                 'vencimientos' => $vencimientos,
-
-                // Se deja por compatibilidad
                 'fecha_vencimiento' => null,
 
-                // Detalle ORIGINAL (kardex)
                 'detalle' => KardexPuntos::where('bolsa_id', $bolsa->id)
                     ->orderBy('fecha')
                     ->get(),
@@ -109,9 +120,9 @@ class PointsReadService
         })->toArray();
     }
 
+
     /**
-     * Detalle de puntos congelados (tooltip / panel)
-     * (SIN CAMBIOS)
+     * DETALLE DE CONGELADOS
      */
     public function congeladosDetalle(int $distributorId): array
     {
