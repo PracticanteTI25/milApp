@@ -23,10 +23,10 @@ class CloseMonthlyPoints extends Command
         $today = Carbon::today();
 
         // Mes a evaluar = mes inmediatamente anterior
-        $monthToEvaluate = $today->copy()->subMonth()->startOfMonth();
+        // $monthToEvaluate = $today->copy()->subMonth()->startOfMonth();
 
         //  ESTE ES PARA PRUEBAS
-        // $monthToEvaluate = $today->copy()->startOfMonth();
+        $monthToEvaluate = $today->copy()->startOfMonth();
 
         $settings = PointSetting::current();
         $expirationMonths = $settings->expiration_months;
@@ -87,7 +87,19 @@ class CloseMonthlyPoints extends Command
 
             if ($bag && $bag->estado !== 'habilitado') {
 
-                $congelados = $bag->puntos_generados;
+                $congelados = KardexPuntos::where('bolsa_id', $bag->id)
+                    ->where(function ($q) {
+                        // automáticos congelados
+                        $q->where('tipo', 'generacion')
+
+                            // manual congelado
+                            ->orWhere(function ($q2) {
+                                $q2->where('tipo', 'ajuste')
+                                    ->where('impacto', 'suma_congelada');
+                            });
+                    })
+                    ->sum('puntos');
+
 
                 if ($congelados > 0) {
 
@@ -116,7 +128,7 @@ class CloseMonthlyPoints extends Command
                     PointLot::create([
                         'distributor_id'     => $distributor->id,
                         'bolsa_id'           => $bag->id,
-                        'source'             => 'generado', 
+                        'source'             => 'generado',
                         'points_initial'     => $congelados,
                         'points_remaining'   => $congelados,
                         'fecha_habilitacion' => $today,

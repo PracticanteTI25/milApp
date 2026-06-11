@@ -1,0 +1,38 @@
+[33m74329d5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mavance-formulario[m[33m)[m sistema estable con info por archivo plano
+[33mc50054c[m[33m ([m[1;31morigin/avance-formulario[m[33m)[m carga de info por archivo plano a BD
+[33m5835ef3[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m primera versión formulario de devoluciones
+[33m91d90cf[m avance formulario devolucion
+[33m0ec5395[m sistema de canjes estable
+[33m749de45[m vencimientos multiples en historial
+[33mc796aff[m sistema funcional y estable
+[33mfc6ff55[m descuento de stock
+[33m8bbc75a[m canje exitoso
+[33m5325639[m Excel solucionado
+[33mddbd619[m Commands y avace de sistema
+[33mcb07418[m Historial de distribuidoras y admin
+[33mfdd1a69[m Avance en modificaciones de sistema de canjes
+[33m1061cd6[m Antes de borrar permisos duplicados
+[33med84c86[m Versión lista para despliegue
+[33mec70cd5[m Nuevo registro y edición de usuarios corporativos
+[33mfece535[m commit antes de cambio de registro/edicion de U
+[33m699e742[m cambio login distribuidoras-passwordles
+[33m0037c27[m Actualización después de error en BD
+[33mff7c646[m bloque 6 crudo
+[33maa24fc3[m Actualizacion sistema de canjes, bloque 4
+[33m46397d9[m Bloque 1 y 2, asignación de puntos
+[33mfb01d82[m Sistema correctamente funcional
+[33m83c634b[m Portal de acceso
+[33m568aea2[m Logueo para distribuidoras y más ajustes minimos
+[33mb0c8a80[m Actualizacion interfaz corporativa y cambio de favicons
+[33m6378a35[m ui: ajustes visuales en módulo corporativo y estilos globales
+[33m958f26a[m feat: sistema de roles, permisos y CRUD de usuarios funcional
+[33m10223f9[m Favicon milagros
+[33m2dfd57a[m cambio login para prueba
+[33m88d247e[m prueba de conexion
+[33m40b13f4[m Mejora, responsive
+[33maf7a4bd[m rectificacion de prueba sincronizacion
+[33m437d76d[m Prueba sincronización
+[33mc4227d9[m Sincronizar proyecto del hosting
+[33mbe5e12d[m implementación de reCAPTCHA para el login
+[33m5ebe7a3[m Mejoras visuales
+[33mccd4fa4[m Primer commit - milAppPrimeraVersion

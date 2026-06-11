@@ -12,6 +12,7 @@ class KardexPuntos extends Model
         'distributor_id',
         'bolsa_id',    
         'tipo',
+        'impacto',
         'puntos',
         'descripcion',
         'fecha',

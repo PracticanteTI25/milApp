@@ -26,15 +26,21 @@ class PointsReadService
             // CONGELADOS DESDE KARDEX (CORRECTO)
             'congelados' => $bolsas->sum(function ($bolsa) {
 
-                $generados = KardexPuntos::where('bolsa_id', $bolsa->id)
+                // automáticos pendientes
+                $automaticosPendientes = KardexPuntos::where('bolsa_id', $bolsa->id)
                     ->where('tipo', 'generacion')
-                    ->sum('puntos');
+                    ->sum('puntos')
 
-                $habilitados = KardexPuntos::where('bolsa_id', $bolsa->id)
+                    - KardexPuntos::where('bolsa_id', $bolsa->id)
                     ->where('tipo', 'habilitacion')
                     ->sum('puntos');
 
-                return max($generados - $habilitados, 0);
+                // manual congelado (valor puro)
+                $manualCongelado = KardexPuntos::where('bolsa_id', $bolsa->id)
+                    ->where('impacto', 'suma_congelada')
+                    ->sum('puntos');
+
+                return max($automaticosPendientes + $manualCongelado, 0);
             }),
 
             'proximos_a_vencer' => $bolsas
@@ -56,7 +62,7 @@ class PointsReadService
 
 
     /**
-     * HISTORIAL COMPLETO
+     * HISTORIAL COMPLETO DE PUNTOS
      */
     public function historial(int $distributorId): array
     {
@@ -66,16 +72,19 @@ class PointsReadService
 
         return $bolsas->map(function ($bolsa) {
 
-            // CONGELADOS DESDE KARDEX (CORRECTO)
-            $generados = KardexPuntos::where('bolsa_id', $bolsa->id)
+            $automaticosPendientes = KardexPuntos::where('bolsa_id', $bolsa->id)
                 ->where('tipo', 'generacion')
-                ->sum('puntos');
+                ->sum('puntos')
 
-            $habilitados = KardexPuntos::where('bolsa_id', $bolsa->id)
+                - KardexPuntos::where('bolsa_id', $bolsa->id)
                 ->where('tipo', 'habilitacion')
                 ->sum('puntos');
 
-            $congelados = max($generados - $habilitados, 0);
+            $manualCongelado = KardexPuntos::where('bolsa_id', $bolsa->id)
+                ->where('impacto', 'suma_congelada')
+                ->sum('puntos');
+
+            $congelados = max($automaticosPendientes + $manualCongelado, 0);
 
             // ESTADO CORRECTO
             if ($bolsa->puntos_disponibles <= 0) {
@@ -101,9 +110,10 @@ class PointsReadService
                 ->values()
                 ->toArray();
 
+
             return [
                 'mes' => $bolsa->mes->format('Y-m'),
-                'puntos' => $bolsa->puntos_generados,
+                'puntos' => $bolsa->puntos_disponibles + $congelados,
                 'disponibles' => $bolsa->puntos_disponibles,
 
                 // AQUÍ ESTÁ EL FIX REAL
