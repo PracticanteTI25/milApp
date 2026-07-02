@@ -33,7 +33,7 @@
             <td class="text-center align-middle">
                 @if($product->image_path)
                 <img
-                    src="{{ asset('storage/' . $product->image_path) }}"
+                    src="{{ url('files/' . $product->image_path) }}"
                     alt="{{ $product->name }}"
                     style="width: 50px; height: 50px; border-radius: 6px; object-fit: contain;">
                 @else

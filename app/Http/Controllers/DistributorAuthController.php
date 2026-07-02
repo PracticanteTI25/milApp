@@ -132,18 +132,30 @@ class DistributorAuthController extends Controller
         $record->update(['used_at' => now()]);
 
 
-        // Buscar distribuidor autorizado
+        // // Buscar distribuidor autorizado
+        // $authorized = AuthorizedDistributor::where('email', $email)
+        //     ->where('active', true)
+        //     ->first();
+
+        // if (!$authorized || !$authorized->distributor) {
+        //     return redirect()->route('distribuidores.login')
+        //         ->withErrors(['email' => 'Acceso no autorizado.']);
+        // }
+
+        // // Obtener distribuidor real (NO crear nuevos)
+        // $distributor = $authorized->distributor;
+
         $authorized = AuthorizedDistributor::where('email', $email)
             ->where('active', true)
             ->first();
 
-        if (!$authorized || !$authorized->distributor) {
+        $distributor = Distributor::where('email', $email)
+            ->first();
+
+        if (!$authorized || !$distributor) {
             return redirect()->route('distribuidores.login')
                 ->withErrors(['email' => 'Acceso no autorizado.']);
         }
-
-        // Obtener distribuidor real (NO crear nuevos)
-        $distributor = $authorized->distributor;
 
 
         Auth::guard('distributor')->login($distributor);

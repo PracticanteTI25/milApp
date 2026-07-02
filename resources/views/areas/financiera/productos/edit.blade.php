@@ -52,7 +52,7 @@
     @if($product->image_path)
     <div class="mb-3">
         <label>Imagen actual</label><br>
-        <img src="{{ asset('storage/' . $product->image_path) }}"
+        <img src="{{ url('files/' . $product->image_path) }}"
             style="max-height:120px; border:1px solid #ccc;">
     </div>
     @endif

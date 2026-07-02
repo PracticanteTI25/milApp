@@ -34,7 +34,7 @@
         <div class="catalog-image">
             @if($product->image_path)
             <img
-                src="{{ asset('storage/' . $product->image_path) }}"
+                src="{{ url('files/' . $product->image_path) }}"
                 alt="{{ $product->name }}">
             @else
             <div class="catalog-image-placeholder">

@@ -24,6 +24,8 @@ use \App\Http\Controllers\Admin\PointAdjustmentsController;
 use \App\Http\Controllers\Admin\PointHistoryController;
 use \App\Http\Controllers\Distribuidores\DevolucionController;
 use  App\Http\Controllers\Comercial\ImportController;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +42,17 @@ Route::post('/login', [AuthController::class, 'login'])
     ->name('login.process');
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::get('/files/{path}', function ($path) {
+    if (!Storage::disk('public')->exists($path)) {
+        abort(404);
+    }
+
+    $file = Storage::disk('public')->get($path);
+    $type = Storage::disk('public')->mimeType($path);
+
+    return Response::make($file, 200)->header("Content-Type", $type);
+})->where('path', '.*');
 
 /*
 |--------------------------------------------------------------------------
